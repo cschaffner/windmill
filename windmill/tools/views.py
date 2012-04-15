@@ -150,7 +150,8 @@ def newtourney(request, div):
     if div=='open' or div=='mixed':
         data_dict["scheduling_format"]="swiss"
         data_dict["swiss_scoring_system"]="victory points"
-        data_dict["swiss_pairing_type"]="adjacent pairing"
+# that's a leaguevine-bug for now...
+#        data_dict["swiss_pairing_type"]="adjacent pairing"
     elif div=='women':
         data_dict["scheduling_format"]="regular"
     
