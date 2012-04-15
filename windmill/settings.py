@@ -1,4 +1,4 @@
-# Django settings for leaguevine project.
+# Django settings for windmill/leaguevine project.
 import os
 ROOT_PATH = os.path.dirname(__file__)
 
@@ -231,10 +231,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'leaguevine.urls'
+ROOT_URLCONF = 'windmill.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(ROOT_PATH, 'windmill/templates'),
+    os.path.join(ROOT_PATH, 'templates'),
 
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -253,7 +253,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'addons'
+    'windmill.tools'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -299,7 +299,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'leaguevine.addons': {
+        'windmill.tools': {
             'handlers': ['console', 'mail_admins'],
             'level': 'INFO',
         }

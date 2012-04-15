@@ -1,6 +1,5 @@
 venv
-include
-lib
+regdata
 .Python
 *.pyc
 *.key

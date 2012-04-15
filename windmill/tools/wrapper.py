@@ -13,7 +13,7 @@ import itertools
 import json
 
 # Get an instance of a logger
-logger = logging.getLogger('leaguevine.addons')
+logger = logging.getLogger('windmill.tools')
 
 access_token = cache.get('access_token')
 if access_token == None:

@@ -1,4 +1,4 @@
-from addons.models import Tournament, Team
+from windmill.tools.models import Tournament, Team
 from django.contrib import admin
 
 class TeamAdmin(admin.ModelAdmin):

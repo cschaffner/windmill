@@ -2,13 +2,13 @@ from __future__ import division
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.conf import settings
-from addons.wrapper import *
-from addons.ffindr import *
-from addons.models import Team, Tournament
+from windmill.tools.wrapper import *
+from windmill.tools.ffindr import *
+from windmill.tools.models import Team, Tournament
 import logging
 
 # Get an instance of a logger
-logger = logging.getLogger('leaguevine.addons')
+logger = logging.getLogger('windmill.tools')
 
 
 def home(request):

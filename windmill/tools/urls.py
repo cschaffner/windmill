@@ -6,20 +6,20 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'leaguevine.views.home', name='home'),
-    # url(r'^leaguevine/', include('leaguevine.foo.urls')),
+    # url(r'^$', 'windmill.views.home', name='home'),
+    # url(r'^windmill/', include('windmill.foo.urls')),
 
-    url(r'^$', 'addons.views.home'),
-    url(r'^(open|mixed|women)/division/$', 'addons.views.division'),       
-    url(r'^(open|mixed|women)/addteams/$', 'addons.views.addteams'),   
-    url(r'^(open|mixed|women)/newtourney/$', 'addons.views.newtourney'),    
-    url(r'^(open|mixed|women)/clean$', 'addons.views.clean'),
-    url(r'^(open|mixed)/addswissround$', 'addons.views.addswissround'),
-    url(r'^(women)/addpools$', 'addons.views.addpools'),
-    url(r'^(open|mixed|women)/randomresults$', 'addons.views.randomresults'),
+    url(r'^$', 'windmill.tools.views.home'),
+    url(r'^(open|mixed|women)/division/$', 'windmill.tools.views.division'),       
+    url(r'^(open|mixed|women)/addteams/$', 'windmill.tools.views.addteams'),   
+    url(r'^(open|mixed|women)/newtourney/$', 'windmill.tools.views.newtourney'),    
+    url(r'^(open|mixed|women)/clean$', 'windmill.tools.views.clean'),
+    url(r'^(open|mixed)/addswissround$', 'windmill.tools.views.addswissround'),
+    url(r'^(women)/addpools$', 'windmill.tools.views.addpools'),
+    url(r'^(open|mixed|women)/randomresults$', 'windmill.tools.views.randomresults'),
 
-    url(r'^createteams/$', 'addons.views.createteams'),   
-    url(r'^import$', 'addons.views.ffimport'),
+    url(r'^createteams/$', 'windmill.tools.views.createteams'),   
+    url(r'^import$', 'windmill.tools.views.ffimport'),
     
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

@@ -2,9 +2,9 @@ from django.conf.urls.defaults import patterns, include, url
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'leaguevine.views.home', name='home'),
-    # url(r'^leaguevine/', include('leaguevine.foo.urls')),
+    # url(r'^$', 'windmill.views.home', name='home'),
+    # url(r'^windmill/', include('leaguevine.foo.urls')),
 
-    url(r'^tools/', include('tools.urls')),
+    url(r'^tools/', include('windmill.tools.urls')),
     
  )

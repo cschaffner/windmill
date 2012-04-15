@@ -1,4 +1,4 @@
-from tools.models import Team, Tournament
+from windmill.tools.models import Team, Tournament
 import csv
 import itertools
 import logging
@@ -9,7 +9,7 @@ def isin(division,team_name):
 
     logger.info('checking team {0}'.format(team_name))
     # returns a Boolean value whether the team with name team_name is accepted to division
-    payinfo=csv.reader(open(division+'_in.csv'))
+    payinfo=csv.reader(open('windmill/regdata/'+division+'_in.csv'))
     for team in payinfo:
         if team[0]==str(team_name):
             if team[1]=='Y':
@@ -34,7 +34,7 @@ def ffindr_import():
     for division in ['open', 'mixed', 'women']: 
         div,create=Tournament.objects.get_or_create(name=division)
                    
-        teams=csv.reader(open(division+'.csv'))
+        teams=csv.reader(open('windmill/regdata/'+division+'.csv'))
 
         seed=1
         for team in itertools.islice(teams,1,100):

@@ -1,5 +1,5 @@
 from django.db import models
-from addons.wrapper import api_weblink
+from windmill.tools.wrapper import api_weblink
 
 class Tournament(models.Model):
     # actually a division of Windmill Windup, but in leaguevine
