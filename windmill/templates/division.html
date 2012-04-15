@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load tz %}
+
+<h1>{{div.name}} division</h1>
+<div>{{div.name}} division has leaguevine id:{{div.l_id}}.
+<a href="{{div.link}}">Leaguevine-link</a>.</div>
+
+{% get_current_timezone as TIME_ZONE %}
+{{TIME_ZONE}}
+
+{% for round in swiss.objects %}
+
+<h2>Round {{round.round_number}}</h2>
+<h3>Games</h3>
+<table>
+	<tr><td>Time</td><td>Team1</td><td>Result</td><td>Team2</td></tr>
+{% for g in round.games %}
+	<tr><td>{{g.start_time}}</td>
+		<td>{{g.team_1.name}}</td>
+		<td>{{g.team_1_score}} - {{g.team_2_score}}</td>
+		<td>{{g.team_2.name}}</td>
+	</tr>
+{% endfor %}
+</table>
+<h3>Standings</h3>
+<table>
+	<tr><td>Rank</td><td>Team</td><td>Record</td><td>Swiss Points</td><td>Opponent Swiss Points</td></tr>
+{% for t in round.standings %}
+	<tr><td>{{t.ranking}}</td>
+		<td>{{t.team.name}}</td>
+		<td>{{t.wins}} - {{t.losses}}</td>
+		<td>{{t.swiss_score|floatformat}}</td>
+		<td>{{t.swiss_opponent_score|floatformat}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+{% endfor %}
+
+
+
+{% endblock content %}
+

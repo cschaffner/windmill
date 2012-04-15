@@ -1,0 +1,185 @@
+from __future__ import division
+from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.conf import settings
+from addons.wrapper import *
+from addons.ffindr import *
+from addons.models import Team, Tournament
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('leaguevine.addons')
+
+
+def home(request):
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
+
+def division(request, div):
+    t=Tournament.objects.get(name=div)
+    swiss=api_swissroundinfo(t.l_id)
+    return render_to_response('division.html',{'div': Tournament.objects.get(name=div),
+                                               'swiss': swiss})
+
+def correctresult(game):
+    # make up a 'random' result based on the team's seeding information in the local database
+    import __builtin__
+    t1=Team.objects.get(l_id=game['team_1_id'])
+    t2=Team.objects.get(l_id=game['team_2_id'])
+    nrteams=t1.tournament.team_set.filter(seed__isnull=False).count()
+    logger.info('nr teams: {0}'.format(nrteams))
+    diff=(t1.seed - t2.seed)/nrteams
+    logger.info(u'game {0} ({2}) vs {1} ({3}), diff: {4}'.format(game['team_1']['name'],game['team_2']['name'],t1.seed,t2.seed, diff))
+    if t1.seed > t2.seed:
+        s2=15
+        s1=min(int(__builtin__.round(15- 15*diff)),14)
+    elif t1.seed < t2.seed:
+        s1=15
+        s2=min(int(__builtin__.round(15+ 15*diff)),14)
+    else:
+        logger.error('teams have equal seeds, that should not happen')
+        raise
+    logger.info('computed score: {0} - {1}'.format(s1,s2))
+    api_result(game['id'],s1,s2,True)
+
+
+def randomresults(request, div):
+    t=Tournament.objects.get(name=div)
+    if div=='women':
+#        for url in ["http://api.playwithlv.com/v1/games/?limit=20&tournament_id=18053",
+#                    "http://api.playwithlv.com/v1/games/?limit=20&tournament_id=18053&offset=20"]:
+#            games=api_url(url)
+#            for g in games['objects']:
+#                logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
+#
+#        return
+        
+        games=api_gamesbytournament(t.l_id)
+        while True:
+            for g in games['objects']:
+                logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
+                if g['team_1_score']==0 and g['team_2_score']==0:
+                    correctresult(g)
+            next=games['meta']['next']
+            logger.info(u'next: {0}'.format(next))
+            if next is None:
+                break
+            else:
+                games=api_url(next)
+    else:
+        swiss = api_swissroundinfo(t.l_id)
+        nrrounds=swiss['meta']['total_count']
+        logger.info('nr of rounds: {0}'.format(nrrounds))
+        for round in swiss['objects']:
+            if round['round_number']==nrrounds: # last round
+                logger.info('nr of games: {0}'.format(len(round['games'])))
+                for g in round['games']:
+                    correctresult(g)
+
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
+
+
+def ffimport(request):
+    ffindr_import()
+    return render_to_response('index.html')
+
+def createteams(request):
+    for div in ['open', 'mixed', 'women']:
+        season_id=settings.SEASON_ID[div]
+        for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
+            team_id=api_createteam(season_id,team.name,team.id)
+            logger.info('team.l_id before: {0}'.format(team.l_id))
+            team.l_id=team_id
+            team.save()
+            logger.info('team.l_id after:  {0}'.format(team.l_id))
+
+    return render_to_response('index.html')
+
+
+def addswissround(request, div):
+    t=Tournament.objects.get(name=div)
+    
+    # figure out how many swissdraw rounds which already exist
+    nrswissrounds=api_nrswissrounds(t.l_id)
+    
+    starttime=settings.ROUNDS[div][nrswissrounds]['time']
+    pairing=settings.ROUNDS[div][nrswissrounds]['mode']
+    logger.info("starttime: {0}".format(starttime))
+    # todo: before creating a new Swissdraw round, make sure the pairing mode is set properly
+    api_addswissround(t.l_id,starttime,pairing);
+    # todo: check that field assignments are OK
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+
+def addpools(request,div):
+    if div<>'women':
+        logger.error('something is wrong here')
+        raise
+    
+    t=Tournament.objects.get(name=div)
+
+    # add a pool with all odd seeds
+    oddlist=[]
+    evenlist=[]
+    for team in Team.objects.filter(tournament__name=div):
+        if team.seed is None:
+            continue
+        elif team.seed % 2 == 1:
+            oddlist.append(team.l_id)
+        elif team.seed % 2 == 0:
+            evenlist.append(team.l_id)
+
+    logger.info('oddlist: {0}'.format(oddlist))
+    logger.info(evenlist)
+
+    starttime=settings.ROUNDS[div][0]['time']
+    # create two pools
+    api_addpool(t.l_id,starttime,"Odd Pool",oddlist,120,True)
+    api_addpool(t.l_id,starttime,"Even Pool",evenlist,120,True)
+    
+    
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    
+
+def newtourney(request, div):
+    season_id=settings.SEASON_ID[div]
+    # set up a new tournament
+    data_dict = {"name": "Windmill Windup Test ({0})".format(div), 
+             "season_id": season_id,
+            "start_date": "2012-06-14",
+            "end_date": "2012-06-16",
+            "visibility": "live"}
+    if div=='open' or div=='mixed':
+        data_dict["scheduling_format"]="swiss"
+        data_dict["swiss_scoring_system"]="victory points"
+        data_dict["swiss_pairing_type"]="adjacent pairing"
+    elif div=='women':
+        data_dict["scheduling_format"]="regular"
+    
+    tournament_id=api_newtournament(data_dict)
+    t=Tournament.objects.get(name=div)
+    t.l_id=tournament_id
+    t.save()
+        
+    link=api_weblink(tournament_id)
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+
+def addteams(request, div):
+    season_id=settings.SEASON_ID[div]
+    t=Tournament.objects.get(name=div)
+    if t.l_id is None:
+        return HttpResponseNotFound('<h3>Please create tournament first</h3>')
+    tournament_id=t.l_id
+    
+    for team in Team.objects.filter(tournament__name=div):
+        if team.seed>0:
+            api_addteam(tournament_id,team.l_id,team.seed)
+    
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+
+    
+def clean(request, div):
+    t=Tournament.objects.get(name=div)
+    api_clean(t.l_id)
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+     
+    
+    
