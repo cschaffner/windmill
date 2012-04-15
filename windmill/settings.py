@@ -1,4 +1,130 @@
-# Django settings for windmill project.
+# Django settings for leaguevine project.
+import os
+ROOT_PATH = os.path.dirname(__file__)
+
+HOST="playwithlv.com"
+CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
+CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
+
+# Windmill fixtures
+
+#//  open division:
+#//        Swiss 1:     Fr 15.06.2012    11:15 (game length: 75min)
+#//        Swiss 2:     Fr 15.06.2012    14:00 (game length: 90min)
+#//        Swiss 3:     Fr 15.06.2012    17:00
+#//        Swiss 4:     Sa 16.06.2012    09:00
+#//        Swiss 5:     Sa 16.06.2012    12:00
+#//        QF:          Sa 16.06.2012    15:00
+#//        Semis:       Sa 16.06.2012    18:00
+#//        Finals:      So 17.06.2012    10:30
+#//        BigFinal:    So 17.06.2012    15:00
+
+#//  women/mixed division:
+#//        Swiss 1:     Fr 15.06.2012    10:00 (game length: 75min)
+#//        Swiss 2:     Fr 15.06.2012    12:30 (game length: 90min)
+#//        Swiss 3:     Fr 15.06.2012    15:30
+#//        Swiss 4:     Sa 16.06.2012    10:30
+#//        Swiss 5:     Sa 16.06.2012    13:30
+#//        QF:          Sa 16.06.2012    16:30
+#//        Semis:       So 17.06.2012    09:00
+#//        Finals:      So 17.06.2012    12:00
+#
+#//        mixed Fin:   So 17.06.2012    14:00
+#//        women Fin:   So 17.06.2012    13:00
+
+ROUNDS={"open": [
+                 {"round_nr" : 1,
+                  "time": "2012-06-15T11:15:00+02:00",
+                  "mode": "fold"},
+                 {"round_nr" : 2,
+                  "time": "2012-06-15T14:00:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 3,
+                  "time": "2012-06-15T17:00:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 4,
+                  "time": "2012-06-16T09:00:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 5,
+                  "time": "2012-06-16T12:00:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 6,
+                  "time": "2012-06-16T15:00:00+02:00",
+                  "mode": "QF"},
+                 {"round_nr" : 7,
+                  "time": "2012-06-16T18:00:00+02:00",
+                  "mode": "SF"},
+                 {"round_nr" : 8,
+                  "time": "2012-06-17T10:30:00+02:00",
+                  "mode": "Final"},
+                 {"round_nr" : 9,
+                  "time": "2012-06-17T15:00:00+02:00",
+                  "mode": "BigFinal"},
+                 ],
+        "mixed": [
+                 {"round_nr" : 1,
+                  "time": "2012-06-15T10:00:00+02:00",
+                  "mode": "fold"},
+                 {"round_nr" : 2,
+                  "time": "2012-06-15T12:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 3,
+                  "time": "2012-06-15T15:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 4,
+                  "time": "2012-06-16T10:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 5,
+                  "time": "2012-06-16T13:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 6,
+                  "time": "2012-06-16T16:30:00+02:00",
+                  "mode": "QF"},
+                 {"round_nr" : 7,
+                  "time": "2012-06-17T09:00:00+02:00",
+                  "mode": "SF"},
+                 {"round_nr" : 8,
+                  "time": "2012-06-17T12:00:00+02:00",
+                  "mode": "Final"},
+                 {"round_nr" : 9,
+                  "time": "2012-06-17T14:00:00+02:00",
+                  "mode": "BigFinal"},
+                 ],
+        "women": [
+                 {"round_nr" : 1,
+                  "time": "2012-06-15T10:00:00+02:00",
+                  "mode": "fold"},
+                 {"round_nr" : 2,
+                  "time": "2012-06-15T12:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 3,
+                  "time": "2012-06-15T15:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 4,
+                  "time": "2012-06-16T10:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 5,
+                  "time": "2012-06-16T13:30:00+02:00",
+                  "mode": "adjacent"},
+                 {"round_nr" : 6,
+                  "time": "2012-06-16T16:30:00+02:00",
+                  "mode": "QF"},
+                 {"round_nr" : 7,
+                  "time": "2012-06-17T09:00:00+02:00",
+                  "mode": "SF"},
+                 {"round_nr" : 8,
+                  "time": "2012-06-17T12:00:00+02:00",
+                  "mode": "Final"},
+                 {"round_nr" : 9,
+                  "time": "2012-06-17T13:00:00+02:00",
+                  "mode": "BigFinal"},
+                 ]
+        }
+
+
+SEASON_ID = {'open': '6980',
+             'mixed': '7513',
+             'women': '7515'}
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -11,8 +137,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'postgres',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -27,7 +153,7 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Amsterdam'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -40,10 +166,10 @@ SITE_ID = 1
 USE_I18N = True
 
 # If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
+# calendars according to the current locale
 USE_L10N = True
 
-# If you set this to False, Django will not use timezone-aware datetimes.
+# use time-zone support
 USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -65,6 +191,11 @@ STATIC_ROOT = ''
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+# URL prefix for admin static files -- CSS, JavaScript and images.
+# Make sure to use a trailing slash.
+# Examples: "http://foo.com/static/admin/", "/static/admin/".
+ADMIN_MEDIA_PREFIX = '/static/admin/'
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
@@ -81,7 +212,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '#wl49o4ehnv718**yki=@3=)^+w(*+xb8-!&amp;qv=w)v8^z@vljz'
+SECRET_KEY = '9#$yz-mc(zkm9dfjk@4-)%g66knsxg+2_h)e2j36pd6)$$v7&3'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -96,19 +227,17 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'windmill.urls'
-
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'windmill.wsgi.application'
+ROOT_URLCONF = 'leaguevine.urls'
 
 TEMPLATE_DIRS = (
+    os.path.join(ROOT_PATH, 'addons/templates'),
+
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    '/'
 )
 
 INSTALLED_APPS = (
@@ -119,36 +248,58 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admindocs',
+    'addons'
 )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
+# the site admins on every HTTP 500 error.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+# logging configuration from the Django doc
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
     },
     'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'simple'
+        },
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         }
     },
     'loggers': {
+        'django': {
+            'handlers':['null'],
+            'propagate': True,
+            'level':'INFO',
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
-            'propagate': True,
+            'propagate': False,
         },
+        'leaguevine.addons': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        }
     }
 }

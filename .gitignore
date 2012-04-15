@@ -1,2 +1,8 @@
 venv
+include
+lib
+.Python
 *.pyc
+*.key
+db
+*.tmproj
