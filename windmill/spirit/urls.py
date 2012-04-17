@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     # url(r'^windmill/', include('windmill.foo.urls')),
 
     url(r'^$', 'windmill.spirit.views.home'),
-    url(r'^enter/(%d)$', 'windmill.spirit.views.enter'),       
+#    url(r'^enter/(%d)$', 'windmill.spirit.views.enter'),       
     
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
