@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Spirit scores</h1>
+
+{% for g in Games %}
+
+<div>{{g.team1_id}} - {{g.team2_id}}</div>
+
+{% endfor %}
+
+
+{% endblock content %}
