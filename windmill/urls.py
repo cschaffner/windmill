@@ -6,5 +6,6 @@ urlpatterns = patterns('',
     # url(r'^windmill/', include('leaguevine.foo.urls')),
 
     url(r'^tools/', include('windmill.tools.urls')),
+    url(r'^spirit/', include('windmill.spirit.urls')),
     
  )
