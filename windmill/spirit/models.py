@@ -18,8 +18,8 @@ class Game(models.Model):
     field = models.CharField(max_length=50,null=True)
     
     # totals
-    team_1_spirit = models.IntegerField(null=True)
-    team_2_spirit = models.IntegerField(null=True)
+    team_1_spirit = models.IntegerField(null=True,verbose_name="Team1's received spirit")
+    team_2_spirit = models.IntegerField(null=True,verbose_name="Team2's received spirit")
 
     # todo: when teams are filling in the sheets, we will more detailed categories:
     # team1_rules
