@@ -5,12 +5,21 @@ class Game(models.Model):
     # leaguevine game-id
     l_id = models.IntegerField(null=True)
     
-    team1_id = models.IntegerField(null=True)
-    team2_id = models.IntegerField(null=True)
+    team_1_id = models.IntegerField(null=True)
+    team_2_id = models.IntegerField(null=True)
+    
+    team_1_name = models.CharField(max_length=50,null=True)
+    team_2_name = models.CharField(max_length=50,null=True)
+    
+    tournament_id = models.IntegerField(null=True)
+    tournament_name = models.CharField(max_length=50,null=True)
+    
+    start_time = models.DateTimeField(null=True)
+    field = models.CharField(max_length=50,null=True)
     
     # totals
-    team1_spirit = models.IntegerField(null=True)
-    team2_spirit = models.IntegerField(null=True)
+    team_1_spirit = models.IntegerField(null=True,verbose_name="Team1's received spirit")
+    team_2_spirit = models.IntegerField(null=True,verbose_name="Team2's received spirit")
 
     # todo: when teams are filling in the sheets, we will more detailed categories:
     # team1_rules
@@ -21,5 +30,5 @@ class Game(models.Model):
     
 
     def __unicode__(self):
-        return self.l_id
+        return str(self.l_id)
 

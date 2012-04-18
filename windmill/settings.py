@@ -126,6 +126,11 @@ SEASON_ID = {'open': '6980',
              'mixed': '7513',
              'women': '7515'}
 
+# new season id, but still buggy on playwithlv...
+#SEASON_ID = {'open': '20068',
+#             'mixed': '20067',
+#             'women': '20069'}
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -301,6 +306,10 @@ LOGGING = {
             'propagate': False,
         },
         'windmill.tools': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        },
+        'windmill.spirit': {
             'handlers': ['console', 'mail_admins'],
             'level': 'INFO',
         }
