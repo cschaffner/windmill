@@ -11,6 +11,7 @@ import sys
 import csv
 import itertools
 import json
+from pprint import pformat
 
 # Get an instance of a logger
 logger = logging.getLogger('windmill.tools')
@@ -41,7 +42,7 @@ def api_post(url,dict):
         logger.error(response.text)
         response.raise_for_status()        
     response_dict = simplejson.loads(response.content)
-    logger.info(response_dict)
+    logger.info(pformat(response_dict))
     return response_dict    
  
 
@@ -189,6 +190,47 @@ def api_addbracket(tournament_id,starttime,number_of_rounds,time_between_rounds=
                        "number_of_rounds": "{0}".format(number_of_rounds),    
                        "time_between_rounds": "{0}".format(time_between_rounds) }
     return api_post(url,bracket_dict)    
+
+def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_between_rounds=120):
+    # creates a full playoff bracket with 3 rounds
+    
+    # example of full 3-round bracket:
+    # http://www.wcbu2011.org/scores/?view=poolstatus&Pool=1009
+    
+    # create main winner bracket
+    url='http://api.{0}/v1/brackets/'.format(settings.HOST)
+    bracket_dict = {"tournament_id": tournament_id,
+                       "start_time": "{0}".format(starttime1),
+                       "number_of_rounds": "3",    
+                       "time_between_rounds": "{0}".format(time_between_rounds) }
+    winnerbr=api_post(url,bracket_dict)
+    
+    # create loser's final
+    bracket_dict = {"tournament_id": tournament_id,
+                       "start_time": "{0}".format(starttime3),
+                       "number_of_rounds": "1",    
+                       "time_between_rounds": "{0}".format(time_between_rounds) }
+    bronzegame=api_post(url,bracket_dict)
+    # auto-move losers of semifinal to bronze-game
+    for r in winnerbr['objects']['rounds']:
+        if r['round_number']==1:
+            team_nr=1
+            for g in r['games']:
+                api_loserconnect(g['id'],bronzegame['objects']['rounds'][0]['games']['id'],team_nr,g['start_time'],g['season']['id'])
+                team_nr += 1
+        
+def api_loserconnect(source_game,target_game,team_nr,start_time,season_id):
+    # established that the loser of source_game
+    # becomes team team_nr of target_game
+    # where team_nr is 1 or 2
+    
+    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,source_game)
+    game_dict = {"start_time": "{0}".format(starttime1),
+                    "next_game_for_loser": "{0}".format(target_game),    
+                    "next_team_for_loser": "{0}".format(team_nr) }
+    return api_post(url,game_dict)
+
+    
     
 def api_addpool(tournament_id,starttime,name,team_ids=[],time_between_rounds=120,generate_matchups=False):
     # create the pool
