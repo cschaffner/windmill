@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url(r'^(open|mixed)/addswissround$', 'windmill.tools.views.addswissround'),
     url(r'^(women)/addpools$', 'windmill.tools.views.addpools'),
     url(r'^(open|mixed|women)/randomresults$', 'windmill.tools.views.randomresults'),
+    url(r'^(open|mixed|women)/addbracket$', 'windmill.tools.views.addbracket'),
+    url(r'^(open|mixed|women)/cleanbrackets$', 'windmill.tools.views.cleanbrackets'),
 
     url(r'^createteams/$', 'windmill.tools.views.createteams'),   
     url(r'^import$', 'windmill.tools.views.ffimport'),
