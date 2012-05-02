@@ -88,6 +88,18 @@ def api_gamesbytournament(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict
 
+def api_gamebyid(game_id):
+    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
+def api_bracketsbytournament(tournament_id):
+    url='http://api.{0}/v1/brackets/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
 def api_bracketbyid(bracket_id):
     url='http://api.{0}/v1/brackets/{1}/'.format(settings.HOST,bracket_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
@@ -271,7 +283,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
         if r['round_number']==1:
             team_nr=1
             for g in r['games']:
-                api_loserconnect(g['id'],bronzegame['rounds'][0]['games'][0]['id'],team_nr,g['start_time'],g['season']['id'])
+                api_loserconnect(g['id'],bronzegame['rounds'][0]['games'][0]['id'],team_nr)
                 team_nr += 1
                 
     # create lower half of playoff tree (loser's tree)
@@ -290,7 +302,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
             team_nr=1
             game_nr=0
             for g in r['games']:
-                api_loserconnect(g['id'],loserstree['rounds'][0]['games'][game_nr]['id'],team_nr,g['start_time'],g['season']['id'])
+                api_loserconnect(g['id'],loserstree['rounds'][0]['games'][game_nr]['id'],team_nr)
                 team_nr += 1
                 if team_nr == 3:
                     game_nr += 1
@@ -311,22 +323,37 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
         if r['round_number']==0:
             team_nr=1
             for g in r['games']:
-                api_loserconnect(g['id'],placementgame['rounds'][0]['games'][0]['id'],team_nr,g['start_time'],g['season']['id'])
+                api_loserconnect(g['id'],placementgame['rounds'][0]['games'][0]['id'],team_nr)
                 team_nr += 1
         
-def api_loserconnect(source_game,target_game,team_nr,start_time,season_id):
-    # established that the loser of source_game
+def api_loserconnect(source_game,target_game,team_nr):
+    # establishes that the loser of source_game
     # becomes team team_nr of target_game
     # where team_nr is 1 or 2
+
+    # weirdly, leaguevine requires start_time and season_id
+    # therefore, we retrieve the game info first
+    sgame=api_gamebyid(source_game)
     
     url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,source_game)
-    game_dict = {"start_time": "{0}".format(start_time),
+    game_dict = {"start_time": "{0}".format(sgame['start_time']),
                     "next_game_for_loser": "{0}".format(target_game),    
                     "next_team_for_loser": "{0}".format(team_nr),
-                    "season_id": "{0}".format(season_id)}
+                    "season_id": "{0}".format(sgame['season_id'])}
     return api_put(url,game_dict)
 
+def api_setteamsingame(game_id,team_1_id,team_2_id):
+    # weirdly, leaguevine requires start_time and season_id
+    # therefore, we retrieve the game info first
+    game=api_gamebyid(game_id)
     
+    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    game_dict = {"start_time": "{0}".format(game['start_time']),
+                 "team_1_id": "{0}".format(team_1_id),    
+                 "team_2_id": "{0}".format(team_2_id),
+                 "season_id": "{0}".format(game['season_id'])}
+    return api_put(url,game_dict)
+        
     
 def api_addpool(tournament_id,starttime,name,team_ids=[],time_between_rounds=120,generate_matchups=False):
     # create the pool

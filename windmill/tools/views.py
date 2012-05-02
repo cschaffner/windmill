@@ -194,9 +194,34 @@ def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_addfull3bracket(t.l_id,settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])
-    
+    api_addfull3bracket(t.l_id,settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
     #api_addbracket(t.l_id,settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
+    
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+
+def movetoplayoff(request, div):
+    season_id=settings.SEASON_ID[div]
+    t=Tournament.objects.get(name=div)
+    
+
+    if div=='women':
+        # do something
+        logger.error('women have to be handled here')
+    else:
+        swiss = api_swissroundinfo(t.l_id)
+        nrrounds=swiss['meta']['total_count']
+        logger.info('nr of rounds: {0}'.format(nrrounds))
+        for round in swiss['objects']:
+            if round['round_number']==nrrounds: # last round                
+                brackets=api_bracketsbytournament(t.l_id)
+                for br in brackets['objects']:
+                    if br['number_of_rounds']==3:  # that's the largest bracket
+                        api_setteamsingame(br['rounds'][0]['games'][0]['id'],round['standings'][0]['team_id'],round['standings'][7]['team_id'])
+                        api_setteamsingame(br['rounds'][0]['games'][1]['id'],round['standings'][4]['team_id'],round['standings'][3]['team_id'])
+                        api_setteamsingame(br['rounds'][0]['games'][2]['id'],round['standings'][2]['team_id'],round['standings'][5]['team_id'])
+                        api_setteamsingame(br['rounds'][0]['games'][3]['id'],round['standings'][6]['team_id'],round['standings'][1]['team_id'])
+                         
+                    
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
