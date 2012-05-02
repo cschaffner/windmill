@@ -181,10 +181,22 @@ def clean(request, div):
     t=Tournament.objects.get(name=div)
     api_clean(t.l_id)
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+
+def cleanbrackets(request, div):
+    season_id=settings.SEASON_ID[div]
+    t=Tournament.objects.get(name=div)
+    
+    api_cleanbrackets(t.l_id)
+    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    
      
 def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
-    api_addbracket(t.l_id,settings.ROUNDS[div][6]['time'],3,time_between_rounds=120)
+    
+    api_addfull3bracket(t.l_id,settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])
+    
+    #api_addbracket(t.l_id,settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
+    
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
