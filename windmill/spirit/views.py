@@ -11,7 +11,7 @@ logger = logging.getLogger('windmill.spirit')
 def home(request):
     return render_to_response('spirit.html',{'Games': Game.objects.all})
 
-def enter(request,tournament_id):
+def addgames(request,tournament_id):
     # retrieve all games from tournament
     games=api_gamesbytournament(tournament_id)
     logger.info(games)

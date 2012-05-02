@@ -29,6 +29,7 @@ SMS-functionality:
 
 Spirit-scores:
 * provide a simple interface for spirit chair to enter spirit scores
+* todo: display the resulting averages
 
 Public-Screen project:
 * provide live information to front-end

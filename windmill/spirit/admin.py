@@ -29,8 +29,8 @@ class EitherTeamListFilter(SimpleListFilter):
         """
         qs = model_admin.queryset(request)
         logger.info(qs)
-        logger.info(request.GET['tournament_name'])
-        if request.GET['tournament_name'] is not None:
+        if request.GET.__contains__('tournament_name'):
+            logger.info(request.GET['tournament_name'])
             self.title=self.title+' in '+request.GET['tournament_name']
             qs=qs.filter(tournament_name=request.GET['tournament_name'])
         team1list=qs.order_by('team_1_name').distinct('team_1_name').values_list('team_1_name','team_1_name')
