@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>send SMS to everybody:</h1>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="/sms/submit" method="post">
+{% csrf_token %}
+<input type="text" name="message" id="meassge" value="{{ choice.id }}" />
+<br />
+<input type="submit" value="Send" />
+</form>
+{% endblock content %}

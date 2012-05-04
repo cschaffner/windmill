@@ -62,6 +62,11 @@ def api_put(url,dict):
     return response_dict    
 
  
+def api_tournamentbyid(tournament_id):
+    url='http://api.{0}/v1/tournaments/{1}'.format(settings.HOST,tournament_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
 
 def api_nrswissrounds(tournament_id):
 # returns the number of existing swissdraw rounds

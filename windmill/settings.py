@@ -259,7 +259,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'windmill.tools',
-    'windmill.spirit'
+    'windmill.spirit',
+    'windmill.sms'
 )
 
 # A sample logging configuration. The only tangible logging
