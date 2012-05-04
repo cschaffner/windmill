@@ -267,6 +267,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
                    "name": "playoff" }
     response=api_post(url,bracket_dict)
     winnerbr=api_bracketbyid(response['id'])
+#    winnerbr=response
     
     # create loser's final
     bracket_dict = {"tournament_id": tournament_id,
@@ -278,6 +279,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
                        "name": "bronze game" }
     response=api_post(url,bracket_dict)
     bronzegame=api_bracketbyid(response['id'])
+#    bronzegame=response
     # auto-move losers of semifinal to bronze-game
     for r in winnerbr['rounds']:
         if r['round_number']==1:
@@ -296,6 +298,8 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
                        "name": "playoff losers" }
     response=api_post(url,bracket_dict)
     loserstree=api_bracketbyid(response['id'])
+#    loserstree=response
+    
     # auto-move losers of quarter-finals to loser-tree
     for r in winnerbr['rounds']:
         if r['round_number']==2:
@@ -318,6 +322,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
                        "name": u"game for 7-8" }
     response=api_post(url,bracket_dict)
     placementgame=api_bracketbyid(response['id'])
+#    placementgame=response
     # auto-move losers of semifinal to bronze-game
     for r in loserstree['rounds']:
         if r['round_number']==0:
