@@ -1,5 +1,10 @@
 from django.db import models
 from windmill.tools.models import Team 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('windmill.spirit')
+
 
 class Tournament(models.Model):
     l_id = models.IntegerField()
@@ -8,8 +13,20 @@ class Tournament(models.Model):
     def __unicode__(self):
         return str(self.name)
 
+class SMSManager(models.Manager):
+    def broadcast(self,message):
+        # send SMS with message
+        # to all registered phone numbers
+        
+        # get a list of all phone numbers
+        for t in Team.objects.all():
+            for nr in t.mobilenr():
+                logger.info(nr)
+                
 
 class SMS(models.Model):
+    objects = SMSManager()
+    
     team = models.ForeignKey(Team,null=True,blank=True)
     round_id = models.IntegerField()
     # many-to-one relationship between Tournaments and SMS

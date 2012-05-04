@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 
 from windmill.tools.wrapper import *
 from windmill.spirit.models import Game
+from windmill.sms.models import SMS
 import logging
 from pprint import pformat
 
@@ -56,8 +57,9 @@ def submit(request):
     except (KeyError, Message.DoesNotExist):
         return render_to_response('sms_broadcast.html', {'error_message': 'your message was empty'}, 
                                   context_instace=RequestContext(request))
-    else:
-        logger.warning('send message "{0}" to everybody'.format(message))
+    else:        
+        logger.info('send message "{0}" to everybody'.format(message))
+        SMS.objects.broadcast(message)
         return HttpResponseRedirect('control')
 
 def create(request,tournament_id):
