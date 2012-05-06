@@ -50,6 +50,13 @@ class Team(models.Model):
     mobile4 = models.CharField(max_length=20,blank=True)
     mobile5 = models.CharField(max_length=20,blank=True)
     
+    def mobilenr(self):
+        # return iterator of available phone numbers 
+        for nr in [self.mobile1,self.mobile2,self.mobile3,self.mobile4,self.mobile5]:
+            if nr != '':
+                yield nr
+                
+    
     def division(self):
         return self.tournament.name
 

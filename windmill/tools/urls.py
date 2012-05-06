@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^(open|mixed|women)/randomresults$', 'windmill.tools.views.randomresults'),
     url(r'^(open|mixed|women)/addbracket$', 'windmill.tools.views.addbracket'),
     url(r'^(open|mixed|women)/cleanbrackets$', 'windmill.tools.views.cleanbrackets'),
+    url(r'^(open|mixed|women)/movetoplayoff$', 'windmill.tools.views.movetoplayoff'),
 
     url(r'^createteams/$', 'windmill.tools.views.createteams'),   
     url(r'^import$', 'windmill.tools.views.ffimport'),

@@ -158,6 +158,11 @@ class Team(models.Model):
         else:
             return 0,None
 
+
+    def save(self, *args, **kwargs):
+        self.update_spirit()
+        super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
+
         
     def __unicode__(self):
         return str(self.name)
