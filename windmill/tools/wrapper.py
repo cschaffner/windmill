@@ -19,12 +19,15 @@ logger = logging.getLogger('windmill.tools')
 access_token = cache.get('access_token')
 if access_token == None:
     # Make a request for an access_token
-    r=requests.get('http://{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(settings.HOST, settings.CLIENT_ID, settings.CLIENT_PWD))
-    # parse string into Python dictionary
-    r_dict = simplejson.loads(r.content)
-    access_token = r_dict.get('access_token')
-    cache.set('access_token', access_token)
-    logger.info('retrieved a new access token: {0}'.format(access_token))
+    if settings.OFFLINE:
+        access_token='offline'
+    else:
+        r=requests.get('http://{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(settings.HOST, settings.CLIENT_ID, settings.CLIENT_PWD))
+        # parse string into Python dictionary
+        r_dict = simplejson.loads(r.content)
+        access_token = r_dict.get('access_token')
+        cache.set('access_token', access_token)
+        logger.info('retrieved a new access token: {0}'.format(access_token))
             
 my_headers={'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'bearer {0}'.format(access_token)}  
 my_config={'verbose': sys.stderr}
@@ -376,4 +379,24 @@ def api_addpool(tournament_id,starttime,name,team_ids=[],time_between_rounds=120
                    "team_ids": team_ids}
     return api_post(url,pool_dict)    
     
-    
+def result_in_swissround(round,team_id):
+    for g in round['games']:
+        if g['team_1_id']==team_id:
+            score = g['team_1_score']
+            opp_score = g['team_2_score']
+        elif g['team_2_id']==team_id:
+            score = g['team_2_score']
+            opp_score = g['team_1_score']
+        else:
+            continue
+        if score > opp_score:
+            return '{0}-{1} win'.format(score,opp_score)
+        elif score < opp_score:
+            return '{0}-{1} loss'.format(score,opp_score)
+        elif score == opp_score:
+            return '{0}-{1} tie'.format(score,opp_score)
+
+def rank_in_swissround(round,team_id):
+    for t in round['standings']:
+        if t['team_id']==team_id:
+            return '{0}'.format(t['ranking']) # TODO make ordinal

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>SMS Control Panel:</h1>
+
+<h2>{{tournament.name}}</h2>
+
+{% for r in swiss.objects %}
+<div><a href="?round={{r.round_number}}">create SMS for transition to round {{r.round_number}}</a></div>
+{% endfor %}
+
+{% endblock content %}

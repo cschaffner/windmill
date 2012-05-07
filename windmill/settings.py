@@ -2,6 +2,8 @@
 import os
 ROOT_PATH = os.path.dirname(__file__)
 
+OFFLINE = True
+
 HOST="playwithlv.com"
 CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
 CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
