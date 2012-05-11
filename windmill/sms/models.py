@@ -26,6 +26,14 @@ class SMSManager(models.Manager):
             for nr in t.mobilenr():
                 logger.info(nr)
     
+    
+    def clear_round(self,round_nr,tournament_id):
+        """ 
+        delete all SMS with a particular round_nr and tournament_id
+        """
+#        self.delete(round_nr=)
+        return True
+        
     def swiss_round(self,swiss,round_nr,tournament):
         """
         GOAL: 
@@ -75,13 +83,12 @@ class SMSManager(models.Manager):
         return nr_created
             
         
-
     def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,vp_bye):
         if not prevRound.__contains__('round_number'):
             msg=u'Welcome to Windmill Windup 2012! In Round 1,'
             tomorrow=False
         else:
-            tomorrow=True # TODO: figure it out
+            tomorrow=True # TODO: figure out if this round's game is day later compared to prevRound
             msg=u'After a {0} '.format(result_in_swissround(prevRound,team['id']))
             msg += u'in round {0}, '.format(prevRound['round_number'])
 
@@ -100,10 +107,12 @@ class SMSManager(models.Manager):
             if tomorrow:
                 msg += u"Pls hand in today's spirit scores."
         else: # last round
-            msg += u'you finish Windmill Windup 12 in rank {0}.'.format(rank_in_swissround(prevRound,team['id']))
-            msg += u'Congratulations,see you next year!Pls hand in all spirit scores!'
+            msg += u'you finish Windmill 2012 in rank {0}, congrats!'.format(rank_in_swissround(prevRound,team['id']))
+            msg += u'Please hand in all spirit scores and see you next year!'
         
         return msg
+    
+    
         
         
 class SMS(models.Model):
