@@ -98,15 +98,23 @@ def createteams(request):
 def addswissround(request, div):
     t=Tournament.objects.get(name=div)
     
-    # figure out how many swissdraw rounds which already exist
+    # figure out how many swissdraw rounds already exist
     nrswissrounds=api_nrswissrounds(t.l_id)
     
+    # remember that the array counting starts at 0
+    # so the following retrieves the data of the *next* round
     starttime=settings.ROUNDS[div][nrswissrounds]['time']
     pairing=settings.ROUNDS[div][nrswissrounds]['mode']
     logger.info("starttime: {0}".format(starttime))
-    # todo: before creating a new Swissdraw round, make sure the pairing mode is set properly
-    api_addswissround(t.l_id,starttime,pairing);
-    # todo: check that field assignments are OK
+    
+    if nrswissrounds!=5:
+        # move all but the top 8 teams to the next swiss-draw round
+        team_ids=api_rankedteamids(t.l_id,5)
+        team_ids=team_ids[8:] # remove the top 8
+    else:
+        team_ids=[]
+    api_addswissround(t.l_id,starttime,pairing,team_ids);
+    # TODO: check that field assignments are OK
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def addpools(request,div):
