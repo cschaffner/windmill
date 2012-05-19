@@ -2,7 +2,7 @@ from windmill.tools.models import Tournament, Team
 from django.contrib import admin
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['name', 'country', 'seed', 'tournament', 'l_id']
+    list_display = ['name', 'country', 'country_code', 'seed', 'tournament', 'l_id']
     list_filter = ['tournament']
     list_editable = ['seed']
 

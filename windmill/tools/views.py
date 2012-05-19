@@ -86,7 +86,7 @@ def createteams(request):
     for div in ['open', 'mixed', 'women']:
         season_id=settings.SEASON_ID[div]
         for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
-            team_id=api_createteam(season_id,team.name,team.id)
+            team_id=api_createteam(season_id,team.name,team.id,team.city,team.country_code)
             logger.info('team.l_id before: {0}'.format(team.l_id))
             team.l_id=team_id
             team.save()
@@ -150,11 +150,12 @@ def addpools(request,div):
 def newtourney(request, div):
     season_id=settings.SEASON_ID[div]
     # set up a new tournament
-    data_dict = {"name": "Windmill Windup Test ({0})".format(div), 
+    data_dict = {"name": "Windmill Windup 2012 {0}".format(div), 
              "season_id": season_id,
             "start_date": "2012-06-14",
             "end_date": "2012-06-16",
-            "visibility": "live"}
+            "visibility": "live",
+            "timezone": "Europe/Amsterdam"}
     if div=='open' or div=='mixed':
         data_dict["scheduling_format"]="swiss"
         data_dict["swiss_scoring_system"]="victory points"
