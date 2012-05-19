@@ -23,7 +23,10 @@ class GameManager(models.Manager):
         # import all games from tournament in local db
         for g in games['objects']:
             # create or get tournament
-            t,create_t=Tournament.objects.get_or_create(l_id=g['tournament']['id'])
+            if settings.HOST=="playwithlv.com":
+                t,create_t=Tournament.objects.get_or_create(l_id=g['tournament']['id'])
+            elif settings.HOST=="leaguevine.com":
+                t,create_t=Tournament.objects.get_or_create(lv_id=g['tournament']['id'])
             if create_t:
                 t.name = g['tournament']['name']
                 t.save()
@@ -48,8 +51,10 @@ class GameManager(models.Manager):
 class Game(models.Model):
     objects=GameManager()
     
-    # leaguevine game-id
-    l_id = models.IntegerField()
+    # playwithlv.com game-id
+    l_id = models.IntegerField(null=True,blank=True)
+    # leaguevine.com game-id
+    lv_id = models.IntegerField(null=True,blank=True)
     
     team_1_id = models.IntegerField(null=True,blank=True)
     team_2_id = models.IntegerField(null=True,blank=True)
@@ -81,7 +86,10 @@ class Game(models.Model):
         super(Game, self).save(*args, **kwargs) # Call the "real" save() method.
         if self.team_1_spirit is not None:
             # update team1
-            t,create=Team.objects.get_or_create(l_id=self.team_1_id)
+            if settings.HOST=="playwithlv.com":
+                t,create=Team.objects.get_or_create(l_id=self.team_1_id)
+            elif settings.HOST=="leaguevine.com":
+                t,create=Team.objects.get_or_create(lv_id=self.team_1_id)
             if create:
                 t.name=self.team_1_name
                 t.tournament=self.tournament
@@ -93,7 +101,10 @@ class Game(models.Model):
         
         if self.team_2_spirit is not None:
             # update team2
-            t,create=Team.objects.get_or_create(l_id=self.team_2_id)
+            if settings.HOST=="playwithlv.com":
+                t,create=Team.objects.get_or_create(l_id=self.team_2_id)
+            elif settings.HOST=="leaguevine.com":
+                t,create=Team.objects.get_or_create(lv_id=self.team_2_id)
             if create:
                 t.name=self.team_2_name
                 t.tournament=self.tournament

@@ -10,7 +10,11 @@ logger = logging.getLogger('windmill.spirit')
 
 
 class Tournament(models.Model):
-    l_id = models.IntegerField()
+    # playwithlv.com tournament id
+    l_id = models.IntegerField(blank=True,null=True)
+    # leaguevine.com tournament id
+    lv_id = models.IntegerField(blank=True,null=True)
+    
     name = models.CharField(max_length=50)
 
     def __unicode__(self):
@@ -52,7 +56,10 @@ class SMSManager(models.Manager):
             elif r['round_number']==round_nr:
                 thisRound=r
         # make sure this tournament actually exists in the database
-        tourney,created=Tournament.objects.get_or_create(l_id = tournament['id'])
+        if settings.HOST=="playwithlv.com":
+            tourney,created=Tournament.objects.get_or_create(l_id = tournament['id'])
+        elif settings.HOST=="leaguevine.com":
+            tourney,created=Tournament.objects.get_or_create(lv_id = tournament['id'])
         if created:
             tourney.name = tournament['name']
             tourney.save()
