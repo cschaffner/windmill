@@ -5,8 +5,10 @@ class Tournament(models.Model):
     # actually a division of Windmill Windup, but in leaguevine
     # every division plays it's own tournament
     
-    # leaguevine_id is also used as primary index here
-    l_id = models.IntegerField(null=True)
+    # id on playwithlv.com
+    l_id = models.IntegerField(null=True,blank=True)
+    # id on leaguevine.com
+    lv_id = models.IntegerField(null=True,blank=True)
     
     # here should be additional properties of the division that are not provided on leaguevine
     name = models.CharField(max_length=50)
@@ -25,12 +27,13 @@ class Tournament(models.Model):
 
 class Team(models.Model):
     
-    # leaguevine_id is used as primary index here as well
-    # or not...
-    l_id = models.IntegerField(null=True)
+    # id on playwithlv.com
+    l_id = models.IntegerField(null=True,blank=True)
+    # id on leaguevine.com
+    lv_id = models.IntegerField(null=True,blank=True)
     
     # many-to-one relationship between Tournaments and Teams
-    tournament = models.ForeignKey(Tournament,null=True)
+    tournament = models.ForeignKey(Tournament,null=True,blank=True)
 
     # now comes all the team data that is not provided by leaguevine:
     name = models.CharField(max_length=50)

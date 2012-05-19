@@ -23,8 +23,12 @@ def division(request, div):
 def correctresult(game):
     # make up a 'random' result based on the team's seeding information in the local database
     import __builtin__
-    t1=Team.objects.get(l_id=game['team_1_id'])
-    t2=Team.objects.get(l_id=game['team_2_id'])
+    if settings.HOST=="playwithlv.com":
+        t1=Team.objects.get(l_id=game['team_1_id'])
+        t2=Team.objects.get(l_id=game['team_2_id'])
+    elif settings.HOST=="leaguevine.com":
+        t1=Team.objects.get(lv_id=game['team_1_id'])
+        t2=Team.objects.get(lv_id=game['team_2_id'])        
     nrteams=t1.tournament.team_set.filter(seed__isnull=False).count()
     logger.info('nr teams: {0}'.format(nrteams))
     diff=(t1.seed - t2.seed)/nrteams
@@ -88,7 +92,10 @@ def createteams(request):
         for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
             team_id=api_createteam(season_id,team.name,team.id,team.city,team.country_code)
             logger.info('team.l_id before: {0}'.format(team.l_id))
-            team.l_id=team_id
+            if settings.HOST=="playwithlv.com":
+                team.l_id=team_id
+            elif settings.HOST=="leaguevine.com":
+                team.lv_id=team_id
             team.save()
             logger.info('team.l_id after:  {0}'.format(team.l_id))
 
@@ -166,7 +173,10 @@ def newtourney(request, div):
     
     tournament_id=api_newtournament(data_dict)
     t=Tournament.objects.get(name=div)
-    t.l_id=tournament_id
+    if settings.HOST=="playwithlv.com":
+        t.l_id=tournament_id
+    elif settings.HOST=="leaguevine.com":
+        t.lv_id=tournament_id
     t.save()
         
     link=api_weblink(tournament_id)
