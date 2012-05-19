@@ -2,7 +2,7 @@
 import os
 ROOT_PATH = os.path.dirname(__file__)
 
-OFFLINE = True
+OFFLINE = False
 
 HOST="playwithlv.com"
 CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
@@ -133,9 +133,9 @@ ROUNDS={"open": [
         }
 
 
-SEASON_ID = {'open': '6980',
-             'mixed': '7513',
-             'women': '7515'}
+SEASON_ID = {'open': '20068',
+             'mixed': '20067',
+             'women': '20069'}
 
 # new season id, but still buggy on playwithlv...
 #SEASON_ID = {'open': '20068',

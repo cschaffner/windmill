@@ -43,12 +43,13 @@ class Team(models.Model):
     sec_contact_email = models.EmailField()
     city = models.CharField(max_length=100)
     country = models.CharField(max_length=50)
+    country_code = models.CharField(max_length=2,null=True,blank=True)
     comment = models.TextField()
     mobile1 = models.CharField(max_length=20)
-    mobile2 = models.CharField(max_length=20,blank=True)
-    mobile3 = models.CharField(max_length=20,blank=True)
-    mobile4 = models.CharField(max_length=20,blank=True)
-    mobile5 = models.CharField(max_length=20,blank=True)
+    mobile2 = models.CharField(max_length=20,null=True,blank=True)
+    mobile3 = models.CharField(max_length=20,null=True,blank=True)
+    mobile4 = models.CharField(max_length=20,null=True,blank=True)
+    mobile5 = models.CharField(max_length=20,null=True,blank=True)
     
     def mobilenr(self):
         # return iterator of available phone numbers 

@@ -76,7 +76,8 @@ def api_update(url,updatedict={}):
     new_dict={}
     for key,val in response_dict.iteritems():
         if ((val is not None) and (not isinstance(val, dict)) and (key != 'leaguevine_url') and 
-            (key != 'resource_uri') and (key!='time_last_updated') and (key!='time_created')):
+            (key != 'resource_uri') and (key!='time_last_updated') and (key!='time_created') and
+            (key != 'objects')):
             new_dict[key]=val
     logger.info('before updating: {0}'.format(pformat(new_dict)))
     new_dict.update(updatedict)
@@ -206,7 +207,7 @@ def api_newtournament(data_dict):
 
     return tournament_id
 
-def api_createteam(season_id,name,info):
+def api_createteam(season_id,name,info,city,country):
 # creates a new team in season_id with name and info (if does not exists yet)
 # returns id of newly created or existing team with this name
 
@@ -220,13 +221,25 @@ def api_createteam(season_id,name,info):
         url='http://api.{0}/v1/teams/'.format(settings.HOST)
         team_data_dict = {"name": u"{0}".format(name), 
                   "season_id": season_id,
-                  "info": "{0}".format(info)}
+                  "info": "{0}".format(info),
+                  "city": "{0}".format(city),
+                  "country": "{0}".format(country)}
         response_dict = api_post(url,team_data_dict)
         team_id = response_dict.get('id')
     else:
         # otherwise, get the id from the first object
         team_id = response_dict.get('objects')[0].get('id')
         logger.warning(u'team with name {0} already exists (l_id: {1})'.format(name,team_id))
+        # and update the object
+        # create a new team in season_id
+        url='http://api.{0}/v1/teams/{1}/'.format(settings.HOST,team_id)
+        team_data_dict = {"name": u"{0}".format(name), 
+                  "season_id": season_id,
+                  "info": "{0}".format(info),
+                  "city": "{0}".format(city),
+                  "country": "{0}".format(country)}
+        response_dict = api_update(url,team_data_dict)
+        team_id = response_dict.get('id')        
     
     return team_id
 
