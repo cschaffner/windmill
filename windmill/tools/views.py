@@ -16,7 +16,8 @@ def home(request):
 
 def division(request, div):
     t=Tournament.objects.get(name=div)
-    swiss=api_swissroundinfo(t.l_id)
+    swiss=api_swissroundinfo(t.lgv_id())
+        
     return render_to_response('division.html',{'div': Tournament.objects.get(name=div),
                                                'swiss': swiss})
 
@@ -57,7 +58,7 @@ def randomresults(request, div):
 #
 #        return
         
-        games=api_gamesbytournament(t.l_id)
+        games=api_gamesbytournament(t.lgv_id())
         while True:
             for g in games['objects']:
                 logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
@@ -70,7 +71,7 @@ def randomresults(request, div):
             else:
                 games=api_url(next)
     else:
-        swiss = api_swissroundinfo(t.l_id)
+        swiss = api_swissroundinfo(t.lgv_id())
         nrrounds=swiss['meta']['total_count']
         logger.info('nr of rounds: {0}'.format(nrrounds))
         for round in swiss['objects']:
@@ -91,13 +92,13 @@ def createteams(request):
         season_id=settings.SEASON_ID[div]
         for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
             team_id=api_createteam(season_id,team.name,team.id,team.city,team.country_code)
-            logger.info('team.l_id before: {0}'.format(team.l_id))
+            logger.info('team.lgv_id before: {0}'.format(team.lgv_id()))
             if settings.HOST=="playwithlv.com":
                 team.l_id=team_id
             elif settings.HOST=="leaguevine.com":
                 team.lv_id=team_id
             team.save()
-            logger.info('team.l_id after:  {0}'.format(team.l_id))
+            logger.info('team.lgv_id after:  {0}'.format(team.lgv_id()))
 
     return render_to_response('index.html')
 
@@ -106,7 +107,7 @@ def addswissround(request, div):
     t=Tournament.objects.get(name=div)
     
     # figure out how many swissdraw rounds already exist
-    nrswissrounds=api_nrswissrounds(t.l_id)
+    nrswissrounds=api_nrswissrounds(t.lgv_id())
     
     # remember that the array counting starts at 0
     # so the following retrieves the data of the *next* round
@@ -116,11 +117,11 @@ def addswissround(request, div):
     
     if nrswissrounds!=5:
         # move all but the top 8 teams to the next swiss-draw round
-        team_ids=api_rankedteamids(t.l_id,5)
+        team_ids=api_rankedteamids(t.lgv_id(),5)
         team_ids=team_ids[8:] # remove the top 8
     else:
         team_ids=[]
-    api_addswissround(t.l_id,starttime,pairing,team_ids);
+    api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
     # TODO: check that field assignments are OK
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
@@ -138,17 +139,17 @@ def addpools(request,div):
         if team.seed is None:
             continue
         elif team.seed % 2 == 1:
-            oddlist.append(team.l_id)
+            oddlist.append(team.lgv_id())
         elif team.seed % 2 == 0:
-            evenlist.append(team.l_id)
+            evenlist.append(team.lgv_id())
 
     logger.info('oddlist: {0}'.format(oddlist))
     logger.info(evenlist)
 
     starttime=settings.ROUNDS[div][0]['time']
     # create two pools
-    api_addpool(t.l_id,starttime,"Odd Pool",oddlist,120,True)
-    api_addpool(t.l_id,starttime,"Even Pool",evenlist,120,True)
+    api_addpool(t.lgv_id(),starttime,"Odd Pool",oddlist,120,True)
+    api_addpool(t.lgv_id(),starttime,"Even Pool",evenlist,120,True)
     
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
@@ -185,27 +186,27 @@ def newtourney(request, div):
 def addteams(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
-    if t.l_id is None:
+    if t.lgv_id() is None:
         return HttpResponseNotFound('<h3>Please create tournament first</h3>')
-    tournament_id=t.l_id
+    tournament_id=t.lgv_id()
     
     for team in Team.objects.filter(tournament__name=div):
         if team.seed>0:
-            api_addteam(tournament_id,team.l_id,team.seed)
+            api_addteam(tournament_id,team.lgv_id(),team.seed)
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
     
 def clean(request, div):
     t=Tournament.objects.get(name=div)
-    api_clean(t.l_id)
+    api_clean(t.lgv_id())
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def cleanbrackets(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_cleanbrackets(t.l_id)
+    api_cleanbrackets(t.lgv_id())
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
      
@@ -213,8 +214,8 @@ def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_addfull3bracket(t.l_id,settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
-    #api_addbracket(t.l_id,settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
+    api_addfull3bracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
+    #api_addbracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
@@ -227,12 +228,12 @@ def movetoplayoff(request, div):
         # do something
         logger.error('women have to be handled here')
     else:
-        swiss = api_swissroundinfo(t.l_id)
+        swiss = api_swissroundinfo(t.lgv_id())
         nrrounds=swiss['meta']['total_count']
         logger.info('nr of rounds: {0}'.format(nrrounds))
         for round in swiss['objects']:
             if round['round_number']==nrrounds: # last round                
-                brackets=api_bracketsbytournament(t.l_id)
+                brackets=api_bracketsbytournament(t.lgv_id())
                 for br in brackets['objects']:
                     if br['number_of_rounds']==3:  # that's the largest bracket
                         api_setteamsingame(br['rounds'][0]['games'][0]['id'],round['standings'][0]['team_id'],round['standings'][7]['team_id'])

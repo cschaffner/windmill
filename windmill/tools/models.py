@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from windmill.tools.wrapper import api_weblink
 
@@ -13,11 +14,18 @@ class Tournament(models.Model):
     # here should be additional properties of the division that are not provided on leaguevine
     name = models.CharField(max_length=50)
     
+    def lgv_id(self):
+        if settings.HOST=="playwithlv.com":
+            return self.l_id
+        else:
+            return self.lv_id
+
     def link(self):
-        if self.l_id is None:
+        if self.lgv_id() is None:
             return ""
         else:
-            return api_weblink(self.l_id)
+            return api_weblink(self.lgv_id())
+
     
     def nrteams(self):
         return self.teams.count
@@ -53,6 +61,12 @@ class Team(models.Model):
     mobile3 = models.CharField(max_length=20,null=True,blank=True)
     mobile4 = models.CharField(max_length=20,null=True,blank=True)
     mobile5 = models.CharField(max_length=20,null=True,blank=True)
+
+    def lgv_id(self):
+        if settings.HOST=="playwithlv.com":
+            return self.l_id
+        else:
+            return self.lv_id
     
     def mobilenr(self):
         # return iterator of available phone numbers 

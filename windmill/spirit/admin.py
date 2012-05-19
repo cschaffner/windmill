@@ -60,14 +60,14 @@ class MyGameAdminForm(forms.ModelForm):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['l_id','start_time','team_1_name','team_2_name','team_1_spirit','team_2_spirit']
+    list_display = ['l_id','lv_id','start_time','team_1_name','team_2_name','team_1_spirit','team_2_spirit']
     list_filter = ('tournament',EitherTeamListFilter)
     list_editable = ['team_1_spirit', 'team_2_spirit']
     form = MyGameAdminForm
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['l_id','name','tournament','avg_received','nr_received','avg_given','nr_given']
+    list_display = ['l_id','lv_id','name','tournament','avg_received','nr_received','avg_given','nr_given']
     list_filter = ('tournament',)
 
 admin.site.register(Tournament)
