@@ -8,8 +8,7 @@ logger = logging.getLogger('windmill.spirit')
 
 
 class SMSAdmin(admin.ModelAdmin):
-    list_display = ['id','team','tournament','round_id','message','status']
+    list_display = ['id','team','tournament','round_id','number','message','status']
     list_filter = ('tournament','team','round_id')
 
-admin.site.register(Tournament)
 admin.site.register(SMS, SMSAdmin)

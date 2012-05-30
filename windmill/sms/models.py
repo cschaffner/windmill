@@ -1,24 +1,13 @@
 from django.db import models
-from windmill.tools.models import Team
+from windmill.tools.models import Team, Tournament
 import logging
 import datetime
 from windmill.tools.wrapper import *
 
 
 # Get an instance of a logger
-logger = logging.getLogger('windmill.spirit')
+logger = logging.getLogger('windmill.sms')
 
-
-class Tournament(models.Model):
-    # playwithlv.com tournament id
-    l_id = models.IntegerField(blank=True,null=True)
-    # leaguevine.com tournament id
-    lv_id = models.IntegerField(blank=True,null=True)
-    
-    name = models.CharField(max_length=50)
-
-    def __unicode__(self):
-        return str(self.name)
 
 class SMSManager(models.Manager):
     def broadcast(self,message):
@@ -28,7 +17,9 @@ class SMSManager(models.Manager):
         # get a list of all phone numbers
         for t in Team.objects.all():
             for nr in t.mobilenr():
-                logger.info(nr)
+                sms = SMS.objects.create(team=t,tournament=t.tournament,
+                                         message=message,number=nr)
+                logger.info('new sms with id {0} created'.format(sms.id))
     
     
     def clear_round(self,round_nr,tournament_id):
@@ -55,14 +46,12 @@ class SMSManager(models.Manager):
                 prevRound=r
             elif r['round_number']==round_nr:
                 thisRound=r
-        # make sure this tournament actually exists in the database
+        # retrieve the tournament from the database
+        # assumes that those tournaments already exist there
         if settings.HOST=="http://api.playwithlv.com":
-            tourney,created=Tournament.objects.get_or_create(l_id = tournament['id'])
+            tourney=Tournament.objects.get(l_id = tournament['id'])
         elif settings.HOST=="https://api.leaguevine.com":
-            tourney,created=Tournament.objects.get_or_create(lv_id = tournament['id'])
-        if created:
-            tourney.name = tournament['name']
-            tourney.save()
+            tourney=Tournament.objects.get(lv_id = tournament['id'])
         
         nr_created=0
         vp_bye = tournament['swiss_points_for_bye']
@@ -133,11 +122,12 @@ class SMSManager(models.Manager):
 class SMS(models.Model):
     objects = SMSManager()
     
-    team = models.ForeignKey(Team,null=True,blank=True)
-    round_id = models.IntegerField()
+    team = models.ForeignKey(Team)
+    round_id = models.IntegerField(null=True,blank=True)
     # many-to-one relationship between Tournaments and SMS
-    tournament = models.ForeignKey(Tournament,null=True,blank=True)
-    message = models.CharField(max_length=540,null=True,blank=True) # 3*180 = 540
+    tournament = models.ForeignKey(Tournament)
+    number = models.CharField(max_length=20)
+    message = models.CharField(max_length=540) # 3*180 = 540
     status = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(null=True,blank=True)
     submitTime = models.DateTimeField(null=True,blank=True)

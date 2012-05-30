@@ -330,6 +330,10 @@ LOGGING = {
         'windmill.spirit': {
             'handlers': ['console', 'mail_admins'],
             'level': 'INFO',
+        },
+        'windmill.sms': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
         }
     }
 }
