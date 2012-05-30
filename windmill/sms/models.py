@@ -56,9 +56,9 @@ class SMSManager(models.Manager):
             elif r['round_number']==round_nr:
                 thisRound=r
         # make sure this tournament actually exists in the database
-        if settings.HOST=="playwithlv.com":
+        if settings.HOST=="http://api.playwithlv.com":
             tourney,created=Tournament.objects.get_or_create(l_id = tournament['id'])
-        elif settings.HOST=="leaguevine.com":
+        elif settings.HOST=="https://api.leaguevine.com":
             tourney,created=Tournament.objects.get_or_create(lv_id = tournament['id'])
         if created:
             tourney.name = tournament['name']
@@ -70,9 +70,9 @@ class SMSManager(models.Manager):
         for g in thisRound['games']:
             if g['team_1'] is not None:
                 msg=self.msg_swiss_team(prevRound,thisRound,g['team_1'],g['team_2'],g['start_time'],vp_bye) # TODO: Field
-                if settings.HOST=="playwithlv.com":
+                if settings.HOST=="http://api.playwithlv.com":
                     team_obj=Team.objects.get(l_id = g['team_1_id'])
-                elif settings.HOST=="leaguevine.com":
+                elif settings.HOST=="https://api.leaguevine.com":
                     team_obj=Team.objects.get(lv_id = g['team_1_id'])
                 sms = SMS.objects.create(message = msg,
                                          team = team_obj,
@@ -83,9 +83,9 @@ class SMSManager(models.Manager):
                 nr_created += 1
             if g['team_2'] is not None:
                 msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],vp_bye) # TODO: Field
-                if settings.HOST=="playwithlv.com":
+                if settings.HOST=="http://api.playwithlv.com":
                     team_obj=Team.objects.get(l_id = g['team_2_id'])
-                elif settings.HOST=="leaguevine.com":
+                elif settings.HOST=="https://api.leaguevine.com":
                     team_obj=Team.objects.get(lv_id = g['team_2_id'])
                 sms = SMS.objects.create(message = msg,
                                          team = team_obj,

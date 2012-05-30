@@ -26,17 +26,17 @@ class GameManager(models.Manager):
         # import all games from tournament in local db
         for g in games['objects']:
             # create or get tournament
-            if settings.HOST=="playwithlv.com":
+            if settings.HOST=="http://api.playwithlv.com":
                 t,create_t=Tournament.objects.get_or_create(l_id=g['tournament']['id'])
-            elif settings.HOST=="leaguevine.com":
+            elif settings.HOST=="https://api.leaguevine.com":
                 t,create_t=Tournament.objects.get_or_create(lv_id=g['tournament']['id'])
             if create_t:
                 t.name = g['tournament']['name']
                 t.save()
             
-            if settings.HOST=="playwithlv.com":
+            if settings.HOST=="http://api.playwithlv.com":
                 gm,created=self.get_or_create(l_id=g['id'])
-            elif settings.HOST=="leaguevine.com":
+            elif settings.HOST=="https://api.leaguevine.com":
                 gm,created=self.get_or_create(lv_id=g['id'])                
             if created:
                 added+=1
@@ -86,18 +86,18 @@ class Game(models.Model):
     # team1_compare
 
     def __unicode__(self):
-        if settings.HOST=="playwithlv.com":
+        if settings.HOST=="http://api.playwithlv.com":
             return str(self.l_id)
-        elif settings.HOST=="leaguevine.com":
+        elif settings.HOST=="https://api.leaguevine.com":
             return str(self.lv_id)
 
     def save(self, *args, **kwargs):
         super(Game, self).save(*args, **kwargs) # Call the "real" save() method.
         if self.team_1_spirit is not None:
             # update team1
-            if settings.HOST=="playwithlv.com":
+            if settings.HOST=="http://api.playwithlv.com":
                 t,create=Team.objects.get_or_create(l_id=self.team_1_id)
-            elif settings.HOST=="leaguevine.com":
+            elif settings.HOST=="https://api.leaguevine.com":
                 t,create=Team.objects.get_or_create(lv_id=self.team_1_id)
             if create:
                 t.name=self.team_1_name
@@ -110,9 +110,9 @@ class Game(models.Model):
         
         if self.team_2_spirit is not None:
             # update team2
-            if settings.HOST=="playwithlv.com":
+            if settings.HOST=="http://api.playwithlv.com":
                 t,create=Team.objects.get_or_create(l_id=self.team_2_id)
-            elif settings.HOST=="leaguevine.com":
+            elif settings.HOST=="https://api.leaguevine.com":
                 t,create=Team.objects.get_or_create(lv_id=self.team_2_id)
             if create:
                 t.name=self.team_2_name

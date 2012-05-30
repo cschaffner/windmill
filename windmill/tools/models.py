@@ -15,7 +15,7 @@ class Tournament(models.Model):
     name = models.CharField(max_length=50)
     
     def lgv_id(self):
-        if settings.HOST=="playwithlv.com":
+        if settings.HOST=="http://api.playwithlv.com":
             return self.l_id
         else:
             return self.lv_id
@@ -47,23 +47,23 @@ class Team(models.Model):
     name = models.CharField(max_length=50)
     seed = models.IntegerField(null=True,blank=True)
     short_name = models.CharField(max_length=50, null=True,blank=True)
-    team_email = models.EmailField()
-    contact_name = models.CharField(max_length=200)
-    contact_email = models.EmailField()
-    sec_contact_name = models.CharField(max_length=200)
-    sec_contact_email = models.EmailField()
-    city = models.CharField(max_length=100)
-    country = models.CharField(max_length=50)
+    team_email = models.EmailField(null=True,blank=True)
+    contact_name = models.CharField(max_length=200,null=True,blank=True)
+    contact_email = models.EmailField(null=True,blank=True)
+    sec_contact_name = models.CharField(max_length=200,null=True,blank=True)
+    sec_contact_email = models.EmailField(null=True,blank=True)
+    city = models.CharField(max_length=100,null=True,blank=True)
+    country = models.CharField(max_length=50,null=True,blank=True)
     country_code = models.CharField(max_length=2,null=True,blank=True)
-    comment = models.TextField()
-    mobile1 = models.CharField(max_length=20)
+    comment = models.TextField(null=True,blank=True)
+    mobile1 = models.CharField(max_length=20,null=True,blank=True)
     mobile2 = models.CharField(max_length=20,null=True,blank=True)
     mobile3 = models.CharField(max_length=20,null=True,blank=True)
     mobile4 = models.CharField(max_length=20,null=True,blank=True)
     mobile5 = models.CharField(max_length=20,null=True,blank=True)
 
     def lgv_id(self):
-        if settings.HOST=="playwithlv.com":
+        if settings.HOST=="http://api.playwithlv.com":
             return self.l_id
         else:
             return self.lv_id
