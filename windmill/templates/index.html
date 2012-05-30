@@ -4,14 +4,14 @@
 
 {% for div in Tournaments %}
 <h1>{{div.name}} division</h1>
-<div>{{div.name}} division has leaguevine id:{{div.l_id}}.
+<div>{{div.name}} division has playwithlv id:{{div.l_id}} and leaguevine id:{{div.lv_id}}.
 <a href="{{div.link}}">Leaguevine-link</a>.</div>
 
 
 
 <h4>Do something:</h4>
 <div><a href="/tools/{{div.name}}/newtourney">New tournament</a></div>
-<div><a href="/tools/{{div.name}}/clean">Empty tournament</a></div>
+<div><a href="/tools/{{div.name}}/cleanteams">Remove all Teams from tournament</a></div>
 <div><a href="/tools/{{div.name}}/addteams">Add Teams to Tournament</a></div>
 {% if div.name == "women" %}
 <div><a href="/tools/{{div.name}}/addpools">Add Pools</a></div>
@@ -28,6 +28,8 @@
 <h2>Local stuff:</h2>
 <div><a href="/tools/import">Import Teams from Ffindr</a></div>
 <div><a href="/tools/createteams">Create/Link Teams on Leaguevine</a></div>
+<div><a href="/tools/idreplace">Overwrite IDs from leaguevine to playwithlv</a></div>
+
 
 
 

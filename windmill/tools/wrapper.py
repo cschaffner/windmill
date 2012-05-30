@@ -22,7 +22,8 @@ if access_token == None:
     if settings.OFFLINE:
         access_token='offline'
     else:
-        r=requests.get('http://{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(settings.HOST, settings.CLIENT_ID, settings.CLIENT_PWD))
+        url=u'{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(settings.TOKEN_URL, settings.CLIENT_ID, settings.CLIENT_PWD)
+        r=requests.get(url)
         # parse string into Python dictionary
         r_dict = simplejson.loads(r.content)
         access_token = r_dict.get('access_token')
@@ -87,7 +88,7 @@ def api_update(url,updatedict={}):
   
  
 def api_tournamentbyid(tournament_id):
-    url='http://api.{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
+    url='{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
@@ -96,7 +97,7 @@ def api_nrswissrounds(tournament_id):
 # returns the number of existing swissdraw rounds
     if settings.OFFLINE:
         return 6
-    url='http://api.{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bid%5D'.format(settings.HOST,tournament_id)
+    url='{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bid%5D'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict['meta']['total_count']
@@ -106,39 +107,39 @@ def api_swissroundinfo(tournament_id,round_number=None):
         return swissinfo()
      
     if round_number is None:
-        url='http://api.{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
+        url='{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
     else:
-        url='http://api.{0}/v1/swiss_rounds/?tournament_id={1}&round_number={2}'.format(settings.HOST,tournament_id,round_number)        
+        url='{0}/v1/swiss_rounds/?tournament_id={1}&round_number={2}'.format(settings.HOST,tournament_id,round_number)        
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
 
 def api_poolinfo(tournament_id):
-    url='http://api.{0}/v1/pool_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/pool_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
 
 def api_gamesbytournament(tournament_id):
-    url='http://api.{0}/v1/games/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/games/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
 
 def api_gamebyid(game_id):
-    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    url='{0}/v1/games/{1}/'.format(settings.HOST,game_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
 
 def api_bracketsbytournament(tournament_id):
-    url='http://api.{0}/v1/brackets/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/brackets/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
 
 def api_bracketbyid(bracket_id):
-    url='http://api.{0}/v1/brackets/{1}/'.format(settings.HOST,bracket_id)
+    url='{0}/v1/brackets/{1}/'.format(settings.HOST,bracket_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
@@ -160,16 +161,16 @@ def api_url(url):
 
 def api_result(game_id,score1,score2,final=False):
     # upload scores to leaguevine
-    url='http://api.{0}/v1/game_scores/'.format(settings.HOST)
+    url='{0}/v1/game_scores/'.format(settings.HOST)
     game_dict = {"game_id": "{0}".format(game_id),
                 "team_1_score": "{0}".format(score1),
                 "team_2_score": "{0}".format(score2),
                 "is_final": "{0}".format(final)}
     return api_post(url,game_dict)
 
-def api_clean(tournament_id):
+def api_cleanteams(tournament_id):
     # retrieve all teams of a particular tournament
-    url='http://api.{0}/v1/tournament_teams/?tournament_ids=%5B{1}%5D'.format(settings.HOST,tournament_id) 
+    url='{0}/v1/tournament_teams/?tournament_ids=%5B{1}%5D'.format(settings.HOST,tournament_id) 
     next=True  
     while next:
         # we do not use the next-url, but the original one because we have removed some teams in the meantime
@@ -179,7 +180,7 @@ def api_clean(tournament_id):
         
         for team in response_dict.get('objects'):
             # remove this team from tournament
-            remove_url='http://api.{0}/v1/tournament_teams/{1}/{2}/'.format(settings.HOST,tournament_id,team.get('team_id'))
+            remove_url='{0}/v1/tournament_teams/{1}/{2}/'.format(settings.HOST,tournament_id,team.get('team_id'))
             response = requests.delete(url=remove_url,headers=my_headers,config=my_config)
             if response.status_code == 204:
                 logger.info('removed team with id {0}'.format(team.get('team_id')))
@@ -191,7 +192,7 @@ def api_clean(tournament_id):
     return
 
 def api_weblink(tournament_id):
-    url='http://api.{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
+    url='{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict.get('leaguevine_url')
@@ -199,7 +200,7 @@ def api_weblink(tournament_id):
 
 def api_newtournament(data_dict):
 # expects a data_dictionary with leaguevine tournament specification
-    url='http://api.{0}/v1/tournaments/'.format(settings.HOST)
+    url='{0}/v1/tournaments/'.format(settings.HOST)
     response_dict=api_post(url,data_dict)
 
     tournament_id = response_dict.get('id')
@@ -213,12 +214,12 @@ def api_createteam(season_id,name,info,city,country):
 
     # first check if team with this name already exists in season_id
     logger.info(name)
-    url=u'http://api.{0}/v1/teams/?name={1}&season_id={2}'.format(settings.HOST,name,season_id)
+    url=u'{0}/v1/teams/?name={1}&season_id={2}'.format(settings.HOST,name,season_id)
     response=requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     if response_dict.get('meta').get('total_count')==0:
         # create a new team in season_id
-        url='http://api.{0}/v1/teams/'.format(settings.HOST)
+        url='{0}/v1/teams/'.format(settings.HOST)
         team_data_dict = {"name": u"{0}".format(name), 
                   "season_id": season_id,
                   "info": "{0}".format(info),
@@ -232,7 +233,7 @@ def api_createteam(season_id,name,info,city,country):
         logger.warning(u'team with name {0} already exists (l_id: {1})'.format(name,team_id))
         # and update the object
         # create a new team in season_id
-        url='http://api.{0}/v1/teams/{1}/'.format(settings.HOST,team_id)
+        url='{0}/v1/teams/{1}/'.format(settings.HOST,team_id)
         team_data_dict = {"name": u"{0}".format(name), 
                   "season_id": season_id,
                   "info": "{0}".format(info),
@@ -248,14 +249,14 @@ def api_addteam(tournament_id,team_id,seed):
 # adds team to tournament
 # returns response_dict
 
-    url='http://api.{0}/v1/tournament_teams/'.format(settings.HOST)
+    url='{0}/v1/tournament_teams/'.format(settings.HOST)
     tournament_team_data_dict = {"tournament_id": tournament_id,
                                  "team_id": "{0}".format(team_id),
                                  "seed": "{0}".format(seed) }
     return api_post(url,tournament_team_data_dict)        
 
 def api_updatepairingtype(tournament_id,pairing='adjacent pairing'):
-    url='http://api.{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
+    url='{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
     tournament_dict = {"pairing type": {0}.format(pairing)}
     return api_update(url,tournament_dict)
     
@@ -264,7 +265,7 @@ def api_addswissround(tournament_id,starttime,pairing='adjacent pairing',team_id
     
     api_updatepairingtype(tournament_id,pairing)
     # create the round
-    url='http://api.{0}/v1/swiss_rounds/'.format(settings.HOST)
+    url='{0}/v1/swiss_rounds/'.format(settings.HOST)
     swissround_dict = {"tournament_id": tournament_id,
                        "start_time": "{0}".format(starttime),
                        "visibility": "hidden",
@@ -273,7 +274,7 @@ def api_addswissround(tournament_id,starttime,pairing='adjacent pairing',team_id
 
 def api_cleanbrackets(tournament_id):
     # retrieve all teams of a particular tournament
-    url='http://api.{0}/v1/brackets/?tournament_id={1}&fields=%5Bid%5D'.format(settings.HOST,tournament_id) 
+    url='{0}/v1/brackets/?tournament_id={1}&fields=%5Bid%5D'.format(settings.HOST,tournament_id) 
     next=True  
     while next:
         # we do not use the next-url, but the original one because we have removed some teams in the meantime
@@ -283,7 +284,7 @@ def api_cleanbrackets(tournament_id):
         
         for bracket in response_dict.get('objects'):
             # remove this team from tournament
-            remove_url='http://api.{0}/v1/brackets/{1}/'.format(settings.HOST,bracket.get('id'))
+            remove_url='{0}/v1/brackets/{1}/'.format(settings.HOST,bracket.get('id'))
             response = requests.delete(url=remove_url,headers=my_headers,config=my_config)
             if response.status_code == 204:
                 logger.info('removed bracket with id {0}'.format(bracket.get('id')))
@@ -296,7 +297,7 @@ def api_cleanbrackets(tournament_id):
     
 def api_addbracket(tournament_id,starttime,number_of_rounds,time_between_rounds=180):
     # create the bracket
-    url='http://api.{0}/v1/brackets/'.format(settings.HOST)
+    url='{0}/v1/brackets/'.format(settings.HOST)
     bracket_dict = {"tournament_id": tournament_id,
                        "start_time": "{0}".format(starttime),
                        "number_of_rounds": "{0}".format(number_of_rounds),    
@@ -311,7 +312,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     # http://www.wcbu2011.org/scores/?view=poolstatus&Pool=1009
     
     # create main winner bracket
-    url='http://api.{0}/v1/brackets/'.format(settings.HOST)
+    url='{0}/v1/brackets/'.format(settings.HOST)
     bracket_dict = {"tournament_id": tournament_id,
                    "start_time": "{0}".format(starttime1),
                    "number_of_rounds": "3",    
@@ -394,7 +395,7 @@ def api_loserconnect(source_game,target_game,team_nr):
     # therefore, we retrieve the game info first
     sgame=api_gamebyid(source_game)
     
-    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,source_game)
+    url='{0}/v1/games/{1}/'.format(settings.HOST,source_game)
     game_dict = {"start_time": "{0}".format(sgame['start_time']),
                     "next_game_for_loser": "{0}".format(target_game),    
                     "next_team_for_loser": "{0}".format(team_nr),
@@ -403,7 +404,7 @@ def api_loserconnect(source_game,target_game,team_nr):
 
 
 def api_setteamsingame(game_id,team_1_id,team_2_id):
-    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    url='{0}/v1/games/{1}/'.format(settings.HOST,game_id)
     game_dict = {"team_1_id": "{0}".format(team_1_id),    
                  "team_2_id": "{0}".format(team_2_id)}
     return api_update(url,game_dict)
@@ -413,7 +414,7 @@ def api_setteamsingame_OLD(game_id,team_1_id,team_2_id):
     # therefore, we retrieve the game info first
     game=api_gamebyid(game_id)
     
-    url='http://api.{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    url='{0}/v1/games/{1}/'.format(settings.HOST,game_id)
     game_dict = {"start_time": "{0}".format(game['start_time']),
                  "team_1_id": "{0}".format(team_1_id),    
                  "team_2_id": "{0}".format(team_2_id),
@@ -423,7 +424,7 @@ def api_setteamsingame_OLD(game_id,team_1_id,team_2_id):
     
 def api_addpool(tournament_id,starttime,name,team_ids=[],time_between_rounds=120,generate_matchups=False):
     # create the pool
-    url='http://api.{0}/v1/pools/'.format(settings.HOST)
+    url='{0}/v1/pools/'.format(settings.HOST)
     pool_dict = {"tournament_id": tournament_id,
                    "start_time": "{0}".format(starttime),
                    "name": "{0}".format(name),    

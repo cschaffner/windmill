@@ -24,10 +24,10 @@ def division(request, div):
 def correctresult(game):
     # make up a 'random' result based on the team's seeding information in the local database
     import __builtin__
-    if settings.HOST=="playwithlv.com":
+    if settings.HOST=="http://api.playwithlv.com":
         t1=Team.objects.get(l_id=game['team_1_id'])
         t2=Team.objects.get(l_id=game['team_2_id'])
-    elif settings.HOST=="leaguevine.com":
+    elif settings.HOST=="https://api.leaguevine.com":
         t1=Team.objects.get(lv_id=game['team_1_id'])
         t2=Team.objects.get(lv_id=game['team_2_id'])        
     nrteams=t1.tournament.team_set.filter(seed__isnull=False).count()
@@ -87,15 +87,32 @@ def ffimport(request):
     ffindr_import()
     return render_to_response('index.html')
 
+def idreplace(request):
+# this procedure should be called after the playwithlv database has been replace with the leaguevine db
+# then we should copy all lv_id's over onto the l_id 's
+    
+    for t in Team.objects.all():
+        logger.info(u'old l_id: {0} for team {1}'.format(t.l_id,t.name))
+        t.l_id = t.lv_id
+        t.save()
+        logger.info(u'new l_id: {0} for team {1}'.format(t.l_id,t.name))
+    for t in Tournament.objects.all():
+        logger.info(u'old l_id: {0} for tournament {1}'.format(t.l_id,t.name))
+        t.l_id = t.lv_id
+        t.save()
+        logger.info(u'new l_id: {0} for tournament {1}'.format(t.l_id,t.name))
+    
+    return render_to_response('index.html')
+
 def createteams(request):
     for div in ['open', 'mixed', 'women']:
         season_id=settings.SEASON_ID[div]
         for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
             team_id=api_createteam(season_id,team.name,team.id,team.city,team.country_code)
             logger.info('team.lgv_id before: {0}'.format(team.lgv_id()))
-            if settings.HOST=="playwithlv.com":
+            if settings.HOST=="http://api.playwithlv.com":
                 team.l_id=team_id
-            elif settings.HOST=="leaguevine.com":
+            elif settings.HOST=="https://api.leaguevine.com":
                 team.lv_id=team_id
             team.save()
             logger.info('team.lgv_id after:  {0}'.format(team.lgv_id()))
@@ -160,23 +177,23 @@ def newtourney(request, div):
     # set up a new tournament
     data_dict = {"name": "Windmill Windup 2012 {0}".format(div), 
              "season_id": season_id,
-            "start_date": "2012-06-14",
-            "end_date": "2012-06-16",
+            "start_date": "2012-06-15",
+            "end_date": "2012-06-17",
             "visibility": "live",
             "timezone": "Europe/Amsterdam"}
-    if div=='open' or div=='mixed':
-        data_dict["scheduling_format"]="swiss"
-        data_dict["swiss_scoring_system"]="victory points"
+#    if div=='open' or div=='mixed':
+    data_dict["scheduling_format"]="swiss"
+    data_dict["swiss_scoring_system"]="victory points"
 # that's a leaguevine-bug for now...
 #        data_dict["swiss_pairing_type"]="adjacent pairing"
-    elif div=='women':
-        data_dict["scheduling_format"]="regular"
+#    elif div=='women':
+#        data_dict["scheduling_format"]="regular"
     
     tournament_id=api_newtournament(data_dict)
     t=Tournament.objects.get(name=div)
-    if settings.HOST=="playwithlv.com":
+    if settings.HOST=="http://api.playwithlv.com":
         t.l_id=tournament_id
-    elif settings.HOST=="leaguevine.com":
+    elif settings.HOST=="https://api.leaguevine.com":
         t.lv_id=tournament_id
     t.save()
         
@@ -197,9 +214,9 @@ def addteams(request, div):
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
     
-def clean(request, div):
+def cleanteams(request, div):
     t=Tournament.objects.get(name=div)
-    api_clean(t.lgv_id())
+    api_cleanteams(t.lgv_id())
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def cleanbrackets(request, div):

@@ -2,13 +2,22 @@
 import os
 ROOT_PATH = os.path.dirname(__file__)
 
-OFFLINE = True
+OFFLINE = False
 
-HOST="playwithlv.com"
-#HOST="leaguevine.com"
+HOST="http://api.playwithlv.com"
+#HOST="https://api.leaguevine.com"
 
-CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
-CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
+if HOST=="http://api.playwithlv.com":
+#    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
+#    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
+    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+    TOKEN_URL = 'http://www.playwithlv.com'
+else:
+    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+    TOKEN_URL = 'https://www.leaguevine.com'
+    
 
 # Windmill fixtures
 
@@ -39,7 +48,7 @@ CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
 ROUNDS={"open": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T11:15:00+02:00",
-                  "mode": "fold"},
+                  "mode": "slide pairing"},
                  {"round_nr" : 2,
                   "time": "2012-06-15T14:00:00+02:00",
                   "mode": "adjacent pairing"},
@@ -71,7 +80,7 @@ ROUNDS={"open": [
         "mixed": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T10:00:00+02:00",
-                  "mode": "fold"},
+                  "mode": "slide pairing"},
                  {"round_nr" : 2,
                   "time": "2012-06-15T12:30:00+02:00",
                   "mode": "adjacent pairing"},
@@ -103,7 +112,7 @@ ROUNDS={"open": [
         "women": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T10:00:00+02:00",
-                  "mode": "fold"},
+                  "mode": "slide pairing"},
                  {"round_nr" : 2,
                   "time": "2012-06-15T12:30:00+02:00",
                   "mode": "adjacent pairing"},
@@ -139,16 +148,11 @@ SEASON_ID = {'open': '20068',
              'mixed': '20067',
              'women': '20069'}
 
-# new season id, but still buggy on playwithlv...
-#SEASON_ID = {'open': '20068',
-#             'mixed': '20067',
-#             'women': '20069'}
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('Christian Schaffner', 'huebli@gmail.com'),
 )
 
 MANAGERS = ADMINS
