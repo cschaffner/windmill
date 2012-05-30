@@ -132,7 +132,7 @@ def addswissround(request, div):
     pairing=settings.ROUNDS[div][nrswissrounds]['mode']
     logger.info("starttime: {0}".format(starttime))
     
-    if nrswissrounds!=5:
+    if nrswissrounds==5:
         # move all but the top 8 teams to the next swiss-draw round
         team_ids=api_rankedteamids(t.lgv_id(),5)
         team_ids=team_ids[8:] # remove the top 8
@@ -140,6 +140,7 @@ def addswissround(request, div):
         team_ids=[]
     api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
     # TODO: check that field assignments are OK
+    
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def addpools(request,div):
