@@ -13,14 +13,6 @@ from pprint import pformat
 logger = logging.getLogger('windmill.spirit')
 
 """
-GOAL: 
-
-Swissdraw:
-$text = "Welcome to Windmill Windup 2012!In round 1,";
-
-// After a 15-2 loss in round 1, you are now ranked 12th. In round 2,
-// you'll play "Ultimate Kaese" (ranked 13th) on Field 1 at 12:30.
-
 Brackets:
 // After a 15-10 win in round 5, your final rank after Swissdraw is 25th. You will thus play for rank 1 to 8.
 // In the quarter finals, you'll play CamboCakes (ranked 5th) on Field 10. Pls handin today's spirit scores.
@@ -65,13 +57,27 @@ def submit(request):
 def create(request,tournament_id):
     # retrieve tournament info
     t=api_tournamentbyid(tournament_id)
+#    t={u'info': u'', u'swiss_victory_points_cap': 23, u'name': u'Windmill Windup Test (open)', u'end_date': u'2012-06-16', u'season': {u'league': {u'leaguevine_url': u'http://playwithlv.com/leagues/6979/club-open/', u'id': 6979, u'resource_uri': u'http://api.playwithlv.com/v1/leagues/6979/', u'name': u'Club Open'}, u'name': u'2011', u'end_date': u'2011-12-31', u'league_id': 6979, u'time_created': u'2011-02-17T08:14:44+00:00', u'start_date': u'2011-01-01', u'leaguevine_url': u'http://playwithlv.com/seasons/6980/club-open-2011/', u'time_last_updated': u'2011-02-17T08:14:44+00:00', u'id': 6980, u'resource_uri': u'http://api.playwithlv.com/v1/seasons/6980/'}, u'swiss_victory_points_games_to': 13, u'time_created': u'2012-04-15T20:37:20+00:00', u'scheduling_format': u'swiss', u'season_id': 6980, u'timezone': u'US/Central', u'leaguevine_url': u'http://playwithlv.com/tournaments/18055/windmill-windup-test-open/', u'swiss_points_for_bye': u'1.0', u'start_date': u'2012-06-14', u'swiss_scoring_system': u'victory points', u'swiss_pairing_type': u'adjacent pairing', u'visibility': u'live', u'number_of_sets': None, u'time_last_updated': u'2012-04-15T20:37:20+00:00', u'uses_seeds': True, u'id': 18055, u'resource_uri': u'http://api.playwithlv.com/v1/tournaments/18055/'}
+    logger.info(t)
+    # check if there are playoff rounds
+    # if yes, load them in brackets
+    brackets={}
     if t['scheduling_format']=='swiss':
-        swiss=api_swissroundinfo(tournament_id)
+#        swiss=api_swissroundinfo(tournament_id)
+        swiss=swissinfo()
+#        logger.info(pformat(swiss))
+        if not request.GET.__contains__('round'):
+            # display choice of rounds
+            return render_to_response('sms_selectround.html',{'tournament': t, 'swiss': swiss, 'brackets': brackets})
+        else:
+            round_nr = int(request.GET['round'])
+            if not round_nr > 0:
+                raise 'something is wrong with the round argument'
+            nr_created=SMS.objects.swiss_round(swiss,round_nr,t)
         
     elif t['scheduling_format']=='regular':
         # do something here
         logger.error('treat regular format here')
     
-
-    
+    return render_to_response('sms_control.html',{'nr_created': nr_created})
     

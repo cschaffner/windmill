@@ -16,15 +16,20 @@ def home(request):
 
 def division(request, div):
     t=Tournament.objects.get(name=div)
-    swiss=api_swissroundinfo(t.l_id)
+    swiss=api_swissroundinfo(t.lgv_id())
+        
     return render_to_response('division.html',{'div': Tournament.objects.get(name=div),
                                                'swiss': swiss})
 
 def correctresult(game):
     # make up a 'random' result based on the team's seeding information in the local database
     import __builtin__
-    t1=Team.objects.get(l_id=game['team_1_id'])
-    t2=Team.objects.get(l_id=game['team_2_id'])
+    if settings.HOST=="http://api.playwithlv.com":
+        t1=Team.objects.get(l_id=game['team_1_id'])
+        t2=Team.objects.get(l_id=game['team_2_id'])
+    elif settings.HOST=="https://api.leaguevine.com":
+        t1=Team.objects.get(lv_id=game['team_1_id'])
+        t2=Team.objects.get(lv_id=game['team_2_id'])        
     nrteams=t1.tournament.team_set.filter(seed__isnull=False).count()
     logger.info('nr teams: {0}'.format(nrteams))
     diff=(t1.seed - t2.seed)/nrteams
@@ -53,7 +58,7 @@ def randomresults(request, div):
 #
 #        return
         
-        games=api_gamesbytournament(t.l_id)
+        games=api_gamesbytournament(t.lgv_id())
         while True:
             for g in games['objects']:
                 logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
@@ -66,7 +71,7 @@ def randomresults(request, div):
             else:
                 games=api_url(next)
     else:
-        swiss = api_swissroundinfo(t.l_id)
+        swiss = api_swissroundinfo(t.lgv_id())
         nrrounds=swiss['meta']['total_count']
         logger.info('nr of rounds: {0}'.format(nrrounds))
         for round in swiss['objects']:
@@ -82,15 +87,35 @@ def ffimport(request):
     ffindr_import()
     return render_to_response('index.html')
 
+def idreplace(request):
+# this procedure should be called after the playwithlv database has been replace with the leaguevine db
+# then we should copy all lv_id's over onto the l_id 's
+    
+    for t in Team.objects.all():
+        logger.info(u'old l_id: {0} for team {1}'.format(t.l_id,t.name))
+        t.l_id = t.lv_id
+        t.save()
+        logger.info(u'new l_id: {0} for team {1}'.format(t.l_id,t.name))
+    for t in Tournament.objects.all():
+        logger.info(u'old l_id: {0} for tournament {1}'.format(t.l_id,t.name))
+        t.l_id = t.lv_id
+        t.save()
+        logger.info(u'new l_id: {0} for tournament {1}'.format(t.l_id,t.name))
+    
+    return render_to_response('index.html')
+
 def createteams(request):
     for div in ['open', 'mixed', 'women']:
         season_id=settings.SEASON_ID[div]
         for team in Team.objects.filter(tournament__name=div).filter(seed__isnull=False):
-            team_id=api_createteam(season_id,team.name,team.id)
-            logger.info('team.l_id before: {0}'.format(team.l_id))
-            team.l_id=team_id
+            team_id=api_createteam(season_id,team.name,team.id,team.city,team.country_code)
+            logger.info('team.lgv_id before: {0}'.format(team.lgv_id()))
+            if settings.HOST=="http://api.playwithlv.com":
+                team.l_id=team_id
+            elif settings.HOST=="https://api.leaguevine.com":
+                team.lv_id=team_id
             team.save()
-            logger.info('team.l_id after:  {0}'.format(team.l_id))
+            logger.info('team.lgv_id after:  {0}'.format(team.lgv_id()))
 
     return render_to_response('index.html')
 
@@ -98,15 +123,24 @@ def createteams(request):
 def addswissround(request, div):
     t=Tournament.objects.get(name=div)
     
-    # figure out how many swissdraw rounds which already exist
-    nrswissrounds=api_nrswissrounds(t.l_id)
+    # figure out how many swissdraw rounds already exist
+    nrswissrounds=api_nrswissrounds(t.lgv_id())
     
+    # remember that the array counting starts at 0
+    # so the following retrieves the data of the *next* round
     starttime=settings.ROUNDS[div][nrswissrounds]['time']
     pairing=settings.ROUNDS[div][nrswissrounds]['mode']
     logger.info("starttime: {0}".format(starttime))
-    # todo: before creating a new Swissdraw round, make sure the pairing mode is set properly
-    api_addswissround(t.l_id,starttime,pairing);
-    # todo: check that field assignments are OK
+    
+    if nrswissrounds==5:
+        # move all but the top 8 teams to the next swiss-draw round
+        team_ids=api_rankedteamids(t.lgv_id(),5)
+        team_ids=team_ids[8:] # remove the top 8
+    else:
+        team_ids=[]
+    api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
+    # TODO: check that field assignments are OK
+    
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def addpools(request,div):
@@ -123,17 +157,17 @@ def addpools(request,div):
         if team.seed is None:
             continue
         elif team.seed % 2 == 1:
-            oddlist.append(team.l_id)
+            oddlist.append(team.lgv_id())
         elif team.seed % 2 == 0:
-            evenlist.append(team.l_id)
+            evenlist.append(team.lgv_id())
 
     logger.info('oddlist: {0}'.format(oddlist))
     logger.info(evenlist)
 
     starttime=settings.ROUNDS[div][0]['time']
     # create two pools
-    api_addpool(t.l_id,starttime,"Odd Pool",oddlist,120,True)
-    api_addpool(t.l_id,starttime,"Even Pool",evenlist,120,True)
+    api_addpool(t.lgv_id(),starttime,"Odd Pool",oddlist,120,True)
+    api_addpool(t.lgv_id(),starttime,"Even Pool",evenlist,120,True)
     
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
@@ -142,22 +176,26 @@ def addpools(request,div):
 def newtourney(request, div):
     season_id=settings.SEASON_ID[div]
     # set up a new tournament
-    data_dict = {"name": "Windmill Windup Test ({0})".format(div), 
+    data_dict = {"name": "Windmill Windup 2012 {0}".format(div), 
              "season_id": season_id,
-            "start_date": "2012-06-14",
-            "end_date": "2012-06-16",
-            "visibility": "live"}
-    if div=='open' or div=='mixed':
-        data_dict["scheduling_format"]="swiss"
-        data_dict["swiss_scoring_system"]="victory points"
+            "start_date": "2012-06-15",
+            "end_date": "2012-06-17",
+            "visibility": "live",
+            "timezone": "Europe/Amsterdam"}
+#    if div=='open' or div=='mixed':
+    data_dict["scheduling_format"]="swiss"
+    data_dict["swiss_scoring_system"]="victory points"
 # that's a leaguevine-bug for now...
 #        data_dict["swiss_pairing_type"]="adjacent pairing"
-    elif div=='women':
-        data_dict["scheduling_format"]="regular"
+#    elif div=='women':
+#        data_dict["scheduling_format"]="regular"
     
     tournament_id=api_newtournament(data_dict)
     t=Tournament.objects.get(name=div)
-    t.l_id=tournament_id
+    if settings.HOST=="http://api.playwithlv.com":
+        t.l_id=tournament_id
+    elif settings.HOST=="https://api.leaguevine.com":
+        t.lv_id=tournament_id
     t.save()
         
     link=api_weblink(tournament_id)
@@ -166,27 +204,27 @@ def newtourney(request, div):
 def addteams(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
-    if t.l_id is None:
+    if t.lgv_id() is None:
         return HttpResponseNotFound('<h3>Please create tournament first</h3>')
-    tournament_id=t.l_id
+    tournament_id=t.lgv_id()
     
     for team in Team.objects.filter(tournament__name=div):
         if team.seed>0:
-            api_addteam(tournament_id,team.l_id,team.seed)
+            api_addteam(tournament_id,team.lgv_id(),team.seed)
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
     
-def clean(request, div):
+def cleanteams(request, div):
     t=Tournament.objects.get(name=div)
-    api_clean(t.l_id)
+    api_cleanteams(t.lgv_id())
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def cleanbrackets(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_cleanbrackets(t.l_id)
+    api_cleanbrackets(t.lgv_id())
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
      
@@ -194,8 +232,8 @@ def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_addfull3bracket(t.l_id,settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
-    #api_addbracket(t.l_id,settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
+    api_addfull3bracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
+    #api_addbracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
@@ -208,12 +246,12 @@ def movetoplayoff(request, div):
         # do something
         logger.error('women have to be handled here')
     else:
-        swiss = api_swissroundinfo(t.l_id)
+        swiss = api_swissroundinfo(t.lgv_id())
         nrrounds=swiss['meta']['total_count']
         logger.info('nr of rounds: {0}'.format(nrrounds))
         for round in swiss['objects']:
             if round['round_number']==nrrounds: # last round                
-                brackets=api_bracketsbytournament(t.l_id)
+                brackets=api_bracketsbytournament(t.lgv_id())
                 for br in brackets['objects']:
                     if br['number_of_rounds']==3:  # that's the largest bracket
                         api_setteamsingame(br['rounds'][0]['games'][0]['id'],round['standings'][0]['team_id'],round['standings'][7]['team_id'])
