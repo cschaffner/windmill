@@ -8,10 +8,10 @@ HOST="http://api.playwithlv.com"
 #HOST="https://api.leaguevine.com"
 
 if HOST=="http://api.playwithlv.com":
-#    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
-#    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
-    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
-    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
+    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
+#    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+#    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
     TOKEN_URL = 'http://www.playwithlv.com'
 else:
     CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'

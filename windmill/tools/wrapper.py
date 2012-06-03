@@ -253,11 +253,22 @@ def api_addteam(tournament_id,team_id,seed):
     tournament_team_data_dict = {"tournament_id": tournament_id,
                                  "team_id": "{0}".format(team_id),
                                  "seed": "{0}".format(seed) }
-    return api_post(url,tournament_team_data_dict)        
+    
+    response= api_post(url,tournament_team_data_dict) 
+    logger.info(response)       
+    if response.has_key('errors'):
+        # then team in tournament already exists, so just update its seed
+        logger.info('team already exists, updating the seed instead,')
+        url='{0}/v1/tournament_teams/{1}/{2}/'.format(settings.HOST,tournament_id,team_id)
+        tournament_team_data_dict = {"seed": "{0}".format(seed) }
+        response= api_put(url,tournament_team_data_dict)        
+    
+    return response
+        
 
 def api_updatepairingtype(tournament_id,pairing='adjacent pairing'):
     url='{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
-    tournament_dict = {"pairing type": {0}.format(pairing)}
+    tournament_dict = {"swiss_pairing_type": "{0}".format(pairing)}
     return api_update(url,tournament_dict)
     
 
