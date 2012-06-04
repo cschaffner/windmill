@@ -49,7 +49,7 @@ def correctresult(game):
 
 def randomresults(request, div):
     t=Tournament.objects.get(name=div)
-    if div=='women':
+#    if div=='women':
 #        for url in ["http://api.playwithlv.com/v1/games/?limit=20&tournament_id=18053",
 #                    "http://api.playwithlv.com/v1/games/?limit=20&tournament_id=18053&offset=20"]:
 #            games=api_url(url)
@@ -57,28 +57,28 @@ def randomresults(request, div):
 #                logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
 #
 #        return
-        
-        games=api_gamesbytournament(t.lgv_id())
-        while True:
-            for g in games['objects']:
-                logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
-                if g['team_1_score']==0 and g['team_2_score']==0:
-                    correctresult(g)
-            next=games['meta']['next']
-            logger.info(u'next: {0}'.format(next))
-            if next is None:
-                break
-            else:
-                games=api_url(next)
-    else:
-        swiss = api_swissroundinfo(t.lgv_id())
-        nrrounds=swiss['meta']['total_count']
-        logger.info('nr of rounds: {0}'.format(nrrounds))
-        for round in swiss['objects']:
-            if round['round_number']==nrrounds: # last round
-                logger.info('nr of games: {0}'.format(len(round['games'])))
-                for g in round['games']:
-                    correctresult(g)
+#        
+#        games=api_gamesbytournament(t.lgv_id())
+#        while True:
+#            for g in games['objects']:
+#                logger.info('game: {0}: {1} - {2}'.format(g['id'],g['team_1_score'],g['team_2_score']))
+#                if g['team_1_score']==0 and g['team_2_score']==0:
+#                    correctresult(g)
+#            next=games['meta']['next']
+#            logger.info(u'next: {0}'.format(next))
+#            if next is None:
+#                break
+#            else:
+#                games=api_url(next)
+#    else:
+    swiss = api_swissroundinfo(t.lgv_id())
+    nrrounds=swiss['meta']['total_count']
+    logger.info('nr of rounds: {0}'.format(nrrounds))
+    for round in swiss['objects']:
+        if round['round_number']==nrrounds: # last round
+            logger.info('nr of games: {0}'.format(len(round['games'])))
+            for g in round['games']:
+                correctresult(g)
 
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
 
@@ -132,7 +132,7 @@ def addswissround(request, div):
     pairing=settings.ROUNDS[div][nrswissrounds]['mode']
     logger.info("starttime: {0}".format(starttime))
     
-    if nrswissrounds==5:
+    if nrswissrounds>=5:
         # move all but the top 8 teams to the next swiss-draw round
         team_ids=api_rankedteamids(t.lgv_id(),5)
         team_ids=team_ids[8:] # remove the top 8
@@ -232,7 +232,7 @@ def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
-    api_addfull3bracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'])    
+    api_addfull3bracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'],settings.ROUNDS[div][8]['time'])    
     #api_addbracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
     
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
@@ -242,22 +242,22 @@ def movetoplayoff(request, div):
     t=Tournament.objects.get(name=div)
     
 
-    if div=='women':
-        # do something
-        logger.error('women have to be handled here')
-    else:
-        swiss = api_swissroundinfo(t.lgv_id())
-        nrrounds=swiss['meta']['total_count']
-        logger.info('nr of rounds: {0}'.format(nrrounds))
-        for round in swiss['objects']:
-            if round['round_number']==nrrounds: # last round                
-                brackets=api_bracketsbytournament(t.lgv_id())
-                for br in brackets['objects']:
-                    if br['number_of_rounds']==3:  # that's the largest bracket
-                        api_setteamsingame(br['rounds'][0]['games'][0]['id'],round['standings'][0]['team_id'],round['standings'][7]['team_id'])
-                        api_setteamsingame(br['rounds'][0]['games'][1]['id'],round['standings'][4]['team_id'],round['standings'][3]['team_id'])
-                        api_setteamsingame(br['rounds'][0]['games'][2]['id'],round['standings'][2]['team_id'],round['standings'][5]['team_id'])
-                        api_setteamsingame(br['rounds'][0]['games'][3]['id'],round['standings'][6]['team_id'],round['standings'][1]['team_id'])
+#    if div=='women':
+#        # do something
+#        logger.error('women have to be handled here')
+#    else:
+    swiss = api_swissroundinfo(t.lgv_id())
+    nrrounds=swiss['meta']['total_count']
+    logger.info('nr of rounds: {0}'.format(nrrounds))
+    for round in swiss['objects']:
+        if round['round_number']==5: # round 5 standings are deciding               
+            brackets=api_bracketsbytournament(t.lgv_id())
+            for br in brackets['objects']:
+                if br['number_of_rounds']==3:  # that's the largest bracket
+                    api_setteamsingame(br['rounds'][0]['games'][0]['id'],round['standings'][0]['team_id'],round['standings'][7]['team_id'])
+                    api_setteamsingame(br['rounds'][0]['games'][1]['id'],round['standings'][4]['team_id'],round['standings'][3]['team_id'])
+                    api_setteamsingame(br['rounds'][0]['games'][2]['id'],round['standings'][2]['team_id'],round['standings'][5]['team_id'])
+                    api_setteamsingame(br['rounds'][0]['games'][3]['id'],round['standings'][6]['team_id'],round['standings'][1]['team_id'])
                          
                     
     

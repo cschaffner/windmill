@@ -80,6 +80,10 @@ def api_update(url,updatedict={}):
             (key != 'resource_uri') and (key!='time_last_updated') and (key!='time_created') and
             (key != 'objects')):
             new_dict[key]=val
+            # fix a leaguevine bug here:
+            if key=="start_time" and val[-6:]=="+01:20":
+                new_dict[key]=val[:-6]+"+02:00"
+                
     logger.info('before updating: {0}'.format(pformat(new_dict)))
     new_dict.update(updatedict)
     logger.info('after updating: {0}'.format(pformat(new_dict)))
@@ -316,7 +320,7 @@ def api_addbracket(tournament_id,starttime,number_of_rounds,time_between_rounds=
     return api_post(url,bracket_dict)    
 
 
-def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_between_rounds=180):
+def api_addfull3bracket(tournament_id,starttimeQF,starttimeSF,starttimeF,starttimeBigF,time_between_rounds=180):
     # creates a full playoff bracket with 3 rounds
     
     # example of full 3-round bracket:
@@ -325,7 +329,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     # create main winner bracket
     url='{0}/v1/brackets/'.format(settings.HOST)
     bracket_dict = {"tournament_id": tournament_id,
-                   "start_time": "{0}".format(starttime1),
+                   "start_time": "{0}".format(starttimeQF),
                    "number_of_rounds": "3",    
                    "time_between_rounds": "{0}".format(time_between_rounds),
                    "column_position": "1",
@@ -334,10 +338,18 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     response=api_post(url,bracket_dict)
     winnerbr=api_bracketbyid(response['id'])
 #    winnerbr=response
+
+    # adjust the big final's time
+    for r in winnerbr['rounds']:
+        if r['round_number']==0:
+            for g in r['games']:
+                api_settimeingame(g['id'],starttimeBigF)                
     
+
+        
     # create loser's final
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime3),
+                       "start_time": "{0}".format(starttimeF),
                        "number_of_rounds": "1",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "3",
@@ -351,12 +363,15 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
         if r['round_number']==1:
             team_nr=1
             for g in r['games']:
+                # we also fix the starting time of the semifinals
+                api_settimeingame(g['id'],starttimeSF)        
+                        
                 api_loserconnect(g['id'],bronzegame['rounds'][0]['games'][0]['id'],team_nr)
                 team_nr += 1
                 
     # create lower half of playoff tree (loser's tree)
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime2),
+                       "start_time": "{0}".format(starttimeSF),
                        "number_of_rounds": "2",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "2",
@@ -372,6 +387,9 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
             team_nr=1
             game_nr=0
             for g in r['games']:
+                # adjust starting times (leaguevine-bug)
+                api_settimeingame(g['id'],starttimeQF)
+
                 api_loserconnect(g['id'],loserstree['rounds'][0]['games'][game_nr]['id'],team_nr)
                 team_nr += 1
                 if team_nr == 3:
@@ -380,7 +398,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     
     # create game for place 7-8
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime3),
+                       "start_time": "{0}".format(starttimeF),
                        "number_of_rounds": "1",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "3",
@@ -407,11 +425,19 @@ def api_loserconnect(source_game,target_game,team_nr):
     sgame=api_gamebyid(source_game)
     
     url='{0}/v1/games/{1}/'.format(settings.HOST,source_game)
-    game_dict = {"start_time": "{0}".format(sgame['start_time']),
-                    "next_game_for_loser": "{0}".format(target_game),    
-                    "next_team_for_loser": "{0}".format(team_nr),
-                    "season_id": "{0}".format(sgame['season_id'])}
-    return api_put(url,game_dict)
+#    game_dict = {"start_time": "{0}".format(sgame['start_time']),
+#                    "next_game_for_loser": "{0}".format(target_game),    
+#                    "next_team_for_loser": "{0}".format(team_nr),
+#                    "season_id": "{0}".format(sgame['season_id'])}
+#    return api_put(url,game_dict)
+    game_dict = {"next_game_for_loser": "{0}".format(target_game),    
+                 "next_team_for_loser": "{0}".format(team_nr)}
+    return api_update(url,game_dict)
+
+def api_settimeingame(game_id,start_time):
+    url='{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    time_dict={"start_time": "{0}".format(start_time)}
+    return api_update(url,time_dict)
 
 
 def api_setteamsingame(game_id,team_1_id,team_2_id):
