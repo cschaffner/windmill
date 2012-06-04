@@ -78,7 +78,15 @@ def randomresults(request, div):
         if round['round_number']==nrrounds: # last round
             logger.info('nr of games: {0}'.format(len(round['games'])))
             for g in round['games']:
-                correctresult(g)
+                if g['team_1_score']==0 and g['team_2_score']==0:
+                    correctresult(g)
+    
+    bracket = api_bracketsbytournament(t.lgv_id())
+    for bracket in bracket['objects']:
+        for round in bracket['rounds']:
+            for g in round['games']:
+                if g['team_1_id']!=None and g['team_1_score']==0 and g['team_2_score']==0:
+                    correctresult(g)
 
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
 
