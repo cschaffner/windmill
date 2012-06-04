@@ -125,7 +125,7 @@ def api_poolinfo(tournament_id):
     return response_dict
 
 def api_gamesbytournament(tournament_id):
-    url='{0}/v1/games/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/games/?limit=500&tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict

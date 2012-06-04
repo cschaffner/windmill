@@ -50,7 +50,7 @@ class GameManager(models.Manager):
             gm.tournament=t            
             gm.start_time = g['start_time']
             # gm.field = g['field']
-            logger.info('added game {0} - {1}'.format(g['team_1_id'],g['team_2_id']))
+            logger.info('added game {0} - {1} with start time {2}'.format(g['team_1_id'],g['team_2_id'],g['start_time']))
             gm.save()
         return added
 
