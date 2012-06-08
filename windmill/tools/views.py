@@ -20,14 +20,16 @@ def excel(request, div):
     # get Swissdraw data
     swiss = api_swissroundinfo(t.lgv_id())
     
-    return render_to_response('excel.html',{'swiss': swiss})
+    return render_to_response('excel.html',{'div': Tournament.objects.get(name=div), 'swiss': swiss})
 
 def division(request, div):
     t=Tournament.objects.get(name=div)
     swiss=api_swissroundinfo(t.lgv_id())
+    brackets = api_bracketsbytournament(t.lgv_id())
         
     return render_to_response('division.html',{'div': Tournament.objects.get(name=div),
-                                               'swiss': swiss})
+                                               'swiss': swiss,
+                                               'brackets': brackets})
 
 def correctresult(game):
     # make up a 'random' result based on the team's seeding information in the local database
