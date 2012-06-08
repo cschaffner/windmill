@@ -63,9 +63,11 @@ def create(request,tournament_id):
     # if yes, load them in brackets
     brackets={}
     if t['scheduling_format']=='swiss':
-#        swiss=api_swissroundinfo(tournament_id)
-        swiss=swissinfo()
-#        logger.info(pformat(swiss))
+        if settings.OFFLINE==True:
+            swiss=swissinfo()
+        else:
+            swiss=api_swissroundinfo(tournament_id)
+        logger.info(pformat(swiss))
         if not request.GET.__contains__('round'):
             # display choice of rounds
             return render_to_response('sms_selectround.html',{'tournament': t, 'swiss': swiss, 'brackets': brackets})

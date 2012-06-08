@@ -1,12 +1,20 @@
 from django.db import models
 from windmill.tools.models import Team, Tournament
 import logging
-import datetime
+from datetime import datetime
 from windmill.tools.wrapper import *
 
 
 # Get an instance of a logger
 logger = logging.getLogger('windmill.sms')
+
+def ordinal(n):
+    n=int(n)  # only works if string can be properly converted to an integer
+    if 10 < n < 14: return u'%sth' % n
+    if n % 10 == 1: return u'%sst' % n
+    if n % 10 == 2: return u'%snd' % n
+    if n % 10 == 3: return u'%srd' % n
+    return u'%sth' % n
 
 
 class SMSManager(models.Manager):
@@ -58,7 +66,7 @@ class SMSManager(models.Manager):
         # go through all games in this round and create SMS for team_1 and team_2
         for g in thisRound['games']:
             if g['team_1'] is not None:
-                msg=self.msg_swiss_team(prevRound,thisRound,g['team_1'],g['team_2'],g['start_time'],vp_bye) # TODO: Field
+                msg=self.msg_swiss_team(prevRound,thisRound,g['team_1'],g['team_2'],g['start_time'],g['game_site']['name'],vp_bye) 
                 if settings.HOST=="http://api.playwithlv.com":
                     team_obj=Team.objects.get(l_id = g['team_1_id'])
                 elif settings.HOST=="https://api.leaguevine.com":
@@ -71,7 +79,7 @@ class SMSManager(models.Manager):
                                          createTime = '2012-05-02T15:33:21+00:00')
                 nr_created += 1
             if g['team_2'] is not None:
-                msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],vp_bye) # TODO: Field
+                msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],g['game_site']['name'],vp_bye) 
                 if settings.HOST=="http://api.playwithlv.com":
                     team_obj=Team.objects.get(l_id = g['team_2_id'])
                 elif settings.HOST=="https://api.leaguevine.com":
@@ -87,27 +95,33 @@ class SMSManager(models.Manager):
         return nr_created
             
         
-    def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,vp_bye):
+    def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,field_name,vp_bye):    
         if not prevRound.__contains__('round_number'):
             msg=u'Welcome to Windmill Windup 2012! In Round 1,'
             tomorrow=False
         else:
-            tomorrow=True # TODO: figure out if this round's game is day later compared to prevRound
+#            start_time_struct=time.strptime(start_time,"%Y-%m-%dT%H:%M:%S+02:00")
+            start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
+            prev_round_datetime = datetime.strptime(prevRound['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
+            if start_datetime.date()>prev_round_datetime.date():
+                tomorrow=True
+            else:
+                tomorrow=False
             msg=u'After a {0} '.format(result_in_swissround(prevRound,team['id']))
             msg += u'in round {0}, '.format(prevRound['round_number'])
 
         if thisRound['round_number']<9: 
-            msg += u'you are now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
+            msg += u'you are now ranked {0}.'.format(ordinal(rank_in_swissround(prevRound,team['id'])))
             msg += u'In round {0}'.format(thisRound['round_number']) + ','
             if opp is None:
                 msg += u"you can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
             else:
                 msg += u"you'll play {0} ".format(opp['name'])
-                msg += u"(ranked {0}) ".format(rank_in_swissround(prevRound,opp['id']))            
-                msg += u"on Field ?? "
+                msg += u"(ranked {0}) ".format(ordinal(rank_in_swissround(prevRound,opp['id'])))            
+                msg += u"on {0} ".format(field_name)
                 if tomorrow:
                     msg += u'tomorrow '
-                msg += u"at {0}".format(start_time)
+                msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
             if tomorrow:
                 msg += u"Pls hand in today's spirit scores."
         else: # last round
@@ -128,6 +142,7 @@ class SMS(models.Model):
     tournament = models.ForeignKey(Tournament)
     number = models.CharField(max_length=20)
     message = models.CharField(max_length=540) # 3*180 = 540
+    length = models.IntegerField(null=True,blank=True)
     status = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(null=True,blank=True)
     submitTime = models.DateTimeField(null=True,blank=True)
@@ -137,4 +152,8 @@ class SMS(models.Model):
 
     def __unicode__(self):
         return str(self.id)
+
+    def save(self, *args, **kwargs):
+        self.length=len(self.message)
+        super(SMS, self).save(*args, **kwargs) # Call the "real" save() method.
 
