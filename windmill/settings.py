@@ -277,7 +277,8 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'windmill.tools',
     'windmill.spirit',
-    'windmill.sms'
+    'windmill.sms',
+    'gunicorn'
 )
 
 # A sample logging configuration. The only tangible logging
