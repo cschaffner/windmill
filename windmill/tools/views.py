@@ -144,6 +144,9 @@ def addswissround(request, div):
         # move all but the top 8 teams to the next swiss-draw round
         team_ids=api_rankedteamids(t.lgv_id(),5)
         team_ids=team_ids[8:] # remove the top 8
+#    elif nrswissrounds>5:
+#        # use the same teams as in the ranking of swissround 6
+#        team_ids=api_rankedteamids(t.lgv_id(),6)
     else:
         team_ids=[]
     api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
