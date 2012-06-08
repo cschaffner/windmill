@@ -21,6 +21,10 @@ urlpatterns = patterns('',
     url(r'^(open|mixed|women)/cleanbrackets$', 'windmill.tools.views.cleanbrackets'),
     url(r'^(open|mixed|women)/movetoplayoff$', 'windmill.tools.views.movetoplayoff'),
 
+    # export to excel for backup:
+    url(r'^(open|mixed|women)/excel$', 'windmill.tools.views.excel'),
+        
+
     url(r'^createteams/$', 'windmill.tools.views.createteams'),   
     url(r'^import$', 'windmill.tools.views.ffimport'),
     url(r'^idreplace$', 'windmill.tools.views.idreplace'),
