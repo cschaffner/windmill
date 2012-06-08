@@ -14,6 +14,14 @@ logger = logging.getLogger('windmill.tools')
 def home(request):
     return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
 
+def excel(request, div):
+    t=Tournament.objects.get(name=div)
+    
+    # get Swissdraw data
+    swiss = api_swissroundinfo(t.lgv_id())
+    
+    return render_to_response('excel.html',{'swiss': swiss})
+
 def division(request, div):
     t=Tournament.objects.get(name=div)
     swiss=api_swissroundinfo(t.lgv_id())

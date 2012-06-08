@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load tz %}
+
+<h1>{{div.name}} division</h1>
+<div>{{div.name}} division has leaguevine id:{{div.l_id}}.
+<a href="{{div.link}}">Leaguevine-link</a>.</div>
+
+
+<h2>Games</h2>
+<table>
+	<tr><td>Round</td><td>Team1</td><td>Score1</td><td>Team2</td><td>Score2</td><td>Field</td></tr>
+{% for round in swiss.objects reversed%}
+{% for g in round.games %}
+	<tr><td>{{round.round_number}}</td>
+		<td>{{g.team_1.name}}</td>
+		<td>{{g.team_1_score}}</td>
+		<td>{{g.team_2.name}}</td>
+		<td>{{g.team_2_score}}</td>
+		<td>{{g.game_site.name|cut:"Field "}}</td>
+	</tr>
+{% endfor %}
+{% endfor %}
+</table>
+
+
+
+<h3>Standings</h3>
+
+{% for round in swiss.objects reversed%}
+<h2>standings after round {{round.round_number}}</h2>
+<table>
+	<tr><td>Rank</td><td>Team</td><td>Swiss Points</td><td>Opp VPs</td><td>#wins - #losses</td></tr>
+{% for t in round.standings %}
+	<tr><td>{{t.ranking}}</td>
+		<td>{{t.team.name}}</td>
+		<td>{{t.swiss_score|floatformat}}</td>
+		<td>{{t.swiss_opponent_score|floatformat}}</td>
+		<td>{{t.wins}} - {{t.losses}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+{% endfor %}
+
+
+
+{% endblock content %}
+
