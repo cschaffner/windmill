@@ -32,34 +32,40 @@ Brackets:
 // After a 11-18 loss in the final, you are vice-champion of Windmill 2010. Congratulations!"
 """
 
-def home(request):
-    # SMS control home
-    return render_to_response('sms_control.html')
-
 def control(request):
     # SMS control home
-    return render_to_response('sms_control.html')
+    SMStosend=SMS.objects.filter(status=1)
+    logger.info(pformat(SMStosend))
+    
+    return render_to_response('sms_control.html',{'SMStosend': SMStosend})
 
 def custom(request):
     # create custom SMS to a specific team (or to all)
-    return render_to_response('sms_custom.html', {'Teams': Team.objects.order_by('tournament','name')}, 
+    return render_to_response('sms_custom.html', {'Teams': Team.objects.filter(seed__isnull=False).order_by('tournament','name')}, 
                               context_instance=RequestContext(request))
 
 def submit(request):
     try:
         logger.info(pformat(request.POST))
         message = request.POST['txtMessage']
-        target = request.POST['target']
+        target = request.POST.getlist('target')
     except:
-        return render_to_response('sms_custom.html', {'error_message': 'the list of recipients was empty','Teams': Team.objects.order_by('tournament','name')}, 
+        return render_to_response('sms_custom.html', 
+                                  {'error_message': 'the list of recipients was empty',
+                                   'Teams': Team.objects.filter(seed__isnull=False).order_by('tournament','name')}, 
                                   context_instance=RequestContext(request))
     else:        
         if message=='':
-            return render_to_response('sms_custom.html', {'error_message': 'the message was empty','Teams': Team.objects.order_by('tournament','name')}, 
-                          context_instance=RequestContext(request))
+            return render_to_response('sms_custom.html', 
+                                      {'error_message': 'the message was empty',
+                                       'Teams': Team.objects.filter(seed__isnull=False).order_by('tournament','name')}, 
+                                      context_instance=RequestContext(request))
 
-        logger.info('send message "{0}" to {1}'.format(message,target))
-#        SMS.objects.broadcast(message)
+        logger.info('send message "{0}" to {1}'.format(message,pformat(target)))
+        if target == 'broadcast':
+            nr_created = SMS.objects.broadcast(message)
+        else:
+            nr_created = SMS.objects.sendSMS(message,target)
         return HttpResponseRedirect('control')
 
 def create(request,tournament_id):
