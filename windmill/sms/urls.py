@@ -11,7 +11,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'windmill.sms.views.home'),
     url(r'^control$', 'windmill.sms.views.control'),
-    url(r'^broadcast$', 'windmill.sms.views.broadcast'),
+    url(r'^custom', 'windmill.sms.views.custom'),
     url(r'^submit$', 'windmill.sms.views.submit'),
     url(r'^create/(\d+)$', 'windmill.sms.views.create'),       
     
