@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 
 from windmill.tools.wrapper import *
 from windmill.spirit.models import Game
+from windmill.tools.models import Team, Tournament
 from windmill.sms.models import SMS
 import logging
 from pprint import pformat
@@ -39,19 +40,26 @@ def control(request):
     # SMS control home
     return render_to_response('sms_control.html')
 
-def broadcast(request):
-    return render_to_response('sms_broadcast.html', context_instance=RequestContext(request))
+def custom(request):
+    # create custom SMS to a specific team (or to all)
+    return render_to_response('sms_custom.html', {'Teams': Team.objects.order_by('tournament','name')}, 
+                              context_instance=RequestContext(request))
 
 def submit(request):
     try:
         logger.info(pformat(request.POST))
-        message = request.POST['message']
-    except (KeyError, Message.DoesNotExist):
-        return render_to_response('sms_broadcast.html', {'error_message': 'your message was empty'}, 
-                                  context_instace=RequestContext(request))
+        message = request.POST['txtMessage']
+        target = request.POST['target']
+    except:
+        return render_to_response('sms_custom.html', {'error_message': 'the list of recipients was empty','Teams': Team.objects.order_by('tournament','name')}, 
+                                  context_instance=RequestContext(request))
     else:        
-        logger.info('send message "{0}" to everybody'.format(message))
-        SMS.objects.broadcast(message)
+        if message=='':
+            return render_to_response('sms_custom.html', {'error_message': 'the message was empty','Teams': Team.objects.order_by('tournament','name')}, 
+                          context_instance=RequestContext(request))
+
+        logger.info('send message "{0}" to {1}'.format(message,target))
+#        SMS.objects.broadcast(message)
         return HttpResponseRedirect('control')
 
 def create(request,tournament_id):

@@ -1,13 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>send SMS to everybody:</h1>
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<SCRIPT language=javascript>
+<!--
+function CountCharacters(){
+document.frmSMS.CharacterCount.value=document.frmSMS.txtMessage.value.length;
+return false;   }
+-->
+</SCRIPT>
 
-<form action="/sms/submit" method="post">
+
+<h1>Send SMS:</h1>
+{% if error_message %}<p><div color="#FF0000"><strong>*** ERROR *** {{ error_message }}</strong></p></div>{% endif %}
+
+<form action="/sms/submit" method="post" name="frmSMS">
 {% csrf_token %}
-<input type="text" name="message" id="meassge" value="{{ choice.id }}" />
-<br />
+<h3>Choose receiver(s):</h3>
+<select name="target" multiple="yes" size="20">
+	<option value="broadcast" selected="yes">All Teams</option>
+	{% for t in Teams %}
+	<option value={{t.lgv_id}}>{{t.tournament}} - {{t.name}}</option>
+	{% endfor %}
+</select>
+<br>
+<h3>SMS Message</h3>
+<textarea rows="5" cols="40" name="txtMessage" onKeyUp=CountCharacters()></textarea>
+	<p>
+	  <input maxlength=10 size=9 name=CharacterCount>
+	  characters</p>
 <input type="submit" value="Send" />
+<a href="/sms"><input type="button" value="Cancel" /></a>
 </form>
 {% endblock content %}

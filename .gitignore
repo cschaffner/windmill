@@ -3,5 +3,5 @@ regdata
 .Python
 *.pyc
 *.key
-db
+db*
 *.tmproj
