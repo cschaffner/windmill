@@ -10,5 +10,19 @@
 <div>see <a href="/sms/admin">admin</a> for list of all sms</div>
 <div>send <a href="/sms/custom">SMS to a specific or all teams</a></div>
 
+<h1>You have {{SMStosend.count}} SMS ready to send:</h1>
+<table>
+	<tr><td>Team</td><td>Tournament</td><td>Round</td><td>Number</td><td>Message</td></tr>
+{% for s in SMStosend %}
+	<tr><td>{{s.team}}</td>
+		<td>{{s.tournament}}</td>
+		<td>{{s.round}}</td>
+		<td>{{s.number}}</td>
+		<td>{{s.message}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
 
 {% endblock content %}

@@ -19,7 +19,7 @@ return false;   }
 <select name="target" multiple="yes" size="20">
 	<option value="broadcast" selected="yes">All Teams</option>
 	{% for t in Teams %}
-	<option value={{t.lgv_id}}>{{t.tournament}} - {{t.name}}</option>
+	<option value={{t.id}}>{{t.tournament}} - {{t.name}}</option>
 	{% endfor %}
 </select>
 <br>

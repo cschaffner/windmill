@@ -22,13 +22,29 @@ class SMSManager(models.Manager):
         # send SMS with message
         # to all registered phone numbers
         
-        # get a list of all phone numbers
+        nr_created=0
         for t in Team.objects.all():
             for nr in t.mobilenr():
                 sms = SMS.objects.create(team=t,tournament=t.tournament,
                                          message=message,number=nr)
                 logger.info('new sms with id {0} created'.format(sms.id))
+                nr_created += 1
+        return nr_created
     
+    def sendSMS(self,message,target):
+        # send SMS with message
+        # to all teams with id in target array
+
+        nr_created=0
+        for t_id in target:
+            t=Team.objects.get(id=t_id)
+            for nr in t.mobilenr():
+                sms = SMS.objects.create(team=t,tournament=t.tournament,
+                                         message=message,number=nr)
+                logger.info('new sms with id {0} created'.format(sms.id))
+                nr_created += 1
+        
+        return nr_created
     
     def clear_round(self,round_nr,tournament_id):
         """ 
