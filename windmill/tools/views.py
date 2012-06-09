@@ -197,11 +197,12 @@ def addpools(request,div):
 def newtourney(request, div):
     season_id=settings.SEASON_ID[div]
     # set up a new tournament
-    data_dict = {"name": "Windmill Windup 2012 {0}".format(div), 
+#    data_dict = {"name": "Windmill Windup 2012 {0}".format(div), 
+    data_dict = {"name": "WW 2012 {0} TEST".format(div), 
              "season_id": season_id,
             "start_date": "2012-06-15",
             "end_date": "2012-06-17",
-            "visibility": "live",
+            "visibility": "hidden",
             "timezone": "Europe/Amsterdam"}
 #    if div=='open' or div=='mixed':
     data_dict["scheduling_format"]="swiss"
