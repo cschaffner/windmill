@@ -3,6 +3,9 @@ from windmill.tools.models import Team, Tournament
 import logging
 from datetime import datetime
 from windmill.tools.wrapper import *
+# Import the SmsCity Library which will send the message to our server
+from SmsCity import SmsCity
+from random import getrandbits
 
 
 # Get an instance of a logger
@@ -18,6 +21,43 @@ def ordinal(n):
 
 
 class SMSManager(models.Manager):
+    def sendSmsCity(self):
+        # sends all SMS with status 1 to SmsCity
+        
+        # setup a test-SMS:
+        sms = SMS.objects.create(message='this is just a test',number='31619091702',status=u'ready',
+                                 createTime=datetime.datetime.now())
+                
+        
+        # Set the SMScity username and password, and create an instance of the SmsCity class
+        smsApi = SmsCity('windmill', '2smscity')
+        
+        # Set the sender, could be an number (16 numbers) or letters (11 characters)
+        smsApi.setSender('WW_2012')
+        
+        # Add the destination mobile number.
+        # This method can be called several times to add have more then one recipient for the same message
+        smsApi.addDestination(sms.number)
+        
+        # Set an reference
+#        ref=getrandbits(63)
+        smsApi.setReference(sms.id)
+        
+        # Send the message to the destination(s)
+        smsApi.sendSms(sms.message)
+        
+        # When using in the console, it will show you what the response was from our server
+        logger.info('Response: {0}'.format(smsApi.getResponseCode()))
+        logger.info('{0}'.format(smsApi.getResponseMessage()))
+        logger.info('{0}'.format(smsApi.getCreditBalance()))
+
+        sms.responseCode=smsApi.getResponseCode()
+        sms.responseMessage=smsApi.getResponseMessage()
+        sms.save()
+        
+        return smsApi.getResponseCode()
+
+    
     def broadcast(self,message):
         # send SMS with message
         # to all registered phone numbers
@@ -26,7 +66,7 @@ class SMSManager(models.Manager):
         for t in Team.objects.all():
             for nr in t.mobilenr():
                 sms = SMS.objects.create(team=t,tournament=t.tournament,
-                                         message=message,number=nr)
+                                         message=message,number=nr,status=u'ready')
                 logger.info('new sms with id {0} created'.format(sms.id))
                 nr_created += 1
         return nr_created
@@ -40,7 +80,7 @@ class SMSManager(models.Manager):
             t=Team.objects.get(id=t_id)
             for nr in t.mobilenr():
                 sms = SMS.objects.create(team=t,tournament=t.tournament,
-                                         message=message,number=nr)
+                                         message=message,number=nr,status=u'ready')
                 logger.info('new sms with id {0} created'.format(sms.id))
                 nr_created += 1
         
@@ -91,8 +131,8 @@ class SMSManager(models.Manager):
                                          team = team_obj,
                                          round_id = thisRound['round_number'],
                                          tournament = tourney,
-                                         status = 1,
-                                         createTime = '2012-05-02T15:33:21+00:00')
+                                         status = u'ready',
+                                         createTime = datetime.datetime.now())
                 nr_created += 1
             if g['team_2'] is not None:
                 msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],g['game_site']['name'],vp_bye) 
@@ -104,8 +144,8 @@ class SMSManager(models.Manager):
                                          team = team_obj,
                                          round_id = thisRound['round_number'],
                                          tournament = tourney,
-                                         status = 1,
-                                         createTime = '2012-05-02T15:33:21+00:00')
+                                         status = u'ready',
+                                         createTime = datetime.datetime.now())
                 nr_created += 1
         
         return nr_created
@@ -159,7 +199,11 @@ class SMS(models.Model):
     number = models.CharField(max_length=20)
     message = models.CharField(max_length=540) # 3*180 = 540
     length = models.IntegerField(null=True,blank=True)
-    status = models.IntegerField(null=True,blank=True)
+    
+    responseCode = models.IntegerField(null=True,blank=True)
+    responseMessage = models.CharField(max_length=100,null=True,blank=True)
+#    status = models.IntegerField(null=True,blank=True)
+    status = models.CharField(max_length=50,null=True,blank=True)
     createTime = models.DateTimeField(null=True,blank=True)
     submitTime = models.DateTimeField(null=True,blank=True)
     sentTime = models.DateTimeField(null=True,blank=True)
