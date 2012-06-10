@@ -37,7 +37,7 @@ Brackets:
 @login_required
 def control(request):
     # SMS control home
-    SMStosend=SMS.objects.filter(status=1)
+    SMStosend=SMS.objects.filter(status=u'ready')
     
     return render_to_response('sms_control.html',{'SMStosend': SMStosend, 'user': request.user},
                               context_instance=RequestContext(request))
