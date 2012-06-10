@@ -50,7 +50,6 @@ def status_update(request):
     except:
         logger.error('something went wrong while extracting information from GET body')
         return HttpResponse('<html>status failed</html>')
-        
     else:   
         sms=SMS.objects.get(id=reference)
         sms.status=status
