@@ -351,7 +351,8 @@ INSTALLED_APPS = (
     'windmill.tools',
     'windmill.spirit',
     'windmill.sms',
-    'gunicorn'
+    'gunicorn',
+    'south'
 )
 
 # A sample logging configuration. The only tangible logging

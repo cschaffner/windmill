@@ -2,6 +2,8 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 from windmill.tools.wrapper import *
 from windmill.spirit.models import Game
@@ -32,12 +34,34 @@ Brackets:
 // After a 11-18 loss in the final, you are vice-champion of Windmill 2010. Congratulations!"
 """
 
+@login_required
 def control(request):
     # SMS control home
     SMStosend=SMS.objects.filter(status=1)
-    logger.info(pformat(SMStosend))
     
-    return render_to_response('sms_control.html',{'SMStosend': SMStosend})
+    return render_to_response('sms_control.html',{'SMStosend': SMStosend, 'user': request.user},
+                              context_instance=RequestContext(request))
+
+def status_update(request):
+    try:
+        logger.info(pformat(request.GET))
+        reference = request.GET['REFERENCE']
+        status = request.GET['STATUS']
+    except:
+        logger.error('something went wrong while extracting information from GET body')
+    else:   
+        sms=SMS.objects.get(id=reference)
+        sms.status=status
+        sms.save()  
+        return HttpResponse('<html>status updated</html>')
+   
+
+def send(request):
+    # send SMS to Twilio here
+    logger.info('we should send SMS to SmsCity here')
+    message=SMS.objects.sendSmsCity()
+    logger.info('message: {0}'.format(pformat(message)))
+    return HttpResponseRedirect('control')
 
 def custom(request):
     # create custom SMS to a specific team (or to all)
@@ -97,3 +121,10 @@ def create(request,tournament_id):
     
     return render_to_response('sms_control.html',{'nr_created': nr_created})
     
+
+def logout_view(request):
+    logout(request)
+    # Redirect to login via control
+    return render_to_response('sms_logout_success.html')
+
+

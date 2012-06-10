@@ -13,6 +13,11 @@ urlpatterns = patterns('',
     url(r'^control$', 'windmill.sms.views.control'),
     url(r'^custom', 'windmill.sms.views.custom'),
     url(r'^submit$', 'windmill.sms.views.submit'),
+    url(r'^status_update', 'windmill.sms.views.status_update'),
+    
+    url(r'^send', 'windmill.sms.views.send'),
+    url(r'^logout$', 'windmill.sms.views.logout_view'),
+
     url(r'^create/(\d+)$', 'windmill.sms.views.create'),       
     
     # Uncomment the admin/doc line below to enable admin documentation:

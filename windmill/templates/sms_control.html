@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>SMS Control Panel:</h1>
+<p>You are logged in as {{user.username}}. Click <a href="/sms/logout">here</a> to log out.</p>
 
 {% if nr_created %}
 <b>created {{nr_created}} SMS messages.</b><br>
@@ -10,6 +11,7 @@
 <div>see <a href="/sms/admin">admin</a> for list of all sms</div>
 <div>send <a href="/sms/custom">SMS to a specific or all teams</a></div>
 
+{% if SMStosend %}
 <h1>You have {{SMStosend.count}} SMS ready to send:</h1>
 <table>
 	<tr><td>Team</td><td>Tournament</td><td>Round</td><td>Number</td><td>Message</td></tr>
@@ -22,7 +24,13 @@
 	</tr>
 {% endfor %}
 </table>
+<form action="/sms/send" method="post" name="frmSendSMS">
+{% csrf_token %}
+<input type="submit" value="Send" />
+<a href="/sms"><input type="button" value="Cancel" /></a>
+</form>
 
+{% endif %}
 
 
 {% endblock content %}
