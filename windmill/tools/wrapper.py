@@ -488,9 +488,24 @@ def result_in_swissround(round,team_id):
             return '{0}-{1} tie'.format(score,opp_score)
 
 def rank_in_swissround(round,team_id):
+    # returns rank in swissround as ordinal
+    # corrects for 8 places if round_number > 5
     for t in round['standings']:
         if t['team_id']==team_id:
-            return '{0}'.format(t['ranking']) # TODO make ordinal
+            rank=int(t['ranking'])
+            if round['round_number']>5: # top 8 teams have left for brackets
+                rank += 8
+            return u'{0}'.format(ordinal(rank)) # TODO make ordinal
+
+def ordinal(n):
+    n=int(n)  # only works if string can be properly converted to an integer
+    if 10 < n < 14: return u'%sth' % n
+    if n % 10 == 1: return u'%sst' % n
+    if n % 10 == 2: return u'%snd' % n
+    if n % 10 == 3: return u'%srd' % n
+    return u'%sth' % n
+
+
         
 def swissinfo(): 
     swiss={u'meta': {u'limit': 20,
