@@ -128,4 +128,9 @@ def logout_view(request):
     # Redirect to login via control
     return render_to_response('sms_logout_success.html')
 
+@login_required
+def phonenumbers(request):
+    # display phone numbers of all teams
+    teams = Team.objects.order_by('tournament','name')
+    return render_to_response('sms_phonenumbers.html', {'teams': teams})
 
