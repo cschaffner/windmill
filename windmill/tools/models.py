@@ -80,3 +80,7 @@ class Team(models.Model):
 
     def __unicode__(self):
         return self.name
+
+class TeamPhone(Team):
+    class Meta:
+        proxy = True
