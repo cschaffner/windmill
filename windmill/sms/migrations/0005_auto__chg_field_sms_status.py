@@ -12,16 +12,10 @@ class Migration(SchemaMigration):
         # Changing field 'SMS.status'
         db.alter_column('sms_sms', 'status', self.gf('django.db.models.fields.CharField')(default='', max_length=50))
 
-        # Changing field 'SMS.responseMessage'
-        db.alter_column('sms_sms', 'responseMessage', self.gf('django.db.models.fields.CharField')(default='', max_length=100))
-
     def backwards(self, orm):
 
         # Changing field 'SMS.status'
         db.alter_column('sms_sms', 'status', self.gf('django.db.models.fields.CharField')(max_length=50, null=True))
-
-        # Changing field 'SMS.responseMessage'
-        db.alter_column('sms_sms', 'responseMessage', self.gf('django.db.models.fields.CharField')(max_length=100, null=True))
 
     models = {
         'sms.sms': {
@@ -33,7 +27,7 @@ class Migration(SchemaMigration):
             'number': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
             'receivedTime': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'responseCode': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'responseMessage': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'responseMessage': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'round_id': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'sentTime': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
