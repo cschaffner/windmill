@@ -17,11 +17,14 @@ return false;   }
 {% csrf_token %}
 <h3>Choose receiver(s):</h3>
 <select name="target" multiple="yes" size="20">
-	<option value="broadcast" selected="yes">All Teams</option>
+	<option value="broadcast">All Teams</option>
 	{% for t in Teams %}
 	<option value={{t.id}}>{{t.tournament}} - {{t.name}}</option>
 	{% endfor %}
 </select>
+<br>
+or enter an individual number:
+<input maxlength=15 name=number><br>
 <br>
 <h3>SMS Message</h3>
 <textarea rows="5" cols="40" name="txtMessage" onKeyUp=CountCharacters()></textarea>
