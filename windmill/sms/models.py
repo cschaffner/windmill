@@ -198,7 +198,7 @@ class SMS(models.Model):
     length = models.IntegerField(null=True,blank=True)
     
     responseCode = models.IntegerField(null=True,blank=True)
-    responseMessage = models.CharField(max_length=100,blank=True)
+    responseMessage = models.CharField(max_length=100,blank=True,null=True)
 #    status = models.IntegerField(null=True,blank=True)
     status = models.CharField(max_length=50,blank=True)
     createTime = models.DateTimeField(auto_now_add=True,null=True,blank=True)
