@@ -11,14 +11,6 @@ from random import getrandbits
 # Get an instance of a logger
 logger = logging.getLogger('windmill.sms')
 
-def ordinal(n):
-    n=int(n)  # only works if string can be properly converted to an integer
-    if 10 < n < 14: return u'%sth' % n
-    if n % 10 == 1: return u'%sst' % n
-    if n % 10 == 2: return u'%snd' % n
-    if n % 10 == 3: return u'%srd' % n
-    return u'%sth' % n
-
 
 class SMSManager(models.Manager):
     def sendSmsCity(self):
@@ -172,13 +164,13 @@ class SMSManager(models.Manager):
             msg += u'in round {0}, '.format(prevRound['round_number'])
 
         if thisRound['round_number']<9: 
-            msg += u'you are now ranked {0}.'.format(ordinal(rank_in_swissround(prevRound,team['id'])))
+            msg += u'you are now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
             msg += u'In round {0}'.format(thisRound['round_number']) + ','
             if opp is None:
                 msg += u"you can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
             else:
                 msg += u"you'll play {0} ".format(opp['name'])
-                msg += u"(ranked {0}) ".format(ordinal(rank_in_swissround(prevRound,opp['id'])))            
+                msg += u"(ranked {0}) ".format(rank_in_swissround(prevRound,opp['id']))            
                 msg += u"on {0} ".format(field_name)
                 if tomorrow:
                     msg += u'tomorrow '

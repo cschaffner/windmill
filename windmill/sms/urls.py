@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^send', 'windmill.sms.views.send'),
     url(r'^logout$', 'windmill.sms.views.logout_view'),
 
-    url(r'^create/(\d+)$', 'windmill.sms.views.create'),       
+    url(r'^(open|mixed|women)/create/$', 'windmill.sms.views.create'),       
     url(r'^phonenumbers$', 'windmill.sms.views.phonenumbers'),
     
     # Uncomment the admin/doc line below to enable admin documentation:

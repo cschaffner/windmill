@@ -101,10 +101,14 @@ def submit(request):
             nr_created = SMS.objects.sendIndividualSMS(message,number)
         return HttpResponseRedirect('control')
 
-def create(request,tournament_id):
+def create(request,div):
+    tournament=Tournament.objects.get(name=div)
+    
     # retrieve tournament info
-    t=api_tournamentbyid(tournament_id)
-#    t={u'info': u'', u'swiss_victory_points_cap': 23, u'name': u'Windmill Windup Test (open)', u'end_date': u'2012-06-16', u'season': {u'league': {u'leaguevine_url': u'http://playwithlv.com/leagues/6979/club-open/', u'id': 6979, u'resource_uri': u'http://api.playwithlv.com/v1/leagues/6979/', u'name': u'Club Open'}, u'name': u'2011', u'end_date': u'2011-12-31', u'league_id': 6979, u'time_created': u'2011-02-17T08:14:44+00:00', u'start_date': u'2011-01-01', u'leaguevine_url': u'http://playwithlv.com/seasons/6980/club-open-2011/', u'time_last_updated': u'2011-02-17T08:14:44+00:00', u'id': 6980, u'resource_uri': u'http://api.playwithlv.com/v1/seasons/6980/'}, u'swiss_victory_points_games_to': 13, u'time_created': u'2012-04-15T20:37:20+00:00', u'scheduling_format': u'swiss', u'season_id': 6980, u'timezone': u'US/Central', u'leaguevine_url': u'http://playwithlv.com/tournaments/18055/windmill-windup-test-open/', u'swiss_points_for_bye': u'1.0', u'start_date': u'2012-06-14', u'swiss_scoring_system': u'victory points', u'swiss_pairing_type': u'adjacent pairing', u'visibility': u'live', u'number_of_sets': None, u'time_last_updated': u'2012-04-15T20:37:20+00:00', u'uses_seeds': True, u'id': 18055, u'resource_uri': u'http://api.playwithlv.com/v1/tournaments/18055/'}
+    if settings.OFFLINE:
+        t={u'info': u'', u'swiss_victory_points_cap': 23, u'name': u'Windmill Windup Test (open)', u'end_date': u'2012-06-16', u'season': {u'league': {u'leaguevine_url': u'http://playwithlv.com/leagues/6979/club-open/', u'id': 6979, u'resource_uri': u'http://api.playwithlv.com/v1/leagues/6979/', u'name': u'Club Open'}, u'name': u'2011', u'end_date': u'2011-12-31', u'league_id': 6979, u'time_created': u'2011-02-17T08:14:44+00:00', u'start_date': u'2011-01-01', u'leaguevine_url': u'http://playwithlv.com/seasons/6980/club-open-2011/', u'time_last_updated': u'2011-02-17T08:14:44+00:00', u'id': 6980, u'resource_uri': u'http://api.playwithlv.com/v1/seasons/6980/'}, u'swiss_victory_points_games_to': 13, u'time_created': u'2012-04-15T20:37:20+00:00', u'scheduling_format': u'swiss', u'season_id': 6980, u'timezone': u'US/Central', u'leaguevine_url': u'http://playwithlv.com/tournaments/18055/windmill-windup-test-open/', u'swiss_points_for_bye': u'1.0', u'start_date': u'2012-06-14', u'swiss_scoring_system': u'victory points', u'swiss_pairing_type': u'adjacent pairing', u'visibility': u'live', u'number_of_sets': None, u'time_last_updated': u'2012-04-15T20:37:20+00:00', u'uses_seeds': True, u'id': 18055, u'resource_uri': u'http://api.playwithlv.com/v1/tournaments/18055/'}
+    else:
+        t=api_tournamentbyid(tournament['id'])
     logger.info(t)
     # check if there are playoff rounds
     # if yes, load them in brackets
