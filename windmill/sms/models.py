@@ -70,6 +70,14 @@ class SMSManager(models.Manager):
                 nr_created += 1
         return nr_created
     
+    def sendIndividualSMS(self,message,nr):
+        # send SMS with message
+        # to an individual number
+        
+        sms = SMS.objects.create(message=message, number=nr, status=u'ready')
+        logger.info('created 1 individual SMS to nr: {0}'.format(nr))
+        return 1
+
     def sendSMS(self,message,target):
         # send SMS with message
         # to all teams with id in target array
@@ -189,10 +197,10 @@ class SMSManager(models.Manager):
 class SMS(models.Model):
     objects = SMSManager()
     
-    team = models.ForeignKey(Team,blank=True)
+    team = models.ForeignKey(Team,blank=True,null=True,default=None)
     round_id = models.IntegerField(null=True,blank=True)
     # many-to-one relationship between Tournaments and SMS
-    tournament = models.ForeignKey(Tournament,blank=True)
+    tournament = models.ForeignKey(Tournament,blank=True,null=True,default=None)
     number = models.CharField(max_length=20)
     message = models.CharField(max_length=540) # 3*180 = 540
     length = models.IntegerField(null=True,blank=True)

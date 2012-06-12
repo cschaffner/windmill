@@ -74,12 +74,18 @@ def submit(request):
         logger.info(pformat(request.POST))
         message = request.POST['txtMessage']
         target = request.POST.getlist('target')
+        number = request.POST['number']
     except:
         return render_to_response('sms_custom.html', 
                                   {'error_message': 'the list of recipients was empty',
                                    'Teams': Team.objects.filter(seed__isnull=False).order_by('tournament','name')}, 
                                   context_instance=RequestContext(request))
     else:        
+        if target==[] and number=='':
+            return render_to_response('sms_custom.html', 
+                          {'error_message': 'the list of recipients was empty',
+                           'Teams': Team.objects.filter(seed__isnull=False).order_by('tournament','name')}, 
+                          context_instance=RequestContext(request))
         if message=='':
             return render_to_response('sms_custom.html', 
                                       {'error_message': 'the message was empty',
@@ -89,8 +95,10 @@ def submit(request):
         logger.info('send message "{0}" to {1}'.format(message,pformat(target)))
         if target == 'broadcast':
             nr_created = SMS.objects.broadcast(message)
-        else:
+        elif number=='':
             nr_created = SMS.objects.sendSMS(message,target)
+        elif target==[]:
+            nr_created = SMS.objects.sendIndividualSMS(message,number)
         return HttpResponseRedirect('control')
 
 def create(request,tournament_id):
