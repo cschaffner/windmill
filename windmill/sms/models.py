@@ -189,18 +189,18 @@ class SMSManager(models.Manager):
 class SMS(models.Model):
     objects = SMSManager()
     
-    team = models.ForeignKey(Team,null=True,blank=True)
+    team = models.ForeignKey(Team,blank=True)
     round_id = models.IntegerField(null=True,blank=True)
     # many-to-one relationship between Tournaments and SMS
-    tournament = models.ForeignKey(Tournament,null=True,blank=True)
+    tournament = models.ForeignKey(Tournament,blank=True)
     number = models.CharField(max_length=20)
     message = models.CharField(max_length=540) # 3*180 = 540
     length = models.IntegerField(null=True,blank=True)
     
     responseCode = models.IntegerField(null=True,blank=True)
-    responseMessage = models.CharField(max_length=100,null=True,blank=True)
+    responseMessage = models.CharField(max_length=100,blank=True)
 #    status = models.IntegerField(null=True,blank=True)
-    status = models.CharField(max_length=50,null=True,blank=True)
+    status = models.CharField(max_length=50,blank=True)
     createTime = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     submitTime = models.DateTimeField(null=True,blank=True)
     sentTime = models.DateTimeField(null=True,blank=True)
