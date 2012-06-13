@@ -108,7 +108,7 @@ def create(request,div):
             return render_to_response('sms_selectround.html',{'tournament': t, 'swiss': swiss, 'brackets': brackets})
         else:
             selround=request.GET['round']
-            if selround=='QF' or selround=='SF' or selround=='F':
+            if selround=='QF' or selround=='SF' or selround=='F' or selround=='afterF':
                 nr_created=SMS.objects.bracket_round(brackets,swiss,selround,t)
             else:
                 round_nr = int(selround)
