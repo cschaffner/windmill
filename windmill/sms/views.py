@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+import datetime
 
 from windmill.tools.wrapper import *
 from windmill.spirit.models import Game
@@ -53,6 +54,7 @@ def status_update(request):
     else:   
         sms=SMS.objects.get(id=reference)
         sms.status=status
+        sms.receivedTime = datetime.datetime.now()
         sms.save()  
         return HttpResponse('<html>status updated</html>')
    
@@ -108,7 +110,7 @@ def create(request,div):
     if settings.OFFLINE:
         t={u'info': u'', u'swiss_victory_points_cap': 23, u'name': u'Windmill Windup Test (open)', u'end_date': u'2012-06-16', u'season': {u'league': {u'leaguevine_url': u'http://playwithlv.com/leagues/6979/club-open/', u'id': 6979, u'resource_uri': u'http://api.playwithlv.com/v1/leagues/6979/', u'name': u'Club Open'}, u'name': u'2011', u'end_date': u'2011-12-31', u'league_id': 6979, u'time_created': u'2011-02-17T08:14:44+00:00', u'start_date': u'2011-01-01', u'leaguevine_url': u'http://playwithlv.com/seasons/6980/club-open-2011/', u'time_last_updated': u'2011-02-17T08:14:44+00:00', u'id': 6980, u'resource_uri': u'http://api.playwithlv.com/v1/seasons/6980/'}, u'swiss_victory_points_games_to': 13, u'time_created': u'2012-04-15T20:37:20+00:00', u'scheduling_format': u'swiss', u'season_id': 6980, u'timezone': u'US/Central', u'leaguevine_url': u'http://playwithlv.com/tournaments/18055/windmill-windup-test-open/', u'swiss_points_for_bye': u'1.0', u'start_date': u'2012-06-14', u'swiss_scoring_system': u'victory points', u'swiss_pairing_type': u'adjacent pairing', u'visibility': u'live', u'number_of_sets': None, u'time_last_updated': u'2012-04-15T20:37:20+00:00', u'uses_seeds': True, u'id': 18055, u'resource_uri': u'http://api.playwithlv.com/v1/tournaments/18055/'}
     else:
-        t=api_tournamentbyid(tournament['id'])
+        t=api_tournamentbyid(tournament.lgv_id())
     logger.info(t)
     # check if there are playoff rounds
     # if yes, load them in brackets
@@ -117,7 +119,7 @@ def create(request,div):
         if settings.OFFLINE==True:
             swiss=swissinfo()
         else:
-            swiss=api_swissroundinfo(tournament_id)
+            swiss=api_swissroundinfo(tournament.lgv_id())
         logger.info(pformat(swiss))
         if not request.GET.__contains__('round'):
             # display choice of rounds
@@ -132,7 +134,11 @@ def create(request,div):
         # do something here
         logger.error('treat regular format here')
     
-    return render_to_response('sms_control.html',{'nr_created': nr_created})
+    # SMS control home
+    SMStosend=SMS.objects.filter(status=u'ready')
+    
+    return render_to_response('sms_control.html',{'nr_created': nr_created, 'SMStosend': SMStosend, 'user': request.user},
+                              context_instance=RequestContext(request))
     
 
 def logout_view(request):
