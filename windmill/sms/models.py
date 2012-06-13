@@ -1,7 +1,7 @@
 from django.db import models
 from windmill.tools.models import Team, Tournament
 import logging
-import datetime
+from datetime import datetime
 from windmill.tools.wrapper import *
 # Import the SmsCity Library which will send the message to our server
 from SmsCity import SmsCity
@@ -44,7 +44,7 @@ class SMSManager(models.Manager):
             logger.info('{0}'.format(smsApi.getResponseMessage()))
             logger.info('{0}'.format(smsApi.getCreditBalance()))
     
-            sms.submitTime = datetime.datetime.now()
+            sms.submitTime = datetime.now()
             sms.responseCode=smsApi.getResponseCode()
             sms.responseMessage=smsApi.getResponseMessage()
             
@@ -96,17 +96,151 @@ class SMSManager(models.Manager):
         """
 #        self.delete(round_nr=)
         return True
-        
-    def swiss_round(self,swiss,round_nr,tournament):
+
+    def bracket_round(self,brackets,swiss,selround,tournament):
         """
-        GOAL: 
+        Brackets:
+                
+        // After a 15-2 loss in the semi finals, 
+        // you'll play for 9th against "Ultimate Kaese" (Swiss-ranked 13th) on Field 1 at 12:30.
+        // or: you finish Windmill 2011 in place 18.
         
-        Swissdraw:
-        $text = "Welcome to Windmill Windup 2012!In round 1,";
+        // After a 15-2 loss in the final game, you finish Windmill 2010 in place 1. Congratulations!
+        // Please hand in today's spirit scores and see you next year!
+                
+        // After a 13-12 win in the exciting final, you are the champion of Windmill 2010. Congratulations!"
+        // After a 11-18 loss in the final, you are vice-champion of Windmill 2010. Congratulations!"
+        """
+    
+        lastSwissRound={}
+        for r in swiss['objects']:
+            if r['round_number']==5:
+                lastSwissRound=r
+
+        # retrieve the tournament from the database
+        # assumes that those tournaments already exist there
+        if settings.HOST=="http://api.playwithlv.com":
+            tourney=Tournament.objects.get(l_id = tournament['id'])
+        elif settings.HOST=="https://api.leaguevine.com":
+            tourney=Tournament.objects.get(lv_id = tournament['id'])
         
-        After a 15-2 loss in round 1, you are now ranked 12th. In round 2,
-        you'll play "Ultimate Kaese" (ranked 13th) on Field 1 at 12:30.
-        """   
+        nr_created=0
+        
+        # case distinction between quarters, semi, finals and big final
+        if selround=='QF':
+            # retrieve the biggest playoff bracket
+            for br in brackets['objects']:
+                if br['number_of_rounds']==3:
+                    for r in br['rounds']:
+                        # retrieve the first round, that's the quarter finals
+                        if r['round_number']==2:
+                            quarters=r
+            for g in quarters['games']:
+                if g['team_1'] is not None:
+                    msg=self.msg_quarters_team(lastSwissRound,quarters,g['team_1'],g['team_2'],g['start_time'],self.gsite(g)) 
+                    if settings.HOST=="http://api.playwithlv.com":
+                        team_obj=Team.objects.get(l_id = g['team_1_id'])
+                    elif settings.HOST=="https://api.leaguevine.com":
+                        team_obj=Team.objects.get(lv_id = g['team_1_id'])                    
+                    nr_created += self.create_sms_team(msg,team_obj,'QF',tourney)
+                if g['team_2'] is not None:
+                    msg=self.msg_quarters_team(lastSwissRound,quarters,g['team_2'],g['team_1'],g['start_time'],self.gsite(g)) 
+                    if settings.HOST=="http://api.playwithlv.com":
+                        team_obj=Team.objects.get(l_id = g['team_2_id'])
+                    elif settings.HOST=="https://api.leaguevine.com":
+                        team_obj=Team.objects.get(lv_id = g['team_2_id'])                    
+                    nr_created += self.create_sms_team(msg,team_obj,'QF',tourney)                                    
+        elif selround=='SF':
+            # retrieve relevant rounds
+            for br in brackets['objects']:
+                if br['number_of_rounds']==3:  # get the biggest playoff bracket
+                    for r in br['rounds']:
+                        # retrieve the first round, that's the quarter finals
+                        if r['round_number']==2:
+                            quarters=r
+                        # retrieve the second round, that's one half of the semi finals
+                        if r['round_number']==1:
+                            semis1=r
+                elif br['number_of_rounds']==2: # that's the loser's playoffs
+                    for r in br['rounds']:
+                        if r['round_number']==1: 
+                            semis2=r
+                                                    
+            for g in semis1['games']+semis2['games']: # check if this concatenation of arrays works
+                if g['team_1'] is not None:
+                    msg=self.msg_semis_team(lastSwissRound,quarters,g['team_1'],g['team_2'],g['start_time'],self.gsite(g)) 
+                    if settings.HOST=="http://api.playwithlv.com":
+                        team_obj=Team.objects.get(l_id = g['team_1_id'])
+                    elif settings.HOST=="https://api.leaguevine.com":
+                        team_obj=Team.objects.get(lv_id = g['team_1_id'])                    
+                    nr_created += self.create_sms_team(msg,team_obj,'SF',tourney)
+                if g['team_2'] is not None:
+                    msg=self.msg_semis_team(lastSwissRound,quarters,g['team_2'],g['team_1'],g['start_time'],self.gsite(g)) 
+                    if settings.HOST=="http://api.playwithlv.com":
+                        team_obj=Team.objects.get(l_id = g['team_2_id'])
+                    elif settings.HOST=="https://api.leaguevine.com":
+                        team_obj=Team.objects.get(lv_id = g['team_2_id'])                    
+                    nr_created += self.create_sms_team(msg,team_obj,'SF',tourney)                                    
+        elif selround=='F':
+            pass
+        elif selround=='BigF':
+            pass
+        
+        return nr_created
+        
+    def msg_semis_team(self,quarters,semis,team,opp,start_time,field_name):
+        # After a 15-2 loss in the quarter finals, you'll play the next rounds against
+        # "Ultimate Kaese" on Field 1 at 12:30.
+            
+        start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
+        prev_round_datetime = datetime.strptime(quarters['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
+        if start_datetime.date()>prev_round_datetime.date():
+            tomorrow=True
+        else:
+            tomorrow=False
+        msg=u'After a {0} '.format(result_in_swissround(quarters,team['id']))
+        msg += u'in the quarter finals, '
+        msg += u"{0} ".format(self.sname(team))
+
+        msg += u'will play the next round against {0} '.format(self.sname(opp))
+        msg += u"on {0} ".format(field_name)
+        if tomorrow:
+            msg += u'tomorrow '
+        msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
+        if tomorrow:
+            msg += u"Pls hand in today's spirit scores."
+        
+        return msg
+
+    
+    def msg_quarters_team(self,lastswiss,quarters,team,opp,start_time,field_name):
+        # After a 15-10 win in round 5, your final rank after Swissdraw is 25th. You will thus play for rank 1 to 8.
+        # In the quarter finals, you'll play CamboCakes (ranked 5th) on Field 10. Pls handin today's spirit scores.
+            
+        start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
+        prev_round_datetime = datetime.strptime(lastswiss['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
+        if start_datetime.date()>prev_round_datetime.date():
+            tomorrow=True
+        else:
+            tomorrow=False
+        msg=u'After a {0} '.format(result_in_swissround(lastswiss,team['id']))
+        msg += u'in round {0}, '.format(lastswiss['round_number'])
+        msg += u"{0} ".format(self.sname(team))
+
+        msg += u'is now ranked {0}. You will thus play for rank 1 to 8 in playoffs.'.format(rank_in_swissround(lastswiss,team['id']))
+        msg += u"In the quarter finals, you'll play {0} ".format(self.sname(opp))
+        msg += u"(ranked {0}) ".format(rank_in_swissround(lastswiss,opp['id']))            
+        msg += u"on {0} ".format(field_name)
+        if tomorrow:
+            msg += u'tomorrow '
+        msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
+        if tomorrow:
+            msg += u"Pls hand in today's spirit scores."
+        
+        return msg
+
+    
+    def swiss_round(self,swiss,round_nr,tournament):
     
         prevRound={}
         for r in swiss['objects']:
@@ -131,29 +265,20 @@ class SMSManager(models.Manager):
                     team_obj=Team.objects.get(l_id = g['team_1_id'])
                 elif settings.HOST=="https://api.leaguevine.com":
                     team_obj=Team.objects.get(lv_id = g['team_1_id'])
-                sms = SMS.objects.create(message = msg,
-                                         team = team_obj,
-                                         round_id = thisRound['round_number'],
-                                         tournament = tourney,
-                                         status = u'ready')
-                nr_created += 1
+                nr_created += self.create_sms_team(msg,team_obj,thisRound['round_number'],tourney)
             if g['team_2'] is not None:
                 msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],g['game_site']['name'],vp_bye) 
                 if settings.HOST=="http://api.playwithlv.com":
                     team_obj=Team.objects.get(l_id = g['team_2_id'])
                 elif settings.HOST=="https://api.leaguevine.com":
                     team_obj=Team.objects.get(lv_id = g['team_2_id'])
-                sms = SMS.objects.create(message = msg,
-                                         team = team_obj,
-                                         round_id = thisRound['round_number'],
-                                         tournament = tourney,
-                                         status = u'ready')
-                nr_created += 1
+                nr_created += self.create_sms_team(msg,team_obj,thisRound['round_number'],tourney)
         
         return nr_created
             
         
-    def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,field_name,vp_bye):    
+    def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,field_name,vp_bye):
+            
         if not prevRound.__contains__('round_number'):
             msg=u'Welcome to Windmill Windup 2012! In Round 1,'
             tomorrow=False
@@ -167,14 +292,15 @@ class SMSManager(models.Manager):
                 tomorrow=False
             msg=u'After a {0} '.format(result_in_swissround(prevRound,team['id']))
             msg += u'in round {0}, '.format(prevRound['round_number'])
+            msg += u'{0} '.format(self.sname(team))
 
         if thisRound['round_number']<9: 
-            msg += u'you are now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
+            msg += u'is now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
             msg += u'In round {0}'.format(thisRound['round_number']) + ','
             if opp is None:
                 msg += u"you can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
             else:
-                msg += u"you'll play {0} ".format(opp['name'])
+                msg += u"you'll play {0} ".format(self.sname(opp))
                 msg += u"(ranked {0}) ".format(rank_in_swissround(prevRound,opp['id']))            
                 msg += u"on {0} ".format(field_name)
                 if tomorrow:
@@ -188,14 +314,39 @@ class SMSManager(models.Manager):
         
         return msg
     
+    def sname(self,team):
+        # returns the short name if avaible
+        # returns normal name otherwise
+        if team.has_key('short_name'):
+            return team['short_name']
+        else:
+            return team['name']
+
+    def create_sms_team(self,msg,team,round_id,tourney):
+        # creates SMS for all phone numbers of the team
+        nr_created=0
+        for nr in team.mobilenr():
+            sms = SMS.objects.create(message = msg,
+                                     number = nr,
+                                     team = team,
+                                     round_id = round_id,
+                                     tournament = tourney,
+                                     status = u'ready')
+            nr_created += 1            
+        return nr_created
     
-        
+    def gsite(self,game):
+        if game['game_site']!=None:
+            return game['game_site']['name']
+        else:
+            logger.error('no game site found in game id {0}'.format(game['id']))
+            return '?'
         
 class SMS(models.Model):
     objects = SMSManager()
     
     team = models.ForeignKey(Team,blank=True,null=True,default=None)
-    round_id = models.IntegerField(null=True,blank=True)
+    round_id = models.CharField(max_length=5,null=True,blank=True)
     # many-to-one relationship between Tournaments and SMS
     tournament = models.ForeignKey(Tournament,blank=True,null=True,default=None)
     number = models.CharField(max_length=20)

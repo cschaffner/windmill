@@ -16,24 +16,6 @@ from pprint import pformat
 # Get an instance of a logger
 logger = logging.getLogger('windmill.spirit')
 
-"""
-Brackets:
-// After a 15-10 win in round 5, your final rank after Swissdraw is 25th. You will thus play for rank 1 to 8.
-// In the quarter finals, you'll play CamboCakes (ranked 5th) on Field 10. Pls handin today's spirit scores.
-
-// After a 15-2 loss in the quarter finals, you'll play the semi finals against
-// "Ultimate Kaese" (Swiss-ranked 13th) on Field 1 at 12:30.
-
-// After a 15-2 loss in the semi finals, 
-// you'll play for 9th against "Ultimate Kaese" (Swiss-ranked 13th) on Field 1 at 12:30.
-// or: you finish Windmill 2011 in place 18.
-
-// After a 15-2 loss in the final game, you finish Windmill 2010 in place 1. Congratulations!
-// Please hand in today's spirit scores and see you next year!
-        
-// After a 13-12 win in the exciting final, you are the champion of Windmill 2010. Congratulations!"
-// After a 11-18 loss in the final, you are vice-champion of Windmill 2010. Congratulations!"
-"""
 
 @login_required
 def control(request):
@@ -114,21 +96,25 @@ def create(request,div):
     logger.info(t)
     # check if there are playoff rounds
     # if yes, load them in brackets
-    brackets={}
+    brackets=api_bracketsbytournament(tournament.lgv_id())
     if t['scheduling_format']=='swiss':
         if settings.OFFLINE==True:
             swiss=swissinfo()
         else:
             swiss=api_swissroundinfo(tournament.lgv_id())
-        logger.info(pformat(swiss))
+#        logger.info(pformat(swiss))
         if not request.GET.__contains__('round'):
             # display choice of rounds
             return render_to_response('sms_selectround.html',{'tournament': t, 'swiss': swiss, 'brackets': brackets})
         else:
-            round_nr = int(request.GET['round'])
-            if not round_nr > 0:
-                raise 'something is wrong with the round argument'
-            nr_created=SMS.objects.swiss_round(swiss,round_nr,t)
+            selround=request.GET['round']
+            if selround=='QF' or selround=='SF' or selround=='F':
+                nr_created=SMS.objects.bracket_round(brackets,swiss,selround,t)
+            else:
+                round_nr = int(selround)
+                if not round_nr > 0:
+                    raise 'something is wrong with the round argument'
+                nr_created=SMS.objects.swiss_round(swiss,round_nr,t)
         
     elif t['scheduling_format']=='regular':
         # do something here
