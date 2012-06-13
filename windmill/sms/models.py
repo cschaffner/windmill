@@ -1,7 +1,7 @@
 from django.db import models
 from windmill.tools.models import Team, Tournament
 import logging
-from datetime import datetime
+import datetime
 from windmill.tools.wrapper import *
 # Import the SmsCity Library which will send the message to our server
 from SmsCity import SmsCity
@@ -16,35 +16,40 @@ class SMSManager(models.Manager):
     def sendSmsCity(self):
         # sends all SMS with status 1 to SmsCity
         
-        # setup a test-SMS:
-        sms = SMS.objects.create(message='this is just a test',number='31619091702',status=u'ready')
-                
+        SendList = SMS.objects.filter(status=u'ready',team__isnull=True)
+        if SendList.count()>1:
+            logger.error('we do not want to send too much for now')
+            raise
         
-        # Set the SMScity username and password, and create an instance of the SmsCity class
-        smsApi = SmsCity('windmill', '2smscity')
+        for sms in SendList:
+            # Set the SMScity username and password, and create an instance of the SmsCity class
+            smsApi = SmsCity('windmill', '2smscity')
+            
+            # Set the sender, could be an number (16 numbers) or letters (11 characters)
+            smsApi.setSender('WW_2012')
+            
+            # Add the destination mobile number.
+            # This method can be called several times to add have more then one recipient for the same message
+            smsApi.addDestination(sms.number)
+            
+            # Set an reference
+    #        ref=getrandbits(63)
+            smsApi.setReference(sms.id)
+            
+            # Send the message to the destination(s)
+            smsApi.sendSms(sms.message)
+            
+            # When using in the console, it will show you what the response was from our server
+            logger.info('Response: {0}'.format(smsApi.getResponseCode()))
+            logger.info('{0}'.format(smsApi.getResponseMessage()))
+            logger.info('{0}'.format(smsApi.getCreditBalance()))
+    
+            sms.submitTime = datetime.datetime.now()
+            sms.responseCode=smsApi.getResponseCode()
+            sms.responseMessage=smsApi.getResponseMessage()
+            
+            sms.save()
         
-        # Set the sender, could be an number (16 numbers) or letters (11 characters)
-        smsApi.setSender('WW_2012')
-        
-        # Add the destination mobile number.
-        # This method can be called several times to add have more then one recipient for the same message
-        smsApi.addDestination(sms.number)
-        
-        # Set an reference
-#        ref=getrandbits(63)
-        smsApi.setReference(sms.id)
-        
-        # Send the message to the destination(s)
-        smsApi.sendSms(sms.message)
-        
-        # When using in the console, it will show you what the response was from our server
-        logger.info('Response: {0}'.format(smsApi.getResponseCode()))
-        logger.info('{0}'.format(smsApi.getResponseMessage()))
-        logger.info('{0}'.format(smsApi.getCreditBalance()))
-
-        sms.responseCode=smsApi.getResponseCode()
-        sms.responseMessage=smsApi.getResponseMessage()
-        sms.save()
         
         return smsApi.getResponseCode()
 
