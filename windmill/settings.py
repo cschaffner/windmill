@@ -2,7 +2,7 @@
 import os
 ROOT_PATH = os.path.dirname(__file__)
 
-OFFLINE = True
+OFFLINE = False
 
 HOST="http://api.playwithlv.com"
 #HOST="https://api.leaguevine.com"
