@@ -72,7 +72,11 @@ class Team(models.Model):
         # return iterator of available phone numbers 
         for nr in [self.mobile1,self.mobile2,self.mobile3,self.mobile4,self.mobile5]:
             if nr != '':
-                yield nr
+                # shave off the first two zeros
+                if nr[0:2]=='00':
+                    yield nr[2:]
+                else:
+                    yield nr
                 
     
     def division(self):
