@@ -219,3 +219,7 @@ class SMS(models.Model):
         self.length=len(self.message)
         super(SMS, self).save(*args, **kwargs) # Call the "real" save() method.
 
+
+class SMSOverview(SMS):
+    class Meta:
+        proxy = True    
