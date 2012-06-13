@@ -4,8 +4,8 @@ ROOT_PATH = os.path.dirname(__file__)
 
 OFFLINE = False
 
-HOST="http://api.playwithlv.com"
-#HOST="https://api.leaguevine.com"
+#HOST="http://api.playwithlv.com"
+HOST="https://api.leaguevine.com"
 
 if HOST=="http://api.playwithlv.com":
     CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
