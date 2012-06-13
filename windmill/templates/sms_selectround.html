@@ -8,12 +8,16 @@
 <div><a href="?round=QF">create SMS for transition to Quarterfinals</a></div>
 <div><a href="?round=SF">create SMS for transition to Semifinals</a></div>
 <div><a href="?round=F">create SMS for transition to Placing Games</a></div>
+<div><a href="?round=afterF">create SMS after final round</a> (OK to do before big final)</div>
 {% endif %}
 
 <h2>Swissdraw:</h2>
 {% for r in swiss.objects %}
 {% if forloop.counter == 1 %}
 <h2>Latest round:</h2>
+{% if forloop.revcounter == 8 %}
+<div><a href="?round=9">create SMS <b>after</b> final round</a> (OK to do before big final)</div>
+{% endif %}
 <div><a href="?round={{r.round_number}}">create SMS for transition to round {{r.round_number}}</a></div>
 <br><br>
 <h3>Previous rounds:</h3>

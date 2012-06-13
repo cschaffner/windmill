@@ -101,10 +101,7 @@ class SMSManager(models.Manager):
         """
         Brackets:
                 
-        
-        // After a 15-2 loss in the final game, you finish Windmill 2010 in place 1. Congratulations!
-        // Please hand in today's spirit scores and see you next year!
-                
+                    
         // After a 13-12 win in the exciting final, you are the champion of Windmill 2010. Congratulations!"
         // After a 11-18 loss in the final, you are vice-champion of Windmill 2010. Congratulations!"
         """
@@ -190,15 +187,64 @@ class SMSManager(models.Manager):
             for idx,g in enumerate(final_12['games']+final_34['games']+final_56['games']+final_78['games']):
                 if g['team_1'] is not None:
                     msg=self.msg_finals_team(semis,g['team_1'],g['team_2'],g['start_time'],self.gsite(g),(idx*2)+1)                     
-                    nr_created += self.create_sms_team(msg,g['team_1_id'],'SF',tourney)
+                    nr_created += self.create_sms_team(msg,g['team_1_id'],'F',tourney)
                 if g['team_2'] is not None:
                     msg=self.msg_finals_team(semis,g['team_2'],g['team_1'],g['start_time'],self.gsite(g),(idx*2)+1)                     
-                    nr_created += self.create_sms_team(msg,g['team_2_id'],'SF',tourney)                                    
-        elif selround=='BigF':
-            pass
+                    nr_created += self.create_sms_team(msg,g['team_2_id'],'F',tourney)                                    
+        elif selround=='afterF':
+            # retrieve relevant rounds
+            for br in brackets['objects']:
+                if br['number_of_rounds']==3:  # get the biggest playoff bracket
+                    for r in br['rounds']:
+                        # retrieve the first round, that's the Big Final
+                        if r['round_number']==0:
+                            final_12=r
+                        # retrieve the second round, that's one half of the semi finals
+                        if r['round_number']==1:
+                            semis1=r
+                elif br['number_of_rounds']==2: # that's the loser's playoffs
+                    for r in br['rounds']:
+                        if r['round_number']==1: 
+                            semis2=r
+                        if r['round_number']==0: 
+                            final_56=r
+                elif br['number_of_rounds']==1 and br['name']=='bronze game':
+                    final_34 = br['rounds'][0]
+                elif br['number_of_rounds']==1 and br['name']=='game for 7-8':
+                    final_78 = br['rounds'][0]
+                    
+            finals={} # set up a collection of semi rounds
+            finals['games']=final_12['games']+final_34['games']+final_56['games']+final_78['games']               
+
+            for idx,g in enumerate(finals['games']):
+                if g['team_1'] is not None:
+                    msg=self.msg_after_finals_team(finals,g['team_1'],(idx*2)+1)                     
+                    nr_created += self.create_sms_team(msg,g['team_1_id'],'aftF',tourney)
+                if g['team_2'] is not None:
+                    msg=self.msg_after_finals_team(finals,g['team_2'],(idx*2)+1)                     
+                    nr_created += self.create_sms_team(msg,g['team_2_id'],'aftF',tourney)                                    
         
         return nr_created
 
+    def msg_after_finals_team(self,finals,team,for_place):
+        # After a 15-2 loss in the final game, you finish Windmill 2010 in place 1. Congratulations!
+        # Please hand in today's spirit scores and see you next year!
+        
+        result_txt=result_in_swissround(finals,team['id'])
+        place=for_place
+        if result_txt[-4:]=='loss':
+            place=for_place+1
+
+        msg=u'After a {0} '.format(result_txt)
+        msg += u'in the final game, '
+        msg += u"{0} ".format(self.sname(team))
+        
+        msg += u'finishes Windmill 2012 as {0}, congrats! '.format(ordinal(place))
+        msg += u'Please hand in all spirit scores and see you next year!'
+        
+        return msg
+
+        
     def msg_finals_team(self,semis,team,opp,start_time,field_name,for_place):
         # After a 15-2 loss in the semi finals, 
         # you'll play for 9th against "Ultimate Kaese" (Swiss-ranked 13th) on Field 1 at 12:30.
@@ -285,6 +331,12 @@ class SMSManager(models.Manager):
                 prevRound=r
             elif r['round_number']==round_nr:
                 thisRound=r
+        if round_nr==9:
+            thisRound={}
+            thisRound['round_number']=9
+            # set games equal to last round's games so that below, we go through all teams and create the final sms
+            thisRound['games']=prevRound['games']
+            
         # retrieve the tournament from the database
         # assumes that those tournaments already exist there
         if settings.HOST=="http://api.playwithlv.com":
@@ -294,6 +346,7 @@ class SMSManager(models.Manager):
         
         nr_created=0
         vp_bye = tournament['swiss_points_for_bye']
+        
         # go through all games in this round and create SMS for team_1 and team_2
         for g in thisRound['games']:
             if g['team_1'] is not None:
@@ -302,7 +355,7 @@ class SMSManager(models.Manager):
             if g['team_2'] is not None:
                 msg=self.msg_swiss_team(prevRound,thisRound,g['team_2'],g['team_1'],g['start_time'],g['game_site']['name'],vp_bye) 
                 nr_created += self.create_sms_team(msg,g['team_2_id'],thisRound['round_number'],tourney)
-        
+
         return nr_created
             
         
@@ -338,7 +391,7 @@ class SMSManager(models.Manager):
             if tomorrow:
                 msg += u"Pls hand in today's spirit scores."
         else: # last round
-            msg += u'you finish Windmill 2012 in rank {0}, congrats!'.format(rank_in_swissround(prevRound,team['id']))
+            msg += u'finishes Windmill 2012 as {0}, congrats! '.format(rank_in_swissround(prevRound,team['id']))
             msg += u'Please hand in all spirit scores and see you next year!'
         
         return msg
