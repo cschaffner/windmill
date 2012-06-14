@@ -6,6 +6,7 @@ from windmill.tools.wrapper import *
 # Import the SmsCity Library which will send the message to our server
 from SmsCity import SmsCity
 from random import getrandbits
+import unicodedata
 
 
 # Get an instance of a logger
@@ -41,7 +42,11 @@ class SMSManager(models.Manager):
     #        ref=getrandbits(63)
             smsApi.setReference(sms.id)
             
-            logger.info('sending sms {0}'.format(pformat(smsApi)))
+            # make sure there are no special symbols in the message
+            # convert it to ASCII
+            msg_ascii = unicodedata.normalize('NFKD', sms.message).encode('ascii','ignore')
+
+            logger.info('sending sms "{0}" to {1}'.format(msg_ascii,sms.number))
             # Send the message to the destination(s)
             smsApi.sendSms(sms.message)
             counter += 1
@@ -58,7 +63,7 @@ class SMSManager(models.Manager):
             
             sms.save()
             
-            if counter>=30:
+            if counter>=3:
                 break
         
         return smsApi.getResponseCode()
@@ -435,9 +440,13 @@ class SMSManager(models.Manager):
         elif settings.HOST=="https://api.leaguevine.com":
             team_obj=Team.objects.get(lv_id = team_id)                    
         
+        # make sure there are no special symbols in the message
+        # convert it to ASCII
+        msg_ascii = unicodedata.normalize('NFKD', msg).encode('ascii','ignore')
+        
         nr_created=0
         for nr in team_obj.mobilenr():
-            sms = SMS.objects.create(message = msg,
+            sms = SMS.objects.create(message = msg_ascii,
                                      number = nr,
                                      team = team_obj,
                                      round_id = round_id,
