@@ -9,7 +9,7 @@ logger = logging.getLogger('windmill.spirit')
 
 class SMSAdmin(admin.ModelAdmin):
     list_display = ['id','team','tournament','round_id','createTime','number','message','length','status']
-    list_filter = ('tournament','team','round_id')
+    list_filter = ('tournament','team','round_id','status')
 
 
 class SMSOverviewAdmin(admin.ModelAdmin):

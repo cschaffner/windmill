@@ -68,6 +68,16 @@ class SmsCity:
         """
         self.destination.append(destination)
 
+    
+    def setDestination(self, destination):
+        """
+        Sets an MSISDN to the destination array after clearing it
+        @param destination: integer The destination MSISDN (Mobile number)
+        """
+        self.destination = []
+        self.destination.append(destination)
+
+
 
     def setReference(self, reference):
         """

@@ -22,6 +22,7 @@ class SMSManager(models.Manager):
 #            logger.error('we do not want to send too much for now')
 #            raise
         
+        counter=0
         for sms in SendList:
             # Set the SMScity username and password, and create an instance of the SmsCity class
             smsApi = SmsCity('windmill', '2smscity')
@@ -31,14 +32,19 @@ class SMSManager(models.Manager):
             
             # Add the destination mobile number.
             # This method can be called several times to add have more then one recipient for the same message
-            smsApi.addDestination(sms.number)
+            smsApi.setDestination(sms.number)
+            
+            if len(smsApi.destination) > 1:
+                raise Exception('sms has more than one destination number, we had that before...')
             
             # Set an reference
     #        ref=getrandbits(63)
             smsApi.setReference(sms.id)
             
+            logger.info('sending sms {0}'.format(pformat(smsApi)))
             # Send the message to the destination(s)
             smsApi.sendSms(sms.message)
+            counter += 1
             
             # When using in the console, it will show you what the response was from our server
             logger.info('Response: {0}'.format(smsApi.getResponseCode()))
@@ -48,9 +54,12 @@ class SMSManager(models.Manager):
             sms.submitTime = datetime.now()
             sms.responseCode=smsApi.getResponseCode()
             sms.responseMessage=smsApi.getResponseMessage()
+            sms.status="Sent"
             
             sms.save()
-        
+            
+            if counter>=11:
+                break
         
         return smsApi.getResponseCode()
 
