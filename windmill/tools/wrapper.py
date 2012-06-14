@@ -106,12 +106,15 @@ def api_nrswissrounds(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict['meta']['total_count']
 
-def api_swissroundinfo(tournament_id,round_number=None):
+def api_swissroundinfo(tournament_id,round_number=None,ordered=False):
     if settings.OFFLINE:
         return swissinfo()
      
     if round_number is None:
-        url='{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
+        if ordered:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}&order_by=%5Bid%5D'.format(settings.HOST,tournament_id)
+        else:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)            
     else:
         url='{0}/v1/swiss_rounds/?tournament_id={1}&round_number={2}'.format(settings.HOST,tournament_id,round_number)        
     response = requests.get(url=url,headers=my_headers,config=my_config)
