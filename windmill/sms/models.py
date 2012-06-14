@@ -16,10 +16,11 @@ class SMSManager(models.Manager):
     def sendSmsCity(self):
         # sends all SMS with status 1 to SmsCity
         
-        SendList = SMS.objects.filter(status=u'ready',team__isnull=True)
-        if SendList.count()>1:
-            logger.error('we do not want to send too much for now')
-            raise
+        SendList = SMS.objects.filter(status=u'ready')
+
+#        if SendList.count()>1:
+#            logger.error('we do not want to send too much for now')
+#            raise
         
         for sms in SendList:
             # Set the SMScity username and password, and create an instance of the SmsCity class
