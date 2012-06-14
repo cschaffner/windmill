@@ -4,8 +4,8 @@ ROOT_PATH = os.path.dirname(__file__)
 
 OFFLINE = False
 
-HOST="http://api.playwithlv.com"
-#HOST="https://api.leaguevine.com"
+#HOST="http://api.playwithlv.com"
+HOST="https://api.leaguevine.com"
 
 if HOST=="http://api.playwithlv.com":
     CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
@@ -156,7 +156,7 @@ ROUNDS={"open": [
                   "mode": "adjacent pairing",
                   "fields":[1,2,4,10,11,3,14,15,16,17,18,19]},
                  {"round_nr" : 9,
-                  "time": "2012-06-17T14:00:00+02:00",
+                  "time": "2012-06-17T11:00:00+02:00",
                   "name": "BigFinal",
                   "fields":[6]},
                  ],
@@ -197,7 +197,7 @@ ROUNDS={"open": [
                   "mode": "adjacent pairing",
                   "fields":[12,5,13,8,9,20]},
                  {"round_nr" : 9,
-                  "time": "2012-06-17T13:00:00+02:00",
+                  "time": "2012-06-17T14:00:00+02:00",
                   "name": "BigFinal",
                   "fields":[7]},
                  ]

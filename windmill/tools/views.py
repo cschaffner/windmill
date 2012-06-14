@@ -1,7 +1,10 @@
 from __future__ import division
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+
 from windmill.tools.wrapper import *
 from windmill.tools.ffindr import *
 from windmill.tools.models import Team, Tournament
@@ -10,9 +13,17 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger('windmill.tools')
 
-
+@login_required
 def home(request):
-    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all})
+    ts=Tournament.objects.all()
+    for tourn in ts:
+        tourn.round_nr=api_nrswissrounds(tourn.lgv_id())
+        
+    return render_to_response('tools_tm.html',{'Tournaments': ts})
+
+@login_required
+def advanced(request):
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all()})
 
 def excel(request, div):
     t=Tournament.objects.get(name=div)
@@ -77,6 +88,7 @@ def correctresult(game):
     api_result(game['id'],s1,s2,True)
 
 
+@login_required
 def randomresults(request, div):
     t=Tournament.objects.get(name=div)
 #    if div=='women':
@@ -121,10 +133,12 @@ def randomresults(request, div):
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all})
 
 
+@login_required
 def ffimport(request):
     ffindr_import()
     return render_to_response('tools_index.html')
 
+@login_required
 def idreplace(request):
 # this procedure should be called after the playwithlv database has been replace with the leaguevine db
 # then we should copy all lv_id's over onto the l_id 's
@@ -142,6 +156,7 @@ def idreplace(request):
     
     return render_to_response('tools_index.html')
 
+@login_required
 def createteams(request):
     for div in ['open', 'mixed', 'women']:
         season_id=settings.SEASON_ID[div]
@@ -158,11 +173,18 @@ def createteams(request):
     return render_to_response('tools_index.html')
 
 
+@login_required
 def addswissround(request, div):
     t=Tournament.objects.get(name=div)
     
     # figure out how many swissdraw rounds already exist
     nrswissrounds=api_nrswissrounds(t.lgv_id())
+    
+    # check if last round's games have all received final score updates
+    final = api_swissround_final(t.lgv_id(),nrswissrounds)
+    if not final:
+        logger.error('not all games of previous rounds have received final score updates')
+        return render_to_response('tools_too_early.html')
     
     # remember that the array counting starts at 0
     # so the following retrieves the data of the *next* round
@@ -179,11 +201,13 @@ def addswissround(request, div):
 #        team_ids=api_rankedteamids(t.lgv_id(),6)
     else:
         team_ids=[]
+        
     api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
     # TODO: check that field assignments are OK
     
-    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return HttpResponseRedirect(reverse('windmill.tools.views.home'))
 
+@login_required
 def addpools(request,div):
     if div<>'women':
         logger.error('something is wrong here')
@@ -214,6 +238,7 @@ def addpools(request,div):
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
 
+@login_required
 def newtourney(request, div):
     season_id=settings.SEASON_ID[div]
     # set up a new tournament
@@ -243,6 +268,7 @@ def newtourney(request, div):
     link=api_weblink(tournament_id)
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
+@login_required
 def addteams(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
@@ -257,11 +283,13 @@ def addteams(request, div):
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
     
+@login_required
 def cleanteams(request, div):
     t=Tournament.objects.get(name=div)
     api_cleanteams(t.lgv_id())
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
+@login_required
 def cleanbrackets(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
@@ -270,6 +298,7 @@ def cleanbrackets(request, div):
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
      
+@login_required
 def addbracket(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
@@ -279,6 +308,7 @@ def addbracket(request, div):
     
     return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
+@login_required
 def movetoplayoff(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
@@ -291,6 +321,14 @@ def movetoplayoff(request, div):
     swiss = api_swissroundinfo(t.lgv_id())
     nrrounds=swiss['meta']['total_count']
     logger.info('nr of rounds: {0}'.format(nrrounds))
+    
+    # check if last round's games have all received final score updates
+    final = api_swissround_final(t.lgv_id(),nrrounds)
+    if not final:
+        logger.error('not all games of previous rounds have received final score updates')
+        return render_to_response('tools_too_early.html')
+    
+    
     for round in swiss['objects']:
         if round['round_number']==5: # round 5 standings are deciding               
             brackets=api_bracketsbytournament(t.lgv_id())
@@ -300,8 +338,6 @@ def movetoplayoff(request, div):
                     api_setteamsingame(br['rounds'][0]['games'][1]['id'],round['standings'][4]['team_id'],round['standings'][3]['team_id'])
                     api_setteamsingame(br['rounds'][0]['games'][2]['id'],round['standings'][2]['team_id'],round['standings'][5]['team_id'])
                     api_setteamsingame(br['rounds'][0]['games'][3]['id'],round['standings'][6]['team_id'],round['standings'][1]['team_id'])
-                         
-                    
-    
-    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
+                             
+    return HttpResponseRedirect(reverse('windmill.tools.views.home'))
     
