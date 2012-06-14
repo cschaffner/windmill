@@ -362,8 +362,22 @@ class SMSManager(models.Manager):
     def msg_swiss_team(self,prevRound,thisRound,team,opp,start_time,field_name,vp_bye):
             
         if not prevRound.__contains__('round_number'):
-            msg=u'Welcome to Windmill Windup 2012! In Round 1,'
-            tomorrow=False
+            start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
+            prev_round_datetime = datetime.now()
+            if start_datetime.date()>prev_round_datetime.date():
+                tomorrow=True
+            else:
+                tomorrow=False
+
+            msg=u'Welcome to Windmill Windup 2012! In Round 1, {0} '.format(self.sname(team))
+            if opp is None:
+                msg += u"can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
+            else:
+                msg += u"will play {0} ".format(self.sname(opp))
+                msg += u"on {0} ".format(field_name)
+                if tomorrow:
+                    msg += u'tomorrow '
+                msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
         else:
 #            start_time_struct=time.strptime(start_time,"%Y-%m-%dT%H:%M:%S+02:00")
             start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
@@ -376,23 +390,23 @@ class SMSManager(models.Manager):
             msg += u'in round {0}, '.format(prevRound['round_number'])
             msg += u'{0} '.format(self.sname(team))
 
-        if thisRound['round_number']<9: 
-            msg += u'is now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
-            msg += u'In round {0}'.format(thisRound['round_number']) + ','
-            if opp is None:
-                msg += u"you can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
-            else:
-                msg += u"you'll play {0} ".format(self.sname(opp))
-                msg += u"(ranked {0}) ".format(rank_in_swissround(prevRound,opp['id']))            
-                msg += u"on {0} ".format(field_name)
+            if thisRound['round_number']<9: 
+                msg += u'is now ranked {0}.'.format(rank_in_swissround(prevRound,team['id']))
+                msg += u'In round {0}'.format(thisRound['round_number']) + ','
+                if opp is None:
+                    msg += u"you can take a break due to the odd number of teams.You'll score {0} victory points.".format(vp_bye)
+                else:
+                    msg += u"you'll play {0} ".format(self.sname(opp))
+                    msg += u"(ranked {0}) ".format(rank_in_swissround(prevRound,opp['id']))            
+                    msg += u"on {0} ".format(field_name)
+                    if tomorrow:
+                        msg += u'tomorrow '
+                    msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
                 if tomorrow:
-                    msg += u'tomorrow '
-                msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
-            if tomorrow:
-                msg += u"Pls hand in today's spirit scores."
-        else: # last round
-            msg += u'finishes Windmill 2012 as {0}, congrats! '.format(rank_in_swissround(prevRound,team['id']))
-            msg += u'Please hand in all spirit scores and see you next year!'
+                    msg += u"Pls hand in today's spirit scores."
+            else: # last round
+                msg += u'finishes Windmill 2012 as {0}, congrats! '.format(rank_in_swissround(prevRound,team['id']))
+                msg += u'Please hand in all spirit scores and see you next year!'
         
         return msg
     
