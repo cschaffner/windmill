@@ -48,7 +48,7 @@ class SMSManager(models.Manager):
 
             logger.info('sending sms "{0}" to {1}'.format(msg_ascii,sms.number))
             # Send the message to the destination(s)
-            smsApi.sendSms(sms.message)
+            smsApi.sendSms(msg_ascii)
             counter += 1
             
             # When using in the console, it will show you what the response was from our server
