@@ -11,7 +11,7 @@ logger = logging.getLogger('windmill.spirit')
 
 def home(request):
     # refer to admin interface 
-    return render_to_response('added_games.html',{'added': 0})
+    return render_to_response('spirit_added_games.html',{'added': 0})
 
     
 
@@ -19,4 +19,4 @@ def addgames(request,tournament_id):
     # add games
     added=Game.objects.addmatches(tournament_id)
     
-    return render_to_response('added_games.html',{'added': added})
+    return render_to_response('spirit_added_games.html',{'added': added})

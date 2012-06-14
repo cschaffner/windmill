@@ -12,22 +12,42 @@ logger = logging.getLogger('windmill.tools')
 
 
 def home(request):
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all})
 
 def excel(request, div):
     t=Tournament.objects.get(name=div)
     
     # get Swissdraw data
-    swiss = api_swissroundinfo(t.lgv_id())
+    swiss = api_swissroundinfo(t.lgv_id(),None,True)
     
-    return render_to_response('excel.html',{'div': Tournament.objects.get(name=div), 'swiss': swiss})
+    # set up dictionary where key=team_id, val=current margin
+    margins={}
+    # calculate the accumulated margin for each team
+    for round in swiss['objects']:
+        for stan in round['standings']:
+            if round['round_number']==1:
+                # initialize margins
+                margins[stan['team_id']]=0
+            # go through all games in this round and update this team's margin
+            for g in round['games']:
+                if g['team_1_id']==stan['team_id']:
+                    margins[stan['team_id']] += (g['team_1_score']-g['team_2_score'])
+                    stan['margin']=margins[stan['team_id']]
+                    break
+                elif g['team_2_id']==stan['team_id']:
+                    margins[stan['team_id']] += (g['team_2_score']-g['team_1_score'])
+                    stan['margin']=margins[stan['team_id']]
+                    break
+            
+    
+    return render_to_response('tools_excel.html',{'div': Tournament.objects.get(name=div), 'swiss': swiss})
 
 def division(request, div):
     t=Tournament.objects.get(name=div)
     swiss=api_swissroundinfo(t.lgv_id())
     brackets = api_bracketsbytournament(t.lgv_id())
         
-    return render_to_response('division.html',{'div': Tournament.objects.get(name=div),
+    return render_to_response('tools_division.html',{'div': Tournament.objects.get(name=div),
                                                'swiss': swiss,
                                                'brackets': brackets})
 
@@ -98,12 +118,12 @@ def randomresults(request, div):
                 if g['team_1_id']!=None and g['team_1_score']==0 and g['team_2_score']==0:
                     correctresult(g)
 
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all})
 
 
 def ffimport(request):
     ffindr_import()
-    return render_to_response('index.html')
+    return render_to_response('tools_index.html')
 
 def idreplace(request):
 # this procedure should be called after the playwithlv database has been replace with the leaguevine db
@@ -120,7 +140,7 @@ def idreplace(request):
         t.save()
         logger.info(u'new l_id: {0} for tournament {1}'.format(t.l_id,t.name))
     
-    return render_to_response('index.html')
+    return render_to_response('tools_index.html')
 
 def createteams(request):
     for div in ['open', 'mixed', 'women']:
@@ -135,7 +155,7 @@ def createteams(request):
             team.save()
             logger.info('team.lgv_id after:  {0}'.format(team.lgv_id()))
 
-    return render_to_response('index.html')
+    return render_to_response('tools_index.html')
 
 
 def addswissround(request, div):
@@ -162,7 +182,7 @@ def addswissround(request, div):
     api_addswissround(t.lgv_id(),starttime,pairing,team_ids);
     # TODO: check that field assignments are OK
     
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def addpools(request,div):
     if div<>'women':
@@ -191,7 +211,7 @@ def addpools(request,div):
     api_addpool(t.lgv_id(),starttime,"Even Pool",evenlist,120,True)
     
     
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
 
 def newtourney(request, div):
@@ -221,7 +241,7 @@ def newtourney(request, div):
     t.save()
         
     link=api_weblink(tournament_id)
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def addteams(request, div):
     season_id=settings.SEASON_ID[div]
@@ -234,20 +254,20 @@ def addteams(request, div):
         if team.seed>0:
             api_addteam(tournament_id,team.lgv_id(),team.seed)
     
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
     
 def cleanteams(request, div):
     t=Tournament.objects.get(name=div)
     api_cleanteams(t.lgv_id())
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def cleanbrackets(request, div):
     season_id=settings.SEASON_ID[div]
     t=Tournament.objects.get(name=div)
     
     api_cleanbrackets(t.lgv_id())
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
      
 def addbracket(request, div):
@@ -257,7 +277,7 @@ def addbracket(request, div):
     api_addfull3bracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],settings.ROUNDS[div][6]['time'],settings.ROUNDS[div][7]['time'],settings.ROUNDS[div][8]['time'])    
     #api_addbracket(t.lgv_id(),settings.ROUNDS[div][5]['time'],3,time_between_rounds=120)
     
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
 
 def movetoplayoff(request, div):
     season_id=settings.SEASON_ID[div]
@@ -283,5 +303,5 @@ def movetoplayoff(request, div):
                          
                     
     
-    return render_to_response('index.html',{'Tournaments': Tournament.objects.all,'div': div})
+    return render_to_response('tools_index.html',{'Tournaments': Tournament.objects.all,'div': div})
     
