@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{tournament.name}}</h1>
 
-{% if swiss.objects.count > 5 %}
+{% if swiss.objects|length > 5 %}
 <h2>Brackets:</h2>
 <div><a href="?round=QF">create SMS for transition to Quarterfinals</a></div>
 <div><a href="?round=SF">create SMS for transition to Semifinals</a></div>

@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # url(r'^windmill/', include('windmill.foo.urls')),
 
     url(r'^$', 'windmill.tools.views.home'),
+    url(r'^advanced/$', 'windmill.tools.views.advanced'),
     url(r'^(open|mixed|women)/division/$', 'windmill.tools.views.division'),       
     url(r'^(open|mixed|women)/addteams/$', 'windmill.tools.views.addteams'),   
     url(r'^(open|mixed|women)/newtourney/$', 'windmill.tools.views.newtourney'),    

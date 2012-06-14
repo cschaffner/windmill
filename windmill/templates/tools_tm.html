@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Leaguevine Control Tool for Windmill Windup 2012</h1>
+
+{% for div in Tournaments %}
+<h2><a href="{{div.link}}">{{div.name}}</a> division</h2>
+<div>Current round: {{div.round_nr}}</div>
+
+<div><a href="/tools/{{div.name}}/addswissround/">Add Swiss Round</a></div>
+{% if div.round_nr == 5 %}
+<div><a href="/tools/{{div.name}}/movetoplayoff/">Move top 8 teams to playoff bracket</a></div>
+{% endif %}
+
+{% endfor %}
+
+{% endblock content %}
