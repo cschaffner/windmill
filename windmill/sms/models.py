@@ -58,7 +58,7 @@ class SMSManager(models.Manager):
             
             sms.save()
             
-            if counter>=11:
+            if counter>=30:
                 break
         
         return smsApi.getResponseCode()
