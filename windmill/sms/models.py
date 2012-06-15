@@ -346,14 +346,14 @@ class SMSManager(models.Manager):
         return msg
 
     
-    def swiss_round(self,swiss,round_nr,tournament):
+    def swiss_round(self,prevRound,thisRound,round_nr,tournament):
     
-        prevRound={}
-        for r in swiss['objects']:
-            if round_nr > 1 and r['round_number']==(round_nr-1):
-                prevRound=r
-            elif r['round_number']==round_nr:
-                thisRound=r
+#        prevRound={}
+#        for r in swiss['objects']:
+#            if round_nr > 1 and r['round_number']==(round_nr-1):
+#                prevRound=r
+#            elif r['round_number']==round_nr:
+#                thisRound=r
         if round_nr==9:
             thisRound={}
             thisRound['round_number']=9
