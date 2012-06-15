@@ -455,7 +455,7 @@ def api_loserconnect(source_game,target_game,team_nr):
 #                    "next_team_for_loser": "{0}".format(team_nr),
 #                    "season_id": "{0}".format(sgame['season_id'])}
 #    return api_put(url,game_dict)
-    game_dict = {"next_game_for_loser": "{0}".format(target_game),    
+    game_dict = {"next_game_for_loser_id": "{0}".format(target_game),    
                  "next_team_for_loser": "{0}".format(team_nr)}
     return api_update(url,game_dict)
 

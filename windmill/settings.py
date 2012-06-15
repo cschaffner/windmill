@@ -156,7 +156,7 @@ ROUNDS={"open": [
                   "mode": "adjacent pairing",
                   "fields":[1,2,4,10,11,3,14,15,16,17,18,19]},
                  {"round_nr" : 9,
-                  "time": "2012-06-17T11:00:00+02:00",
+                  "time": "2012-06-17T13:00:00+02:00",
                   "name": "BigFinal",
                   "fields":[6]},
                  ],
