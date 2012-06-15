@@ -14,9 +14,14 @@ if HOST=="http://api.playwithlv.com":
 #    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
     TOKEN_URL = 'http://www.playwithlv.com'
 else:
-    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
-    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
-    TOKEN_URL = 'https://www.leaguevine.com'
+# rehuebli-credentials:
+    CLIENT_ID = '22f92a859d27f9354480ecc92e2900'
+    CLIENT_PWD = '63d60fed612d6fcd86cfc5e47361b0'
+    TOKEN_URL = 'https://www.leaguevine.com'    
+## huebli-credentials (is admin now):    
+#    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+#    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+#    TOKEN_URL = 'https://www.leaguevine.com'
     
 
 # Windmill fixtures
