@@ -10,6 +10,8 @@ logger = logging.getLogger('windmill.spirit')
 class SMSAdmin(admin.ModelAdmin):
     list_display = ['id','team','tournament','round_id','createTime','number','message','length','status']
     list_filter = ('tournament','team','round_id','status')
+#    list_editable = ['status']
+
 
 
 class SMSOverviewAdmin(admin.ModelAdmin):

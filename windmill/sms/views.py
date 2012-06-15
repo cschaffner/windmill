@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 import datetime
@@ -24,6 +24,12 @@ def control(request):
     
     return render_to_response('sms_control.html',{'SMStosend': SMStosend, 'user': request.user},
                               context_instance=RequestContext(request))
+
+
+@login_required
+def status_sent(request):
+    SMS.objects.change_status_to_sent()
+    return HttpResponseRedirect(reverse('windmill.sms.control'))
 
 def status_update(request):
     try:

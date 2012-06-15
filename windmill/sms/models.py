@@ -13,7 +13,15 @@ import unicodedata
 logger = logging.getLogger('windmill.sms')
 
 
+
 class SMSManager(models.Manager):
+    def change_status_to_sent(self):
+        SendList = SMS.objects.filter(status=u'ready')
+        for sms in SendList:
+            sms.status="sent"
+            sms.save()
+        return 
+    
     def sendSmsCity(self):
         # sends all SMS with status 1 to SmsCity
         

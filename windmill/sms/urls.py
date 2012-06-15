@@ -20,6 +20,7 @@ urlpatterns = patterns('',
 
     url(r'^(open|mixed|women)/create/$', 'windmill.sms.views.create'),       
     url(r'^phonenumbers$', 'windmill.sms.views.phonenumbers'),
+    url(r'^status_sent$', 'windmill.sms.views.status_sent'),
     
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
