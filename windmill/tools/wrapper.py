@@ -165,8 +165,16 @@ def api_poolinfo(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict
 
+def api_gamesbytournament_restr(tournament_id,offset=0):
+    url='{0}/v1/games/?limit=200&tournament_id={1}&order_by=%5Bid%5D&fields=%5Bteam_1%2Cteam_1_id%2Cteam_2%2Cteam_2_id%2Cgame_site%2Cstart_time%2Cid%2Ctournament%5D&'.format(settings.HOST,tournament_id)
+    if offset>0:
+        url += '&offset={0}'.format(offset)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
 def api_gamesbytournament(tournament_id):
-    url='{0}/v1/games/?limit=500&tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/games/?limit=200&tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
