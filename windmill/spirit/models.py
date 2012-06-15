@@ -20,7 +20,7 @@ class Tournament(models.Model):
 class GameManager(models.Manager):
     def addmatches(self,tournament_id):
         # retrieve all games from tournament
-        games=api_gamesbytournament(tournament_id)
+        games=api_gamesbytournament_restr(tournament_id)
         logger.info(games)
         added=0
         # import all games from tournament in local db
@@ -49,8 +49,8 @@ class GameManager(models.Manager):
             # link game with tournament
             gm.tournament=t            
             gm.start_time = g['start_time']
-            if g['game site']!=None:
-                gm.field = g['game site']['name']
+            if g['game_site']!=None:
+                gm.field = g['game_site']['name']
             logger.info('added game {0} - {1} with start time {2}'.format(g['team_1_id'],g['team_2_id'],g['start_time']))
             gm.save()
         return added
