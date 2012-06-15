@@ -426,7 +426,7 @@ class SMSManager(models.Manager):
                         msg += u'tomorrow '
                     msg += u"at {0}.".format(start_datetime.strftime(u"%H:%M"))
                 if tomorrow:
-                    msg += u"Pls hand in today's spirit scores."
+                    msg += u"Please use m.leaguevine.com to upload game scores yourself and hand in today's spirit scores."
             else: # last round
                 msg += u'finishes Windmill 2012 as {0}, congrats! '.format(rank_in_swissround(prevRound,team['id']))
                 msg += u'Please hand in all spirit scores and see you next year!'
