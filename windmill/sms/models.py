@@ -299,7 +299,7 @@ class SMSManager(models.Manager):
         # "Ultimate Kaese" on Field 1 at 12:30.
             
         start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
-        prev_round_datetime = datetime.strptime(quarters['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
+        prev_round_datetime = datetime.strptime(quarters['games'][0]['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
         if start_datetime.date()>prev_round_datetime.date():
             tomorrow=True
         else:
