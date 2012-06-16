@@ -113,7 +113,7 @@ def create(request,div):
         if selround=='QF' or selround=='SF' or selround=='F' or selround=='afterF':
             t=api_tournamentbyid(tournament.lgv_id())
             brackets=api_bracketsbytournament(tournament.lgv_id())
-            swiss=api_swissroundinfo(tournament,lgv_id(),5)            
+            swiss=api_swissroundinfo(tournament.lgv_id(),5)            
             nr_created=SMS.objects.bracket_round(brackets,swiss,selround,t)
         else:
             round_nr = int(selround)
