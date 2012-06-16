@@ -1,5 +1,6 @@
 from __future__ import division
 from django.db import models
+from django.db.models import Q
 from windmill.tools.wrapper import *
 import logging
 
@@ -54,6 +55,7 @@ class GameManager(models.Manager):
             logger.info('added game {0} - {1} with start time {2}'.format(g['team_1_id'],g['team_2_id'],g['start_time']))
             gm.save()
         return added
+ 
 
 class Game(models.Model):
     objects=GameManager()
@@ -103,11 +105,11 @@ class Game(models.Model):
             if create:
                 t.name=self.team_1_name
                 t.tournament=self.tournament
-            t.add_received(self.team_1_spirit)
-            if self.team_2_spirit is not None:
-                t.add_given(self.team_2_spirit)
-            t.update_spirit()            
+#            t.add_received(self.team_1_spirit)
+#            if self.team_2_spirit is not None:
+#                t.add_given(self.team_2_spirit)
             t.save()
+            t.update_spirit()            
         
         if self.team_2_spirit is not None:
             # update team2
@@ -118,14 +120,23 @@ class Game(models.Model):
             if create:
                 t.name=self.team_2_name
                 t.tournament=self.tournament
-            t.add_received(self.team_2_spirit)
-            if self.team_1_spirit is not None:
-                t.add_given(self.team_1_spirit)
-            t.update_spirit()            
+#            t.add_received(self.team_2_spirit)
+#            if self.team_1_spirit is not None:
+#                t.add_given(self.team_1_spirit)
             t.save()        
+            t.update_spirit()            
          
 
+class TeamManager(models.Manager):
+    def update_all(self):
+        # updates spirit scores of all teams
+        for t in Team.objects.all():
+            t.update_spirit()
+ 
+
 class Team(models.Model):
+    objects=TeamManager()
+    
     # playwithlv.com team-id
     l_id = models.IntegerField(blank=True,null=True)
     # leaguevine.com team-id
@@ -144,23 +155,49 @@ class Team(models.Model):
     nr_received = models.IntegerField(null=True,blank=True)
     nr_given = models.IntegerField(null=True,blank=True)
         
-    def add_received(self,score):
-        if self.received=='':
-            self.received=str(score)
-        else:
-            self.received += ','
-            self.received += str(score)
-
-    def add_given(self,score):
-        if self.given=='':
-            self.given=str(score)
-        else:
-            self.given += ','
-            self.given += str(score)
-    
+#    def add_received(self,score):
+#        if self.received=='':
+#            self.received=str(score)
+#        else:
+#            self.received += ','
+#            self.received += str(score)
+#
+#    def add_given(self,score):
+#        if self.given=='':
+#            self.given=str(score)
+#        else:
+#            self.given += ','
+#            self.given += str(score)
+#    
     def update_spirit(self):
+        # compute everything from scratch here:
+        
+        # works only for leaguevine, not for playwithlv
+        # retrieve games where this team was involved
+        games1 = Game.objects.filter(team_1_id=self.lv_id)
+        games2 = Game.objects.filter(team_2_id=self.lv_id)
+        
+        self.received=''
+        self.given=''
+        self.nr_received=0
+        self.nr_given=0
+        
+        for g in games1:
+            if g.team_1_spirit != None:
+                self.received += str(g.team_1_spirit)+', '
+            if g.team_2_spirit != None:
+                self.given += str(g.team_2_spirit)+', '
+
+        for g in games2:
+            if g.team_2_spirit != None:
+                self.received += str(g.team_2_spirit)+', '
+            if g.team_1_spirit != None:
+                self.given += str(g.team_1_spirit)+', '
+        
         self.nr_received,self.avg_received=self.compute(self.received)
         self.nr_given,self.avg_given=self.compute(self.given)
+        logger.info(u'team {2}: recomputed averages received: {0} and given: {1}'.format(self.avg_received,self.avg_given,self.name))
+        self.save()
     
     def compute(self,cslist):
         import re
@@ -169,13 +206,14 @@ class Team(models.Model):
         count=0
         total=0
         for el in re.split(r',',cslist):
-            try:
-                i=int(el)
-                count+=1
-                total+=i
-            except:
-                logger.error('only integers should be stored in list of spirit scores')
-                raise            
+            if el!=' ':
+                try:
+                    i=int(el)
+                    count+=1
+                    total+=i
+                except:
+                    logger.error('only integers should be stored in list of spirit scores')
+                    raise            
         if count>0:
             return count,total/count
         else:
@@ -183,7 +221,6 @@ class Team(models.Model):
 
 
     def save(self, *args, **kwargs):
-        self.update_spirit()
         super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
 
         

@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'windmill.spirit.views.home'),
     url(r'^addgames/(\d+)$', 'windmill.spirit.views.addgames'),       
+    url(r'^update/$', 'windmill.spirit.views.update'),       
     
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
