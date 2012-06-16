@@ -15,7 +15,7 @@ class SMSAdmin(admin.ModelAdmin):
 
 
 class SMSOverviewAdmin(admin.ModelAdmin):
-    list_display = ['id','createTime','submitTime','receivedTime','length','status']
+    list_display = ['id','createTime','receivedTime','number','length','status']
     list_filter = ('tournament','team','round_id','status')
 
 admin.site.register(SMS, SMSAdmin)
