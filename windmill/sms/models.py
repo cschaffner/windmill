@@ -273,7 +273,7 @@ class SMSManager(models.Manager):
         # you'll play for 9th against "Ultimate Kaese" (Swiss-ranked 13th) on Field 1 at 12:30.
             
         start_datetime=datetime.strptime(start_time[:-6],"%Y-%m-%dT%H:%M:%S")
-        prev_round_datetime = datetime.strptime(semis['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
+        prev_round_datetime = datetime.strptime(semis['games'][0]['start_time'][:-6],"%Y-%m-%dT%H:%M:%S")
         if start_datetime.date()>prev_round_datetime.date():
             tomorrow=True
         else:
