@@ -147,8 +147,8 @@ class Team(models.Model):
     tournament = models.ForeignKey(Tournament,null=True,blank=True)
     
     # spirit scores
-    received = models.CommaSeparatedIntegerField(max_length=30)
-    given = models.CommaSeparatedIntegerField(max_length=30)
+    received = models.CommaSeparatedIntegerField(max_length=100)
+    given = models.CommaSeparatedIntegerField(max_length=100)
     
     avg_received = models.DecimalField(max_digits=5,decimal_places=2,null=True,blank=True)
     avg_given = models.DecimalField(max_digits=5,decimal_places=2,null=True,blank=True)
