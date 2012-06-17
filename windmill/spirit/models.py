@@ -181,18 +181,24 @@ class Team(models.Model):
         self.given=''
         self.nr_received=0
         self.nr_given=0
+        logger.info(u'computing spirit for team: {0}'.format(self.name))
         
         for g in games1:
+            logger.info('{0} - {1}, spirit {2}-{3}'.format(g.team_1_id,g.team_2_id,g.team_1_spirit,g.team_2_spirit))
             if g.team_1_spirit != None:
                 self.received += str(g.team_1_spirit)+', '
             if g.team_2_spirit != None:
                 self.given += str(g.team_2_spirit)+', '
 
         for g in games2:
+            logger.info('{0} - {1}, spirit {2}-{3}'.format(g.team_1_id,g.team_2_id,g.team_1_spirit,g.team_2_spirit))
             if g.team_2_spirit != None:
                 self.received += str(g.team_2_spirit)+', '
             if g.team_1_spirit != None:
                 self.given += str(g.team_1_spirit)+', '
+        
+        logger.info('received: {0}'.format(self.received))
+        logger.info('given: {0}'.format(self.given))
         
         self.nr_received,self.avg_received=self.compute(self.received)
         self.nr_given,self.avg_given=self.compute(self.given)
