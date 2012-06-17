@@ -123,9 +123,13 @@ def create(request,div):
             if round_nr>1 and round_nr<9:
                 prevRound=api_swissroundinfo(tournament.lgv_id(),round_nr-1)
                 thisRound=api_swissroundinfo(tournament.lgv_id(),round_nr)
-            elif round_nr==1 or round_nr==9:
+            elif round_nr==1:
                 thisRound=api_swissroundinfo(tournament.lgv_id(),round_nr)
-                prevRound=thisRound                
+                prevRound=thisRound
+            elif round_nr==9:
+                thisRound=api_swissroundinfo(tournament.lgv_id(),8)
+                prevRound=thisRound
+                                
                 
             nr_created=SMS.objects.swiss_round(prevRound['objects'][0],thisRound['objects'][0],round_nr,t)
         
