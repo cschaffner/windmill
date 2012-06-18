@@ -4,19 +4,24 @@ ROOT_PATH = os.path.dirname(__file__)
 
 OFFLINE = False
 
-HOST="http://api.playwithlv.com"
-#HOST="https://api.leaguevine.com"
+#HOST="http://api.playwithlv.com"
+HOST="https://api.leaguevine.com"
 
 if HOST=="http://api.playwithlv.com":
-#    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
-#    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
-    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
-    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
+    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
+#    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+#    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
     TOKEN_URL = 'http://www.playwithlv.com'
 else:
-    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
-    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
-    TOKEN_URL = 'https://www.leaguevine.com'
+# rehuebli-credentials:
+    CLIENT_ID = '22f92a859d27f9354480ecc92e2900'
+    CLIENT_PWD = '63d60fed612d6fcd86cfc5e47361b0'
+    TOKEN_URL = 'https://www.leaguevine.com'    
+## huebli-credentials (is admin now):    
+#    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
+#    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+#    TOKEN_URL = 'https://www.leaguevine.com'
     
 
 # Windmill fixtures
@@ -45,104 +50,177 @@ else:
 #//        mixed Fin:   So 17.06.2012    14:00
 #//        women Fin:   So 17.06.2012    13:00
 
+# open fields
+# 1       array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20),
+# 2       array(20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),
+# 3       array(11,12,13,14,15,16,17,18,19,20,1,2,3,4,5,6,7,8,9,10),
+# 4       array(1,2,3,10,14,15,16,11,12,13,17,18,4,5,6,7,8,9,19,20),
+# 5       array(1,11,12,18,19,2,3,13,14,15,16,17,4,5,6,7,8,9,10,20),
+# 6       array(12,13,14,8,9,10,5,6,7,18,19,11,15,16,17,1,2,3,4,20),
+# 7       array(1,2,7,15,8,9,17,18,19,20,10,13,14,11,12,3,4,5,6,16),
+# 8       array(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20), 
+# fin       array(3)                   
+
+# mixed fields:
+# 1       array(1,2,4,6,8,9,10,11,13,16,17,18,19),
+# 2       array(20,19,18,17,16,15,14,13,12,11,10,3,2),
+# 3       array(5,4,3,2,1,20,19,18,10,11,9,6,7),
+# 4       array(7,8,9,1,2,3,16,18,4,13,5,6,19),
+# 5       array(10,11,12,19,7,8,9,17,18,13,14,15,20),
+# 6       array(1,2,3,4,11,12,13,14,15,16,17,18,19),
+# 7       array(20,18,6,14,19,7,15,13,11,10,12,8,1),
+# 8       array(1,2,4,10,11,7,14,15,16,17,18,19),
+# fin       array(8)
+
+# women fields:
+# 1       array(3,5,7,12,14,15,20), 
+# 2       array(4,5,6,7,8,9,1), 
+# 3       array(12,13,14,15,16,17,8),
+# 4       array(10,11,12,14,15,17,20), 
+# 5       array(1,2,3,4,5,6,16), 
+# 6       array(5,6,7,8,9,10,20),
+# 7       array(3,4,5,9,16,17,2), 
+# 8       array(4,5,6,8,9,20),
+# fin       array(3)
+
 ROUNDS={"open": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T11:15:00+02:00",
-                  "mode": "slide pairing"},
+                  "mode": "slide pairing",
+                  "fields": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},
                  {"round_nr" : 2,
                   "time": "2012-06-15T14:00:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]},
                  {"round_nr" : 3,
                   "time": "2012-06-15T17:00:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [11,12,13,14,15,16,17,18,19,20,1,2,3,4,5,6,7,8,9,10]},
                  {"round_nr" : 4,
                   "time": "2012-06-16T09:00:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [1,2,3,10,14,15,16,11,12,13,17,18,4,5,6,7,8,9,19,20]},
                  {"round_nr" : 5,
                   "time": "2012-06-16T12:00:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [1,11,12,18,19,2,3,13,14,15,16,17,4,5,6,7,8,9,10,20]},
                  {"round_nr" : 6,
                   "time": "2012-06-16T15:00:00+02:00",
                   "name": "QF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [12,13,14,8,9,10,5,6,7,18,19,11,15,16,17,1,2,3,4,20]},
                  {"round_nr" : 7,
                   "time": "2012-06-16T18:00:00+02:00",
                   "name": "SF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [1,2,7,15,8,9,17,18,19,20,10,13,14,11,12,3,4,5,6,16]},
                  {"round_nr" : 8,
                   "time": "2012-06-17T10:30:00+02:00",
                   "name": "Final",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields": [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},
                  {"round_nr" : 9,
                   "time": "2012-06-17T15:00:00+02:00",
-                  "name": "BigFinal"},
+                  "name": "BigFinal",
+                  "fields": [6]},
                  ],
         "mixed": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T10:00:00+02:00",
-                  "mode": "slide pairing"},
+                  "mode": "slide pairing",
+                  "fields":[1,2,4,6,8,9,10,11,13,16,17,18,19]},
                  {"round_nr" : 2,
                   "time": "2012-06-15T12:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[20,19,18,17,16,15,14,13,12,11,10,3,2]},
                  {"round_nr" : 3,
                   "time": "2012-06-15T15:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[5,4,3,2,1,20,19,18,10,11,9,6,7]},
                  {"round_nr" : 4,
                   "time": "2012-06-16T10:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[7,8,9,1,2,3,16,18,4,13,5,6,19]},
                  {"round_nr" : 5,
                   "time": "2012-06-16T13:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[10,11,12,19,7,8,9,17,18,13,14,15,20]},
                  {"round_nr" : 6,
                   "time": "2012-06-16T16:30:00+02:00",
                   "name": "QF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[1,2,3,4,11,12,13,14,15,16,17,18,19]},
                  {"round_nr" : 7,
                   "time": "2012-06-17T09:00:00+02:00",
                   "name": "SF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[20,18,6,14,19,7,15,13,11,10,12,8,1]},
                  {"round_nr" : 8,
                   "time": "2012-06-17T12:00:00+02:00",
                   "name": "Final",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[1,2,4,10,11,3,14,15,16,17,18,19]},
                  {"round_nr" : 9,
-                  "time": "2012-06-17T14:00:00+02:00",
-                  "name": "BigFinal"},
+                  "time": "2012-06-17T13:00:00+02:00",
+                  "name": "BigFinal",
+                  "fields":[6]},
                  ],
         "women": [
                  {"round_nr" : 1,
                   "time": "2012-06-15T10:00:00+02:00",
-                  "mode": "slide pairing"},
+                  "mode": "slide pairing",
+                  "fields":[3,5,7,12,14,15,20]},
                  {"round_nr" : 2,
                   "time": "2012-06-15T12:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[4,5,6,7,8,9,1]},
                  {"round_nr" : 3,
                   "time": "2012-06-15T15:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[12,13,14,15,16,17,8]},
                  {"round_nr" : 4,
                   "time": "2012-06-16T10:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[10,11,12,14,15,17,20]},
                  {"round_nr" : 5,
                   "time": "2012-06-16T13:30:00+02:00",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[1,2,3,4,5,6,16]},
                  {"round_nr" : 6,
                   "time": "2012-06-16T16:30:00+02:00",
                   "name": "QF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[5,6,7,8,9,10,20]},
                  {"round_nr" : 7,
                   "time": "2012-06-17T09:00:00+02:00",
                   "name": "SF",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[3,4,5,9,16,17,2]},
                  {"round_nr" : 8,
                   "time": "2012-06-17T12:00:00+02:00",
                   "name": "Final",
-                  "mode": "adjacent pairing"},
+                  "mode": "adjacent pairing",
+                  "fields":[12,5,13,8,9,20]},
                  {"round_nr" : 9,
-                  "time": "2012-06-17T13:00:00+02:00",
-                  "name": "BigFinal"},
+                  "time": "2012-06-17T14:00:00+02:00",
+                  "name": "BigFinal",
+                  "fields":[7]},
                  ]
         }
 
+# sanity checks for fields:
+# open:
+for r in ROUNDS["open"]:
+    if r['round_nr']<8 and sorted(r['fields'])!=range(1,21):
+#        logger.error('field fixtures in open division incorrect')
+        raise
+# mixed & women
+for r in ROUNDS['mixed']:
+    fields=r['fields']+ROUNDS['women'][r['round_nr']-1]['fields']
+    if r['round_nr']<8 and sorted(fields)!=range(1,21):
+#        logger.error('field fixtures in mixed/women incorrect')
+        raise
+    
 
 SEASON_ID = {'open': '20068',
              'mixed': '20067',
@@ -277,7 +355,9 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'windmill.tools',
     'windmill.spirit',
-    'windmill.sms'
+    'windmill.sms',
+    'gunicorn',
+    'south'
 )
 
 # A sample logging configuration. The only tangible logging

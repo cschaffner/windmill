@@ -7,17 +7,16 @@
 <div>{{div.name}} division has leaguevine id:{{div.l_id}}.
 <a href="{{div.link}}">Leaguevine-link</a>.</div>
 
-{% get_current_timezone as TIME_ZONE %}
-{{TIME_ZONE}}
 
-{% for round in swiss.objects %}
+{% for round in swiss.objects reversed %}
 
 <h2>Round {{round.round_number}}</h2>
 <h3>Games</h3>
 <table>
-	<tr><td>Time</td><td>Team1</td><td>Result</td><td>Team2</td></tr>
+	<tr><td>Time</td><td>Field</td><td>Team1</td><td>Result</td><td>Team2</td></tr>
 {% for g in round.games %}
 	<tr><td>{{g.start_time}}</td>
+		<td>{{g.game_site.name|cut:"Field "}}</td>
 		<td>{{g.team_1.name}}</td>
 		<td>{{g.team_1_score}} - {{g.team_2_score}}</td>
 		<td>{{g.team_2.name}}</td>
@@ -37,9 +36,30 @@
 {% endfor %}
 </table>
 
-
 {% endfor %}
 
+
+<h2>Brackets</h2>
+{% for b in brackets.objects reversed %}
+<h3>Bracket {{b.name}}</h3>
+{% for r in b.rounds %}
+<h4>Round {{r.round_number}}</h4>
+
+<table>
+	<tr><td>Time</td><td>Field</td><td>Team1</td><td>Score1</td><td>Score2</td><td>Team2</td></tr>
+{% for g in r.games %}
+	<tr><td>{{g.start_time}}</td>
+		<td>{{g.game_site.name|cut:"Field "}}</td>
+		<td>{{g.team_1.name}}</td>
+		<td>{{g.team_1_score}}</td>
+		<td>{{g.team_2_score}}</td>
+		<td>{{g.team_2.name}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endfor %}
+{% endfor %}
 
 
 {% endblock content %}

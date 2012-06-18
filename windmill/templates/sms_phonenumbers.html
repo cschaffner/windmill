@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Mobile Phone Numbers</h1>
+
+<table>
+	<tr><td>Division</td><td>Team</td><td>Nr1</td><td>Nr2</td><td>Nr3</td><td>Nr4</td><td>Nr5</td></tr>
+{% for t in teams %}
+	<tr><td>{{t.tournament}}</td>
+		<td>{{t.name}}</td>
+		<td>{{t.mobile1}}</td>
+		<td>{{t.mobile2}}</td>
+		<td>{{t.mobile3}}</td>
+		<td>{{t.mobile4}}</td>
+		<td>{{t.mobile5}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock content %}
+

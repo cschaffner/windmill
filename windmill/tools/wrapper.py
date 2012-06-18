@@ -80,6 +80,10 @@ def api_update(url,updatedict={}):
             (key != 'resource_uri') and (key!='time_last_updated') and (key!='time_created') and
             (key != 'objects')):
             new_dict[key]=val
+            # fix a leaguevine bug here:
+            if key=="start_time" and val[-6:]=="+01:20":
+                new_dict[key]=val[:-6]+"+02:00"
+                
     logger.info('before updating: {0}'.format(pformat(new_dict)))
     new_dict.update(updatedict)
     logger.info('after updating: {0}'.format(pformat(new_dict)))
@@ -102,12 +106,53 @@ def api_nrswissrounds(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict['meta']['total_count']
 
-def api_swissroundinfo(tournament_id,round_number=None):
+def api_game_final(game_id):
+    url='{0}/v1/game_scores/?game_id={1}&order_by=%5B-id%5D&limit=30'.format(settings.HOST,game_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    final=False
+    for gu in response_dict['objects']:
+        if gu['is_final']:
+            final=True
+            break
+    return final
+
+def api_swissround_final(tournament_id,round_number):
+    url='{0}/v1/swiss_rounds/?tournament_id={1}&round_number={2}&fields=%5Bgames%5D'.format(settings.HOST,tournament_id,round_number)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    final=True
+    for g in response_dict['objects'][0]['games']:
+        if not api_game_final(g['id']):
+            final=False
+            break
+    return final
+
+def api_swissroundinfo_roundonly(tournament_id,round_number=None,ordered=False):
     if settings.OFFLINE:
         return swissinfo()
      
     if round_number is None:
-        url='{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)
+        if ordered:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bround_number%5D&order_by=%5Bid%5D'.format(settings.HOST,tournament_id)
+        else:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bround_number%5D'.format(settings.HOST,tournament_id)            
+    else:
+        url='{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bround_number%5D&round_number={2}'.format(settings.HOST,tournament_id,round_number)        
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
+    
+def api_swissroundinfo(tournament_id,round_number=None,ordered=False):
+    if settings.OFFLINE:
+        return swissinfo()
+     
+    if round_number is None:
+        if ordered:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}&order_by=%5Bid%5D'.format(settings.HOST,tournament_id)
+        else:
+            url='{0}/v1/swiss_rounds/?tournament_id={1}'.format(settings.HOST,tournament_id)            
     else:
         url='{0}/v1/swiss_rounds/?tournament_id={1}&round_number={2}'.format(settings.HOST,tournament_id,round_number)        
     response = requests.get(url=url,headers=my_headers,config=my_config)
@@ -120,8 +165,16 @@ def api_poolinfo(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict
 
+def api_gamesbytournament_restr(tournament_id,offset=0):
+    url='{0}/v1/games/?limit=200&tournament_id={1}&order_by=%5Bid%5D&fields=%5Bteam_1%2Cteam_1_id%2Cteam_2%2Cteam_2_id%2Cgame_site%2Cstart_time%2Cid%2Ctournament%5D&'.format(settings.HOST,tournament_id)
+    if offset>0:
+        url += '&offset={0}'.format(offset)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
 def api_gamesbytournament(tournament_id):
-    url='{0}/v1/games/?limit=50&tournament_id={1}'.format(settings.HOST,tournament_id)
+    url='{0}/v1/games/?limit=200&tournament_id={1}'.format(settings.HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = simplejson.loads(response.content)
     return response_dict
@@ -253,11 +306,22 @@ def api_addteam(tournament_id,team_id,seed):
     tournament_team_data_dict = {"tournament_id": tournament_id,
                                  "team_id": "{0}".format(team_id),
                                  "seed": "{0}".format(seed) }
-    return api_post(url,tournament_team_data_dict)        
+    
+    response= api_post(url,tournament_team_data_dict) 
+    logger.info(response)       
+    if response.has_key('errors'):
+        # then team in tournament already exists, so just update its seed
+        logger.info('team already exists, updating the seed instead,')
+        url='{0}/v1/tournament_teams/{1}/{2}/'.format(settings.HOST,tournament_id,team_id)
+        tournament_team_data_dict = {"seed": "{0}".format(seed) }
+        response= api_put(url,tournament_team_data_dict)        
+    
+    return response
+        
 
 def api_updatepairingtype(tournament_id,pairing='adjacent pairing'):
     url='{0}/v1/tournaments/{1}/'.format(settings.HOST,tournament_id)
-    tournament_dict = {"pairing type": {0}.format(pairing)}
+    tournament_dict = {"swiss_pairing_type": "{0}".format(pairing)}
     return api_update(url,tournament_dict)
     
 
@@ -305,7 +369,7 @@ def api_addbracket(tournament_id,starttime,number_of_rounds,time_between_rounds=
     return api_post(url,bracket_dict)    
 
 
-def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_between_rounds=180):
+def api_addfull3bracket(tournament_id,starttimeQF,starttimeSF,starttimeF,starttimeBigF,time_between_rounds=180):
     # creates a full playoff bracket with 3 rounds
     
     # example of full 3-round bracket:
@@ -314,7 +378,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     # create main winner bracket
     url='{0}/v1/brackets/'.format(settings.HOST)
     bracket_dict = {"tournament_id": tournament_id,
-                   "start_time": "{0}".format(starttime1),
+                   "start_time": "{0}".format(starttimeQF),
                    "number_of_rounds": "3",    
                    "time_between_rounds": "{0}".format(time_between_rounds),
                    "column_position": "1",
@@ -323,10 +387,18 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     response=api_post(url,bracket_dict)
     winnerbr=api_bracketbyid(response['id'])
 #    winnerbr=response
+
+    # adjust the big final's time
+    for r in winnerbr['rounds']:
+        if r['round_number']==0:
+            for g in r['games']:
+                api_settimeingame(g['id'],starttimeBigF)                
     
+
+        
     # create loser's final
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime3),
+                       "start_time": "{0}".format(starttimeF),
                        "number_of_rounds": "1",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "3",
@@ -340,12 +412,15 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
         if r['round_number']==1:
             team_nr=1
             for g in r['games']:
+                # we also fix the starting time of the semifinals
+                api_settimeingame(g['id'],starttimeSF)        
+                        
                 api_loserconnect(g['id'],bronzegame['rounds'][0]['games'][0]['id'],team_nr)
                 team_nr += 1
                 
     # create lower half of playoff tree (loser's tree)
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime2),
+                       "start_time": "{0}".format(starttimeSF),
                        "number_of_rounds": "2",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "2",
@@ -361,6 +436,9 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
             team_nr=1
             game_nr=0
             for g in r['games']:
+                # adjust starting times (leaguevine-bug)
+                api_settimeingame(g['id'],starttimeQF)
+
                 api_loserconnect(g['id'],loserstree['rounds'][0]['games'][game_nr]['id'],team_nr)
                 team_nr += 1
                 if team_nr == 3:
@@ -369,7 +447,7 @@ def api_addfull3bracket(tournament_id,starttime1,starttime2,starttime3,time_betw
     
     # create game for place 7-8
     bracket_dict = {"tournament_id": tournament_id,
-                       "start_time": "{0}".format(starttime3),
+                       "start_time": "{0}".format(starttimeF),
                        "number_of_rounds": "1",    
                        "time_between_rounds": "{0}".format(time_between_rounds),
                        "column_position": "3",
@@ -396,11 +474,19 @@ def api_loserconnect(source_game,target_game,team_nr):
     sgame=api_gamebyid(source_game)
     
     url='{0}/v1/games/{1}/'.format(settings.HOST,source_game)
-    game_dict = {"start_time": "{0}".format(sgame['start_time']),
-                    "next_game_for_loser": "{0}".format(target_game),    
-                    "next_team_for_loser": "{0}".format(team_nr),
-                    "season_id": "{0}".format(sgame['season_id'])}
-    return api_put(url,game_dict)
+#    game_dict = {"start_time": "{0}".format(sgame['start_time']),
+#                    "next_game_for_loser": "{0}".format(target_game),    
+#                    "next_team_for_loser": "{0}".format(team_nr),
+#                    "season_id": "{0}".format(sgame['season_id'])}
+#    return api_put(url,game_dict)
+    game_dict = {"next_game_for_loser_id": "{0}".format(target_game),    
+                 "next_team_for_loser": "{0}".format(team_nr)}
+    return api_update(url,game_dict)
+
+def api_settimeingame(game_id,start_time):
+    url='{0}/v1/games/{1}/'.format(settings.HOST,game_id)
+    time_dict={"start_time": "{0}".format(start_time)}
+    return api_update(url,time_dict)
 
 
 def api_setteamsingame(game_id,team_1_id,team_2_id):
@@ -451,9 +537,24 @@ def result_in_swissround(round,team_id):
             return '{0}-{1} tie'.format(score,opp_score)
 
 def rank_in_swissround(round,team_id):
+    # returns rank in swissround as ordinal
+    # corrects for 8 places if round_number > 5
     for t in round['standings']:
         if t['team_id']==team_id:
-            return '{0}'.format(t['ranking']) # TODO make ordinal
+            rank=int(t['ranking'])
+            if round['round_number']>5: # top 8 teams have left for brackets
+                rank += 8
+            return u'{0}'.format(ordinal(rank)) # TODO make ordinal
+
+def ordinal(n):
+    n=int(n)  # only works if string can be properly converted to an integer
+    if 10 < n < 14: return u'%sth' % n
+    if n % 10 == 1: return u'%sst' % n
+    if n % 10 == 2: return u'%snd' % n
+    if n % 10 == 3: return u'%srd' % n
+    return u'%sth' % n
+
+
         
 def swissinfo(): 
     swiss={u'meta': {u'limit': 20,

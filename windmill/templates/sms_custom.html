@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<SCRIPT language=javascript>
+<!--
+function CountCharacters(){
+document.frmSMS.CharacterCount.value=document.frmSMS.txtMessage.value.length;
+return false;   }
+-->
+</SCRIPT>
+
+
+<h1>Send SMS:</h1>
+{% if error_message %}<p><div color="#FF0000"><strong>*** ERROR *** {{ error_message }}</strong></p></div>{% endif %}
+
+<form action="/sms/submit" method="post" name="frmSMS">
+{% csrf_token %}
+<h3>Choose receiver(s):</h3>
+<select name="target" multiple="yes" size="20">
+	<option value="broadcast">All Teams</option>
+	{% for t in Teams %}
+	<option value={{t.id}}>{{t.tournament}} - {{t.name}}</option>
+	{% endfor %}
+</select>
+<br>
+or enter an individual number:
+<input maxlength=15 name=number><br>
+<br>
+<h3>SMS Message</h3>
+<textarea rows="5" cols="40" name="txtMessage" onKeyUp=CountCharacters()></textarea>
+	<p>
+	  <input maxlength=10 size=9 name=CharacterCount>
+	  characters</p>
+<input type="submit" value="Send" />
+<a href="/sms"><input type="button" value="Cancel" /></a>
+</form>
+{% endblock content %}

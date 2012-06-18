@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
     # Examples:
@@ -8,5 +9,8 @@ urlpatterns = patterns('',
     url(r'^tools/', include('windmill.tools.urls')),
     url(r'^spirit/', include('windmill.spirit.urls')),
     url(r'^sms/', include('windmill.sms.urls')),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login')
     
  )
+
+urlpatterns += staticfiles_urlpatterns()
