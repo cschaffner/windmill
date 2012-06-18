@@ -7,3 +7,5 @@ db*
 *.tmproj
 initial*
 db*
+*.json
+*.dump
