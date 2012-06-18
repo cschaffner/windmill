@@ -5,3 +5,5 @@ regdata
 *.key
 db
 *.tmproj
+initial*
+db*
