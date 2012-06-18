@@ -5,3 +5,4 @@ regdata
 *.key
 db*
 *.tmproj
+*.dump
