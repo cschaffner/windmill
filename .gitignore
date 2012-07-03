@@ -6,3 +6,4 @@ regdata
 db*
 *.tmproj
 *.dump
+example_python

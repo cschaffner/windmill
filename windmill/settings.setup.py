@@ -7,21 +7,29 @@ OFFLINE = False
 #HOST="http://api.playwithlv.com"
 HOST="https://api.leaguevine.com"
 
+# copy-paste in your application credentials from leaguevine and playwithlv below
+
 if HOST=="http://api.playwithlv.com":
-    CLIENT_ID = 'a18d62e40f4d269996b01f7cf462a9'
-    CLIENT_PWD = '93dbb28011a5224303074b3deebaf6'
-#    CLIENT_ID = 'da9b4f5fd6770f788f8be8aff867e9'
-#    CLIENT_PWD = '93cecdd6f083134879a0ca05b204ae'
+    CLIENT_ID = ''
+    CLIENT_PWD = ''
     TOKEN_URL = 'http://www.playwithlv.com'
 else:
     TOKEN_URL = 'https://www.leaguevine.com'    
 # rehuebli-credentials:
-#    CLIENT_ID = '22f92a859d27f9354480ecc92e2900'
-#    CLIENT_PWD = '63d60fed612d6fcd86cfc5e47361b0'
+#    CLIENT_ID = ''
+#    CLIENT_PWD = ''
 ## huebli-credentials (is admin now):    
-    CLIENT_ID = '0920660af4b0c2ba01c9df96385d9b'
-    CLIENT_PWD = '1bd5ebdde1552c08c626fc2ce35238'
+    CLIENT_ID = ''
+    CLIENT_PWD = ''
     
+# fill in your name and email below
+ADMINS = (
+    ('name', 'email'),
+)
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = '9#$yz-mc(zkm9dfjk@4-)%g66knsxg+2_h)e2j36pd6)$$v7&3'
+
 
 # Windmill fixtures
 
@@ -228,10 +236,6 @@ SEASON_ID = {'open': '20068',
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    ('Christian Schaffner', 'huebli@gmail.com'),
-)
-
 MANAGERS = ADMINS
 
 DATABASES = {
@@ -311,9 +315,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '9#$yz-mc(zkm9dfjk@4-)%g66knsxg+2_h)e2j36pd6)$$v7&3'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
