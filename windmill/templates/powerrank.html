@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Spirit scores</h1>
+
+{% for div_id,div in Spirit.items %}
+<h2>{{div.name}}</h2>
+
+<table>
+	<tr><td>Rank</td><td>Team</td><td>Avg Rec</td><td>Nr Rec</td><td>Rec</td></tr>
+	{% for t_id,t in div.teams.items %}
+	<tr><td>1</td>
+		<td>{{t.name}}</td>
+		<td>{{t.avg_received|floatformat}}</td>
+		<td>{{t.nr_received}}</td>
+		<td>{{t.received}}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+{% endfor %}
+
+
+{% endblock content %}

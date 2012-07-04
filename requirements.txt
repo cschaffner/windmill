@@ -4,6 +4,9 @@ certifi==0.0.8
 chardet==1.0.1
 docutils==0.9
 gunicorn==0.14.3
+matplotlib==1.1.0
+numpy==1.6.2
 psycopg2==2.4.5
 requests==0.11.1
+scipy==0.10.1
 wsgiref==0.1.2

@@ -1,91 +1,152 @@
 from __future__ import division
 from django.db import models
 from django.db.models import Q
-from windmill.tools.wrapper import *
+from windmill.tools.wrapper import api_swissroundinfo
+from django.conf import settings
+
 import logging
 
 # Get an instance of a logger
 logger = logging.getLogger('windmill.powerrank')
 
+if settings.HOST=="http://api.playwithlv.com":
+    logger.error('things here only work for leaguevine and not for playwithlv')
+    raise
+
+class TournamentManager(models.Manager):
+    def add(self,tournament_id):
+        # retrieve all swissrounds from tournament
+        swiss=api_swissroundinfo(tournament_id,ordered=True)
+        added=0
+        # import all games from tournament in local db
+        t,create_t=self.get_or_create(lv_id=tournament_id)
+        if create_t:
+            t.name=swiss['objects'][0]['tournament']['name']
+            t.save()
+        
+        for round in swiss['objects']:
+            r,create_r=Round.objects.get_or_create(lv_id=round['id'])
+            if create_r:
+                r.round_number=round['round_number']
+            r.tournament = t
+            r.save()
+            for game in round['games']:
+                team1,create_team1=Team.objects.get_or_create(lv_id=game['team_1_id'])
+                if create_team1:
+                    team1.name=game['team_1']['name']
+                    team1.save()
+                team2,create_team2=Team.objects.get_or_create(lv_id=game['team_2_id'])
+                if create_team2:
+                    team2.name=game['team_2']['name']
+                    team2.save()
+                gm,created_gm=Game.objects.get_or_create(lv_id=game['id'])
+                gm.round=r
+                gm.team_1=team1
+                gm.team_2=team2
+                gm.team_1_score=game['team_1_score']
+                gm.team_2_score=game['team_2_score']
+                gm.start_time = game['start_time']
+                if game['game_site']!=None:
+                    gm.field = game['game_site']['name']
+                logger.info(u'added game {0} - {1} with start time {2}'.format(gm.team_1.name,gm.team_2.name,gm.start_time))
+                gm.save()
+            for tstand in round['standings']:
+                team,create_team=Team.objects.get_or_create(lv_id=tstand['team_id'])
+                st=Standing.objects.create(team=team,round=r,
+                        wins=tstand['wins'], losses=tstand['losses'],
+                        swiss_score=tstand['swiss_score'], swiss_rank=tstand['ranking'],
+                        swiss_opponent_score=tstand['swiss_opponent_score'])
+        return True
+ 
+
 class Tournament(models.Model):
+    objects=TournamentManager()
+    
     # playwithlv.com tournament-id
     l_id = models.IntegerField(blank=True,null=True)
     # leaguevine.com tournament-id
     lv_id = models.IntegerField(blank=True,null=True)
     name = models.CharField(max_length=50)
 
+    def lgv_id(self):
+        if settings.HOST=="http://api.playwithlv.com":
+            return self.l_id
+        elif settings.HOST=="https://api.leaguevine.com":
+            return self.lv_id
+
     def __unicode__(self):
         return str(self.name)
 
-class GameManager(models.Manager):
-    def addmatches(self,tournament_id):
-        # retrieve all games from tournament
-        games=api_gamesbytournament_restr(tournament_id)
-        logger.info(games)
-        added=0
-        # import all games from tournament in local db
-        for g in games['objects']:
-            # create or get tournament
-            if settings.HOST=="http://api.playwithlv.com":
-                t,create_t=Tournament.objects.get_or_create(l_id=g['tournament']['id'])
-            elif settings.HOST=="https://api.leaguevine.com":
-                t,create_t=Tournament.objects.get_or_create(lv_id=g['tournament']['id'])
-            if create_t:
-                t.name = g['tournament']['name']
-                t.save()
-            
-            if settings.HOST=="http://api.playwithlv.com":
-                gm,created=self.get_or_create(l_id=g['id'])
-            elif settings.HOST=="https://api.leaguevine.com":
-                gm,created=self.get_or_create(lv_id=g['id'])                
-            if created:
-                added+=1
-            if g['team_1_id'] is not None:            
-                gm.team_1_id=g['team_1_id']
-                gm.team_1_name=g['team_1']['name']
-            if g['team_2_id'] is not None:            
-                gm.team_2_id=g['team_2_id']
-                gm.team_2_name=g['team_2']['name']
-            # link game with tournament
-            gm.tournament=t            
-            gm.start_time = g['start_time']
-            if g['game_site']!=None:
-                gm.field = g['game_site']['name']
-            logger.info('added game {0} - {1} with start time {2}'.format(g['team_1_id'],g['team_2_id'],g['start_time']))
-            gm.save()
-        return added
- 
+
+class Round(models.Model):
+    # playwithlv.com swissround_id
+    l_id = models.IntegerField(blank=True,null=True)
+    # leaguevine.com swissround_id
+    lv_id = models.IntegerField(blank=True,null=True)
+    
+    round_number = models.IntegerField(blank=True,null=True)
+    
+    # many-to-one relationship between Tournament and Rounds
+    tournament = models.ForeignKey(Tournament,null=True,blank=True)
+
+    def lgv_id(self):
+        if settings.HOST=="http://api.playwithlv.com":
+            return self.l_id
+        elif settings.HOST=="https://api.leaguevine.com":
+            return self.lv_id
+
+    def __unicode__(self):
+        return u'{0} of {1}'.format(self.round_number,self.tournament)
+        
+class Team(models.Model):
+    # playwithlv.com team-id
+    l_id = models.IntegerField(blank=True,null=True)
+    # leaguevine.com team-id
+    lv_id = models.IntegerField(blank=True,null=True)
+    name = models.CharField(max_length=50)
+                
+    # many-to-many relationship between Teams and Rounds
+    rounds = models.ManyToManyField(Round, through='Standing')
+
+
+    def save(self, *args, **kwargs):
+        super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
+
+    def lgv_id(self):
+        if settings.HOST=="http://api.playwithlv.com":
+            return self.l_id
+        elif settings.HOST=="https://api.leaguevine.com":
+            return self.lv_id
+        
+    def __unicode__(self):
+        return self.name
+
 
 class Game(models.Model):
-    objects=GameManager()
     
     # playwithlv.com game-id
     l_id = models.IntegerField(null=True,blank=True)
     # leaguevine.com game-id
     lv_id = models.IntegerField(null=True,blank=True)
     
-    team_1_id = models.IntegerField(null=True,blank=True)
-    team_2_id = models.IntegerField(null=True,blank=True)
+    team_1 = models.ForeignKey(Team,null=True,blank=True,related_name='game_team1')
+    team_2 = models.ForeignKey(Team,null=True,blank=True,related_name='game_team2')
     
-    team_1_name = models.CharField(max_length=50,null=True,blank=True)
-    team_2_name = models.CharField(max_length=50,null=True,blank=True)
+    team_1_score = models.IntegerField(null=True,blank=True)
+    team_2_score = models.IntegerField(null=True,blank=True)
 
-    # many-to-one relationship between Tournaments and Teams
-    tournament = models.ForeignKey(Tournament,null=True,blank=True)
+    # many-to-one relationship between Rounds and Game
+    round = models.ForeignKey(Round,null=True,blank=True)
+    
     
     start_time = models.DateTimeField(null=True,blank=True)
     field = models.CharField(max_length=50,null=True,blank=True)
     
-    # totals
-    team_1_spirit = models.IntegerField(null=True,verbose_name="Team1's received spirit",blank=True)
-    team_2_spirit = models.IntegerField(null=True,verbose_name="Team2's received spirit",blank=True)
-
-    # todo: when teams are filling in the sheets, we will more detailed categories:
-    # team1_rules
-    # team1_fouls
-    # team1_fairmind
-    # team1_positive
-    # team1_compare
+    def lgv_id(self):
+        if settings.HOST=="http://api.playwithlv.com":
+            return self.l_id
+        elif settings.HOST=="https://api.leaguevine.com":
+            return self.lv_id
 
     def __unicode__(self):
         if settings.HOST=="http://api.playwithlv.com":
@@ -95,140 +156,18 @@ class Game(models.Model):
 
     def save(self, *args, **kwargs):
         super(Game, self).save(*args, **kwargs) # Call the "real" save() method.
-        if self.team_1_spirit is not None:
-            # update team1
-            if settings.HOST=="http://api.playwithlv.com":
-                t,create=Team.objects.get_or_create(l_id=self.team_1_id)
-            elif settings.HOST=="https://api.leaguevine.com":
-                t,create=Team.objects.get_or_create(lv_id=self.team_1_id)
-            if create:
-                t.name=self.team_1_name
-                t.tournament=self.tournament
-#            t.add_received(self.team_1_spirit)
-#            if self.team_2_spirit is not None:
-#                t.add_given(self.team_2_spirit)
-            t.save()
-            t.update_spirit()            
-        
-        if self.team_2_spirit is not None:
-            # update team2
-            if settings.HOST=="http://api.playwithlv.com":
-                t,create=Team.objects.get_or_create(l_id=self.team_2_id)
-            elif settings.HOST=="https://api.leaguevine.com":
-                t,create=Team.objects.get_or_create(lv_id=self.team_2_id)
-            if create:
-                t.name=self.team_2_name
-                t.tournament=self.tournament
-#            t.add_received(self.team_2_spirit)
-#            if self.team_1_spirit is not None:
-#                t.add_given(self.team_1_spirit)
-            t.save()        
-            t.update_spirit()            
-         
 
-class TeamManager(models.Manager):
-    def update_all(self):
-        # updates spirit scores of all teams
-        for t in Team.objects.all():
-            t.update_spirit()
- 
 
-class Team(models.Model):
-    objects=TeamManager()
+class Standing(models.Model):
+    round = models.ForeignKey(Round)
+    team = models.ForeignKey(Team)
     
-    # playwithlv.com team-id
-    l_id = models.IntegerField(blank=True,null=True)
-    # leaguevine.com team-id
-    lv_id = models.IntegerField(blank=True,null=True)
-    name = models.CharField(max_length=50)
+    wins = models.IntegerField(blank=True,null=True)
+    losses = models.IntegerField(blank=True,null=True)
+    swiss_score = models.IntegerField(blank=True,null=True)
+    swiss_opponent_score = models.IntegerField(blank=True,null=True)
+    swiss_rank = models.IntegerField(blank=True,null=True)
+    power_rank = models.IntegerField(blank=True,null=True)
+    strength = models.DecimalField(max_digits=6, decimal_places=4,blank=True,null=True)
+
     
-    # many-to-one relationship between Tournaments and Teams
-    tournament = models.ForeignKey(Tournament,null=True,blank=True)
-    
-    # spirit scores
-    received = models.CommaSeparatedIntegerField(max_length=100)
-    given = models.CommaSeparatedIntegerField(max_length=100)
-    
-    avg_received = models.DecimalField(max_digits=5,decimal_places=2,null=True,blank=True)
-    avg_given = models.DecimalField(max_digits=5,decimal_places=2,null=True,blank=True)
-    nr_received = models.IntegerField(null=True,blank=True)
-    nr_given = models.IntegerField(null=True,blank=True)
-        
-#    def add_received(self,score):
-#        if self.received=='':
-#            self.received=str(score)
-#        else:
-#            self.received += ','
-#            self.received += str(score)
-#
-#    def add_given(self,score):
-#        if self.given=='':
-#            self.given=str(score)
-#        else:
-#            self.given += ','
-#            self.given += str(score)
-#    
-    def update_spirit(self):
-        # compute everything from scratch here:
-        
-        # works only for leaguevine, not for playwithlv
-        # retrieve games where this team was involved
-        games1 = Game.objects.filter(team_1_id=self.lv_id)
-        games2 = Game.objects.filter(team_2_id=self.lv_id)
-        
-        self.received=''
-        self.given=''
-        self.nr_received=0
-        self.nr_given=0
-        logger.info(u'computing spirit for team: {0}'.format(self.name))
-        
-        for g in games1:
-            logger.info('{0} - {1}, spirit {2}-{3}'.format(g.team_1_id,g.team_2_id,g.team_1_spirit,g.team_2_spirit))
-            if g.team_1_spirit != None:
-                self.received += str(g.team_1_spirit)+', '
-            if g.team_2_spirit != None:
-                self.given += str(g.team_2_spirit)+', '
-
-        for g in games2:
-            logger.info('{0} - {1}, spirit {2}-{3}'.format(g.team_1_id,g.team_2_id,g.team_1_spirit,g.team_2_spirit))
-            if g.team_2_spirit != None:
-                self.received += str(g.team_2_spirit)+', '
-            if g.team_1_spirit != None:
-                self.given += str(g.team_1_spirit)+', '
-        
-        logger.info('received: {0}'.format(self.received))
-        logger.info('given: {0}'.format(self.given))
-        
-        self.nr_received,self.avg_received=self.compute(self.received)
-        self.nr_given,self.avg_given=self.compute(self.given)
-        logger.info(u'team {2}: recomputed averages received: {0} and given: {1}'.format(self.avg_received,self.avg_given,self.name))
-        self.save()
-    
-    def compute(self,cslist):
-        import re
-        if cslist=='':
-            return 0,None
-        count=0
-        total=0
-        for el in re.split(r',',cslist):
-            if el!=' ':
-                try:
-                    i=int(el)
-                    count+=1
-                    total+=i
-                except:
-                    logger.error('only integers should be stored in list of spirit scores')
-                    raise            
-        if count>0:
-            return count,total/count
-        else:
-            return 0,None
-
-
-    def save(self, *args, **kwargs):
-        super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
-
-        
-    def __unicode__(self):
-        return str(self.name)
-

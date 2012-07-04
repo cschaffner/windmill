@@ -9,9 +9,9 @@ urlpatterns = patterns('',
     # url(r'^$', 'windmill.views.home', name='home'),
     # url(r'^windmill/', include('windmill.foo.urls')),
 
-    url(r'^$', 'windmill.spirit.views.home'),
-    url(r'^addgames/(\d+)$', 'windmill.spirit.views.addgames'),       
-    url(r'^update/$', 'windmill.spirit.views.update'),       
+    url(r'^$', 'windmill.powerrank.views.home'),
+    url(r'^addtournament/(\d+)$', 'windmill.powerrank.views.addtournament'),       
+#    url(r'^update/$', 'windmill.powerrank.views.update'),       
     
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
