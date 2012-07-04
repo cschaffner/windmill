@@ -2,6 +2,7 @@ from __future__ import division
 from django.db import models
 from django.db.models import Q
 from windmill.tools.wrapper import api_swissroundinfo
+from power import strength
 from django.conf import settings
 
 import logging
@@ -24,6 +25,7 @@ class TournamentManager(models.Manager):
             t.name=swiss['objects'][0]['tournament']['name']
             t.save()
         
+        games=[]
         for round in swiss['objects']:
             r,create_r=Round.objects.get_or_create(lv_id=round['id'])
             if create_r:
@@ -31,31 +33,50 @@ class TournamentManager(models.Manager):
             r.tournament = t
             r.save()
             for game in round['games']:
-                team1,create_team1=Team.objects.get_or_create(lv_id=game['team_1_id'])
-                if create_team1:
-                    team1.name=game['team_1']['name']
-                    team1.save()
-                team2,create_team2=Team.objects.get_or_create(lv_id=game['team_2_id'])
-                if create_team2:
-                    team2.name=game['team_2']['name']
-                    team2.save()
-                gm,created_gm=Game.objects.get_or_create(lv_id=game['id'])
-                gm.round=r
-                gm.team_1=team1
-                gm.team_2=team2
-                gm.team_1_score=game['team_1_score']
-                gm.team_2_score=game['team_2_score']
-                gm.start_time = game['start_time']
-                if game['game_site']!=None:
-                    gm.field = game['game_site']['name']
-                logger.info(u'added game {0} - {1} with start time {2}'.format(gm.team_1.name,gm.team_2.name,gm.start_time))
-                gm.save()
+                if game['team_1_score']>0 or game['team_2_score']>0:
+                    team1,create_team1=Team.objects.get_or_create(lv_id=game['team_1_id'])
+                    if create_team1:
+                        team1.name=game['team_1']['name']
+                        team1.save()
+                    team2,create_team2=Team.objects.get_or_create(lv_id=game['team_2_id'])
+                    if create_team2:
+                        team2.name=game['team_2']['name']
+                        team2.save()
+                    gm,created_gm=Game.objects.get_or_create(lv_id=game['id'])
+                    gm.round=r
+                    gm.team_1=team1
+                    gm.team_2=team2
+                    gm.team_1_score=game['team_1_score']
+                    gm.team_2_score=game['team_2_score']
+                    gm.start_time = game['start_time']
+                    if game['game_site']!=None:
+                        gm.field = game['game_site']['name']
+                    logger.info(u'added game {0} - {1} with start time {2}'.format(gm.team_1.name,gm.team_2.name,gm.start_time))
+                    gm.save()
+                    
+            if round['round_number']==1:
+                nrteams=len(round['standings'])
+    
             for tstand in round['standings']:
-                team,create_team=Team.objects.get_or_create(lv_id=tstand['team_id'])
-                st=Standing.objects.create(team=team,round=r,
-                        wins=tstand['wins'], losses=tstand['losses'],
-                        swiss_score=tstand['swiss_score'], swiss_rank=tstand['ranking'],
-                        swiss_opponent_score=tstand['swiss_opponent_score'])
+                offset=nrteams-len(round['standings'])            
+                team=Team.objects.get(lv_id=tstand['team_id'])
+                st,create_st=Standing.objects.get_or_create(team=team,round=r)
+                st.wins=tstand['wins']
+                st.losses=tstand['losses']
+                st.swiss_score=tstand['swiss_score']
+                st.swiss_rank=tstand['ranking']+offset
+                st.swiss_opponent_score=tstand['swiss_opponent_score']
+                st.save()
+                
+            games.extend(round['games'])
+            strength_stand=strength(games)
+            for sstand in strength_stand:
+                team=Team.objects.get(lv_id=sstand['team_id'])
+                st,create_st=Standing.objects.get_or_create(team=team,round=r)
+                st.strength=sstand['strength']
+                st.power_rank=sstand['ranking']
+                st.save()
+
         return True
  
 
@@ -77,8 +98,7 @@ class Tournament(models.Model):
     def __unicode__(self):
         return str(self.name)
 
-
-class Round(models.Model):
+class Round(models.Model):    
     # playwithlv.com swissround_id
     l_id = models.IntegerField(blank=True,null=True)
     # leaguevine.com swissround_id
@@ -165,7 +185,7 @@ class Standing(models.Model):
     wins = models.IntegerField(blank=True,null=True)
     losses = models.IntegerField(blank=True,null=True)
     swiss_score = models.IntegerField(blank=True,null=True)
-    swiss_opponent_score = models.IntegerField(blank=True,null=True)
+    swiss_opponent_score = models.IntegerField(blank=True,null=True,verbose_name='opp_score')
     swiss_rank = models.IntegerField(blank=True,null=True)
     power_rank = models.IntegerField(blank=True,null=True)
     strength = models.DecimalField(max_digits=6, decimal_places=4,blank=True,null=True)

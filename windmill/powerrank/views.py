@@ -15,4 +15,4 @@ def home(request):
 
 def addtournament(request,tournament_id):
     Tournament.objects.add(tournament_id)
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect('/powerrank/')

@@ -69,7 +69,7 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ['l_id','lv_id','name']
 
 class StandingAdmin(admin.ModelAdmin):
-    list_display = ['team','round','wins','losses','swiss_rank', 'swiss_score']
+    list_display = ['team','round','wins','losses','swiss_rank', 'power_rank', 'swiss_score', 'strength','swiss_opponent_score' ]
     list_filter = ('team','round')
 
 
