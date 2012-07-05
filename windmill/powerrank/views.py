@@ -10,7 +10,7 @@ logger = logging.getLogger('windmill.spirit')
 
 
 def home(request):
-    # refer to admin interface 
+    
     return render_to_response('powerrank.html',{'added': 0})
 
 def addtournament(request,tournament_id):

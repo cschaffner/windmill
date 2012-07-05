@@ -30,12 +30,12 @@ class EitherTeamListFilter(SimpleListFilter):
         """
         qs = model_admin.queryset(request)
         logger.info(qs)
-        if request.GET.__contains__('tournament__id__exact'):
-            logger.info(request.GET['tournament__id__exact'])
-            self.title=self.title+' in '+Tournament.objects.get(id=request.GET['tournament__id__exact']).name
-            qs=qs.filter(tournament=request.GET['tournament__id__exact'])
-        team1list=qs.order_by('team_1_name').distinct('team_1_name').values_list('team_1_name','team_1_name')
-        team2list=qs.order_by('team_2_name').distinct('team_2_name').values_list('team_2_name','team_2_name')
+#        if request.GET.__contains__('tournament__id__exact'):
+#            logger.info(request.GET['tournament__id__exact'])
+#            self.title=self.title+' in '+Tournament.objects.get(id=request.GET['tournament__id__exact']).name
+#            qs=qs.filter(tournament=request.GET['tournament__id__exact'])
+        team1list=qs.order_by('team_1').distinct('team_1').values_list('team_1','team_1__name')
+        team2list=qs.order_by('team_2').distinct('team_2').values_list('team_2','team_2__name')
         teamlist=sorted(list(set(chain(team1list,team2list))))
         return teamlist
 
@@ -49,7 +49,7 @@ class EitherTeamListFilter(SimpleListFilter):
         if self.value() is None:
             return queryset
         else:
-            return queryset.filter(Q(team_1_name=self.value()) | Q(team_2_name=self.value()))
+            return queryset.filter(Q(team_1=self.value()) | Q(team_2=self.value()))
 
 class MyGameAdminForm(forms.ModelForm):
     class Meta:
@@ -60,16 +60,17 @@ class MyGameAdminForm(forms.ModelForm):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['l_id','lv_id','start_time','team_1','team_2','team_1_score','team_2_score']
-    list_filter = ('round',)
-#    list_filter = ('round',EitherTeamListFilter)
+    list_display = ['round','team_1','team_2','team_1_score','team_2_score','pred_margin_current','pred_margin_overall','upset_current','upset_overall']
+#    list_filter = ('round',)
+    list_filter = ('round',EitherTeamListFilter)
     form = MyGameAdminForm
-
+    
+    
 class TeamAdmin(admin.ModelAdmin):
     list_display = ['l_id','lv_id','name']
 
 class StandingAdmin(admin.ModelAdmin):
-    list_display = ['team','round','wins','losses','swiss_rank', 'power_rank', 'swiss_score', 'strength','swiss_opponent_score' ]
+    list_display = ['team','round','wins','losses','mark_rank', 'chris_rank', 'power_rank', 'swiss_score', 'strength','swiss_opponent_score' ]
     list_filter = ('team','round')
 
 

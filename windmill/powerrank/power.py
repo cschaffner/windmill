@@ -15,13 +15,13 @@ from pprint import pformat
 logger = logging.getLogger('windmill.powerrank')
 
 
-def strength(games):
+def strength(games,output_path):
     '''
     Takes a list of games and returns a dictionary with the "strength" of the involved teams
     "strength" is computed as solution to the linear least-square problem A*strength=margins
     '''
     from datetime import datetime
-    
+        
     # create a list of all team_ids involved in "games"
     tlist=[]
     tnamelist=[]
@@ -90,7 +90,7 @@ def strength(games):
     
     plt.clf()
     nx.draw_spring(G)
-    plt.savefig(settings.ROOT_PATH+"/static/output/graph_{0:%Y%m%d_%H%M%S%f}.png".format(datetime.now()))
+    plt.savefig("{0}/graph_{1}.png".format(output_path,nrgames))
     plt.clf()
     
     # the histogram of the data
@@ -105,6 +105,6 @@ def strength(games):
     plt.title(r'Histogram of residues:')
     plt.axis([-15, 15, 0, max(n)*1.05])
     plt.grid(True)
-    plt.savefig(settings.ROOT_PATH+'/static/output/histogram_{0:%Y%m%d_%H%M%S%f}.png'.format(datetime.now()))
+    plt.savefig('{0}/histogram_{1}.png'.format(output_path,nrgames))
     
     return standings
