@@ -13,3 +13,5 @@ output
 .project
 
 .pydevproject
+
+.DS_Store
