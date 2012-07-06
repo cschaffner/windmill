@@ -1,7 +1,7 @@
 from __future__ import division
 from django.db import models
 from django.db.models import Q
-from windmill.tools.wrapper import api_swissroundinfo
+from windmill.tools.wrapper import api_swissroundinfo,api_tournament_teams,api_bracketsbytournament
 from power import strength
 from django.conf import settings
 from operator import itemgetter
@@ -16,6 +16,21 @@ if settings.HOST=="http://api.playwithlv.com":
     logger.error('things here only work for leaguevine and not for playwithlv')
     raise
 
+def iter_islast(iterable):
+    """ iter_islast(iterable) -> generates (item, islast) pairs
+
+Generates pairs where the first element is an item from the iterable
+source and the second element is a boolean flag indicating if it is the
+last item in the sequence.
+"""
+
+    it = iter(iterable)
+    prev = it.next()
+    for item in it:
+        yield prev, False
+        prev = item
+    yield prev, True
+
 class TournamentManager(models.Manager):
     def add(self,tournament_id):
         from datetime import datetime
@@ -23,17 +38,28 @@ class TournamentManager(models.Manager):
         output_path='{0}/static/output/{1:%Y%m%d_%H%M%S%f}'.format(settings.ROOT_PATH,datetime.now())
         os.mkdir(output_path)
 
-        # retrieve all swissrounds from tournament
-        swiss=api_swissroundinfo(tournament_id,ordered=True)
-        added=0
-        # import all games from tournament in local db
+        # retrieve tournament teams
+        teams=api_tournament_teams(tournament_id)         
+        # create tournament
         t,create_t=self.get_or_create(lv_id=tournament_id)
         if create_t:
             t.name=swiss['objects'][0]['tournament']['name']
             t.save()
+        # create teams
+        for tm in teams['objects']:
+            team,create_team=Team.objects.get_or_create(lv_id=tm['team_id'])
+            team.name=tm['team']['name']
+            team.seed = tm['seed']
+            team.final_rank = tm['final_standing']
+            team.save()            
+        
+        # retrieve all swissrounds and brackets from tournament
+        swiss=api_swissroundinfo(tournament_id,ordered=True)
+        brackets=api_bracketsbytournament(tournament_id)
+        
         
         games=[]
-        for round in swiss['objects']:
+        for round, islastround in iter_islast(swiss['objects']):
             r,create_r=Round.objects.get_or_create(lv_id=round['id'])
             if create_r:
                 r.round_number=round['round_number']
@@ -45,8 +71,7 @@ class TournamentManager(models.Manager):
                 nrteams=len(round['standings'])
             offset=nrteams-len(round['standings'])            
  
-            # extend standings with chris-rank (sorted first according to swiss_score, wins, fewest losses, swiss_opponent_scores etc.)
-            # and mark-ranks (sorted first according to wins, then swiss_score, swiss_opponent_scores)
+            # extend standings with mark-ranks (sorted first according to wins, then swiss_score, swiss_opponent_scores)
             # notice the reversed order of sorting, first the least important key, then more and more important ones
             mark_sort=sorted(round['standings'],key=lambda x:int(x['swiss_opponent_score']),reverse=True)
             mark_sort=sorted(mark_sort,key=lambda x:int(x['swiss_score']),reverse=True)
@@ -54,6 +79,7 @@ class TournamentManager(models.Manager):
             for rank,tstand in enumerate(mark_sort,1):
                 tstand['mark_rank']=rank+offset
 
+            # extend standings with chris-rank (sorted first according to swiss_score, wins, fewest losses, swiss_opponent_scores etc.)
             chris_sort=sorted(mark_sort,key=lambda x:int(x['swiss_opponent_score']),reverse=True)
             chris_sort=sorted(chris_sort,key=lambda x:int(x['losses']))
             chris_sort=sorted(chris_sort,key=lambda x:int(x['wins']),reverse=True)
@@ -73,8 +99,27 @@ class TournamentManager(models.Manager):
                 if abs(tstand['chris_rank']-(tstand['ranking']+offset))>1:
                     logger.error(u'team: {0}, chris_rank: {1}, ranking: {2}'.format(tstand['team']['name'],tstand['chris_rank'],tstand['ranking']+offset))
                 st.save()
-                      
+
+            # go through brackets and add games that start at the same time as this round
+            logger.info('round start-time: {0}'.format(round['games'][0]['start_time']))
+            for br in brackets['objects']:
+                for rnd in br['rounds']:
+                    for gm in rnd['games']:
+                        logger.info('start-time: {0}'.format(gm['start_time']))
+                        if gm['start_time']==round['games'][0]['start_time']:
+                            round['games'].extend([gm])
+                            gm['moved']=1
+                            
+            if islastround:
+                # add all remaining bracket games
+                for br in brackets['objects']:
+                    for rnd in br['rounds']:
+                        for gm in rnd['games']:
+                            if gm.has_key('moved')==False:
+                                round['games'].extend([gm])
+            
             games.extend(round['games'])
+            
             strength_stand=strength(games,output_path)
             for sstand in strength_stand:
                 team=Team.objects.get(lv_id=sstand['team_id'])
@@ -85,14 +130,8 @@ class TournamentManager(models.Manager):
 
             for game in round['games']:
                 if game['team_1_score']>0 or game['team_2_score']>0:
-                    team1,create_team1=Team.objects.get_or_create(lv_id=game['team_1_id'])
-                    if create_team1:
-                        team1.name=game['team_1']['name']
-                        team1.save()
-                    team2,create_team2=Team.objects.get_or_create(lv_id=game['team_2_id'])
-                    if create_team2:
-                        team2.name=game['team_2']['name']
-                        team2.save()
+                    team1=Team.objects.get(lv_id=game['team_1_id'])
+                    team2=Team.objects.get(lv_id=game['team_2_id'])
                     gm,created_gm=Game.objects.get_or_create(lv_id=game['id'])
                     gm.round=r
                     gm.team_1=team1
@@ -171,6 +210,10 @@ class Team(models.Model):
     # many-to-many relationship between Teams and Rounds
     rounds = models.ManyToManyField(Round, through='Standing')
 
+    # TODO: extend to the case where a team can be part of multiple tournamnets
+    # then, make a many-to-many relationship with tournaments "through" those 2 properties
+    seed = models.IntegerField(blank=True,null=True)
+    final_rank = models.IntegerField(blank=True,null=True)
 
     def save(self, *args, **kwargs):
         super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
@@ -225,8 +268,10 @@ class Game(models.Model):
             return str(self.lv_id)
 
     def save(self, *args, **kwargs):
-        self.upset_current = ((self.team_1_score - self.team_2_score) - self.pred_margin_current)**2
-        self.upset_overall = ((self.team_1_score - self.team_2_score) - self.pred_margin_overall)**2
+        if self.team_1_score != None and self.team_2_score !=None and self.pred_margin_current != None:
+            self.upset_current = ((self.team_1_score - self.team_2_score) - self.pred_margin_current)**2
+        if self.team_1_score != None and self.team_2_score !=None and self.pred_margin_overall != None:
+            self.upset_overall = ((self.team_1_score - self.team_2_score) - self.pred_margin_overall)**2
         super(Game, self).save(*args, **kwargs) # Call the "real" save() method.
 
 

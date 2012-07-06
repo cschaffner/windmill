@@ -3,23 +3,21 @@
 {% block content %}
 <h1>Rankings</h1>
 
-
-{% for div_id,div in Spirit.items %}
-<h2>{{div.name}}</h2>
-
-<table>
-	<tr><td>Rank</td><td>Team</td><td>Avg Rec</td><td>Nr Rec</td><td>Rec</td></tr>
-	{% for t_id,t in div.teams.items %}
-	<tr><td>1</td>
-		<td>{{t.name}}</td>
-		<td>{{t.avg_received|floatformat}}</td>
-		<td>{{t.nr_received}}</td>
-		<td>{{t.received}}</td>
+<h2>Biggest Upsets</h2>
+<table border="1">
+	<tr><td>Round</td><td>Team1</td><td>Team2</td><td >Score</td><td>margin</td><td >pred margin cur</td><td>Upset</td></tr>
+	{% for g in upsets %}
+	<tr><td>{{g.round}}</td>
+		<td title="mark_rank: {{g.team_1.mark_rank}}, strength: {{g.team_1.strength}}">{{g.team_1.name}} ({{g.team_1.chris_rank}})</td>
+		<td title="mark_rank: {{g.team_2.mark_rank}}, strength: {{g.team_2.strength}}">{{g.team_2.name}} ({{g.team_2.chris_rank}})</td>
+		<td align="center">{{g.team_1_score}} - {{g.team_2_score}}</td>
+		<td align="right">{{g.margin}}</td>
+		<td align="right">{{g.pred_margin_current}}</td>
+		<td>{{g.upset_current}}</td>
 	</tr>
 	{% endfor %}
 </table>
 
-{% endfor %}
 
 
 {% endblock content %}

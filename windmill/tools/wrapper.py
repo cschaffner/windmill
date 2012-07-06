@@ -97,6 +97,12 @@ def api_tournamentbyid(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict
 
+def api_tournament_teams(tournament_id):
+    url='{0}/v1/tournament_teams/?tournament_ids=%5B{1}%5D&limit=200'.format(settings.HOST,tournament_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
 def api_nrswissrounds(tournament_id):
 # returns the number of existing swissdraw rounds
     if settings.OFFLINE:
