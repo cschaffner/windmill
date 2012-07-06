@@ -161,28 +161,6 @@ class TournamentManager(models.Manager):
             gm.pred_margin_overall=(team_1_strength -  team_2_strength)
             gm.save()
         return True
- 
-    def top8_ranks(self):
-        from numpy import arange        
-        # create a new directory for the output of this routine
-        output_path='/static/output/{0:%Y%m%d_%H%M%S%f}'.format(datetime.now())
-        os_path='{0}{1}'.format(settings.ROOT_PATH,output_path)
-        os.mkdir(os_path)
-        
-        plt.clf()
-        # make a figure with the rank curves of the top8 teams
-        top8=Team.objects.filter(final_rank__lte=8).order_by('final_rank')
-        for team in top8:
-            strg=team.standing_set.order_by('round').values_list('strength',flat=1)
-            logger.info(u'{0}: {1}'.format(team.name,pformat(strg)))
-            plt.plot(arange(1,len(strg)+1),strg,label=team.name,marker='o')
-            
-        plt.legend(loc="lower right",prop={'size':6})
-        plt.ylabel('Strength')
-        plt.xlabel('Rounds')
-        plt.savefig("{0}/ranks.png".format(os_path))
-        
-        return "{0}/ranks.png".format(output_path)
         
 
 class Tournament(models.Model):
