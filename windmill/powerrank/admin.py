@@ -60,7 +60,7 @@ class MyGameAdminForm(forms.ModelForm):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['round','team_1','team_2','team_1_score','team_2_score','pred_margin_current','pred_margin_overall','upset_current','upset_overall']
+    list_display = ['round','team_1','team_2','team_1_score','team_2_score','pred_margin_current','pred_margin_overall','upset_current','upset_overall','currank_diff']
 #    list_filter = ('round',)
     list_filter = ('round',EitherTeamListFilter)
     form = MyGameAdminForm

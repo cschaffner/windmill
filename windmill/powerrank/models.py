@@ -5,6 +5,11 @@ from windmill.tools.wrapper import api_swissroundinfo,api_tournament_teams,api_b
 from power import strength
 from django.conf import settings
 from operator import itemgetter
+from datetime import datetime
+import matplotlib.pyplot as plt
+from pprint import pformat
+
+
 import os
 
 import logging
@@ -158,8 +163,26 @@ class TournamentManager(models.Manager):
         return True
  
     def top8_ranks(self):
+        from numpy import arange        
+        # create a new directory for the output of this routine
+        output_path='/static/output/{0:%Y%m%d_%H%M%S%f}'.format(datetime.now())
+        os_path='{0}{1}'.format(settings.ROOT_PATH,output_path)
+        os.mkdir(os_path)
+        
+        plt.clf()
         # make a figure with the rank curves of the top8 teams
-        pass
+        top8=Team.objects.filter(final_rank__lte=8).order_by('final_rank')
+        for team in top8:
+            strg=team.standing_set.order_by('round').values_list('strength',flat=1)
+            logger.info(u'{0}: {1}'.format(team.name,pformat(strg)))
+            plt.plot(arange(1,len(strg)+1),strg,label=team.name,marker='o')
+            
+        plt.legend(loc="lower right",prop={'size':6})
+        plt.ylabel('Strength')
+        plt.xlabel('Rounds')
+        plt.savefig("{0}/ranks.png".format(os_path))
+        
+        return "{0}/ranks.png".format(output_path)
         
 
 class Tournament(models.Model):
@@ -215,6 +238,22 @@ class Team(models.Model):
     seed = models.IntegerField(blank=True,null=True)
     final_rank = models.IntegerField(blank=True,null=True)
 
+    def standing_round_nr(self,round_nr):
+        # returns the standing object of elf in round with number round_nr
+        # if round_nr < 1 , return a standing objects where all the ranks are seeds
+        if round_nr<1:
+            st=Standing()
+            st.chris_rank=self.seed
+            st.mark_rank=self.seed
+            st.power_rank=self.seed
+            return st
+        else:
+            try:
+                return self.standing_set.get(round__round_number=round_nr)
+            except:
+                # exceeded round_number, I guess
+                raise
+
     def save(self, *args, **kwargs):
         super(Team, self).save(*args, **kwargs) # Call the "real" save() method.
 
@@ -251,9 +290,17 @@ class Game(models.Model):
     pred_margin_overall=models.DecimalField(max_digits=6, decimal_places=4,blank=True,null=True)
     upset_overall=models.DecimalField(max_digits=7, decimal_places=4,blank=True,null=True)
     
+    currank_diff=models.IntegerField(null=True,blank=True)
+    
     start_time = models.DateTimeField(null=True,blank=True)
     field = models.CharField(max_length=50,null=True,blank=True)
-    
+        
+    def compute_rank_diff(self):
+        # compute team's standings of previous round:
+        team_1_standing=self.team_1.standing_round_nr(self.round.round_number-1)
+        team_2_standing=self.team_2.standing_round_nr(self.round.round_number-1)
+        if team_1_standing.chris_rank != None and team_2_standing.chris_rank != None:
+            self.currank_diff=team_1_standing.chris_rank - team_2_standing.chris_rank
     
     def lgv_id(self):
         if settings.HOST=="http://api.playwithlv.com":
@@ -272,6 +319,7 @@ class Game(models.Model):
             self.upset_current = ((self.team_1_score - self.team_2_score) - self.pred_margin_current)**2
         if self.team_1_score != None and self.team_2_score !=None and self.pred_margin_overall != None:
             self.upset_overall = ((self.team_1_score - self.team_2_score) - self.pred_margin_overall)**2
+        self.compute_rank_diff()
         super(Game, self).save(*args, **kwargs) # Call the "real" save() method.
 
 

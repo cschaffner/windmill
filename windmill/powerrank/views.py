@@ -10,6 +10,7 @@ logger = logging.getLogger('windmill.spirit')
 
 
 def home(request):
+    graph=Tournament.objects.top8_ranks()
     upsets=Game.objects.filter(upset_current__gte=15).order_by('-upset_current')
     # upgrade team information with ranks
     for gm in upsets:        
@@ -23,7 +24,7 @@ def home(request):
         gm.team_2.strength=gm.team_2.standing_set.get(round=gm.round).strength        
 #        gm.team_1.final_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
         
-    return render_to_response('powerrank.html',{'upsets': upsets})
+    return render_to_response('powerrank.html',{'upsets': upsets,'graph': graph})
 
 def addtournament(request,tournament_id):
     Tournament.objects.add(tournament_id)

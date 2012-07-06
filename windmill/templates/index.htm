@@ -1,12 +1,10 @@
-{% extends "base.html" %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
 
-{% block content %}
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script src="/static/js/highcharts.js" type="text/javascript"></script>
-<!-- <script src="/static/js/modules/exporting.js"></script> -->
-
-
-<h1>Rankings</h1>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 		<script type="text/javascript">
 $(function () {
     var chart;
@@ -19,7 +17,7 @@ $(function () {
                 marginBottom: 25
             },
             title: {
-                text: 'Strength of Top 8 Teams',
+                text: 'Monthly Average Temperature',
                 x: -20 //center
             },
             subtitle: {
@@ -27,14 +25,12 @@ $(function () {
                 x: -20
             },
             xAxis: {
-            	title: {
-            		text: 'Rounds'
-            	},
-                categories: ['1','2','3','4','5','6','7','8']
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
             },
             yAxis: {
                 title: {
-                    text: 'Strength'
+                    text: 'Temperature (°C)'
                 },
                 plotLines: [{
                     value: 0,
@@ -56,20 +52,16 @@ $(function () {
                 y: 100,
                 borderWidth: 0
             },
-            series: [
-            {
+            series: [{
                 name: 'Tokyo',
                 data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-            }, 
-            {
+            }, {
                 name: 'New York',
                 data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-            }, 
-            {
+            }, {
                 name: 'Berlin',
                 data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-            }, 
-            {
+            }, {
                 name: 'London',
                 data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
             }]
@@ -78,27 +70,12 @@ $(function () {
     
 });
 		</script>
+	</head>
+	<body>
+<script src="../../js/highcharts.js"></script>
+<script src="../../js/modules/exporting.js"></script>
 
 <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 
-
-<img src="{{graph}}" alt="top8 ranking" />
-
-<h2>Biggest Upsets</h2>
-<table border="1">
-	<tr><td>Round</td><td>Team1</td><td>Team2</td><td >Score</td><td>margin</td><td >pred margin cur</td><td>Upset</td></tr>
-	{% for g in upsets %}
-	<tr><td>{{g.round}}</td>
-		<td title="mark_rank: {{g.team_1.mark_rank}}, strength: {{g.team_1.strength}}, final: {{g.team_1.final_rank}}">{{g.team_1.name}} ({{g.team_1.chris_rank}})</td>
-		<td title="mark_rank: {{g.team_2.mark_rank}}, strength: {{g.team_2.strength}}, final: {{g.team_2.final_rank}}">{{g.team_2.name}} ({{g.team_2.chris_rank}})</td>
-		<td align="center">{{g.team_1_score}} - {{g.team_2_score}}</td>
-		<td align="right">{{g.margin}}</td>
-		<td align="right">{{g.pred_margin_current}}</td>
-		<td>{{g.upset_current}}</td>
-	</tr>
-	{% endfor %}
-</table>
-
-
-
-{% endblock content %}
+	</body>
+</html>
