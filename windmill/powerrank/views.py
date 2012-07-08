@@ -8,22 +8,69 @@ from pprint import pformat
 # Get an instance of a logger
 logger = logging.getLogger('windmill.spirit')
 
-
 def home(request):
-    from numpy import arange        
+    tournaments=Tournament.objects.all()
+    return render_to_response('power_index.html',{'tournaments': tournaments})
+
+def power(request,tournament_id):
+    from numpy import arange
+    from windmill.tools.wrapper import ordinal      
+    import json
 
 #    # create a new directory for the output of this routine
 #    output_path='/static/output/{0:%Y%m%d_%H%M%S%f}'.format(datetime.now())
 #    os_path='{0}{1}'.format(settings.ROOT_PATH,output_path)
 #    os.mkdir(os_path)
     
-    # make a figure with the rank curves of the top8 teams
+    # prepare the data of the teams
     teams=Team.objects.order_by('final_rank')    
     for team in teams:
-        strg=team.standing_set.order_by('round').values_list('strength',flat=1)
         str_list=[]
-        for el in strg:
-            str_list.append(float(el))
+        nr_rounds = team.standing_set.count()
+        for rnd_nr,stand in enumerate(team.standing_set.order_by('round'),1):
+            gm=team.game_round_nr(rnd_nr)
+            if gm.team_1==team:
+                opp=gm.team_2
+            else:
+                opp=gm.team_1
+            opp_stand=opp.standing_round_nr(rnd_nr)
+            opp_prev_stand=opp.standing_round_nr(rnd_nr-1)
+            
+            if rnd_nr==1:
+                st=team.standing_round_nr(0)
+                descr="seed: {0}<br>".format(st.chris_rank)
+                descr += "R1: {1} vs {2}<br>".format(rnd_nr,gm.team_1.name.encode('ascii','xmlcharrefreplace'),gm.team_2.name.encode('ascii','xmlcharrefreplace'))
+                descr += "score: {0} - {1}, margin: {2}<br>".format(gm.team_1_score,gm.team_2_score,gm.team_1_score-gm.team_2_score)
+                descr += "expected margin: after R1 {0:4.2f}, after R{2} {1:4.2f}<br>strength".format(gm.pred_margin_current, gm.pred_margin_overall,nr_rounds)
+                descr += ": {0:4.2f} ({1})<br>".format(stand.strength,ordinal(stand.power_rank))          
+                descr += "opponent's strength"
+                descr += ": {0:4.2f} ({1})".format(opp_stand.strength,ordinal(opp_stand.power_rank))
+            else:
+                if gm.team_1==team:
+                    gm.pred_margin_prev = prev_strength-opp_prev_stand.strength
+                else:
+                    gm.pred_margin_prev = opp_prev_stand.strength - prev_strength
+
+                descr = "R{0}: {1} vs. {2}<br>".format(rnd_nr,gm.team_1.name.encode('ascii','xmlcharrefreplace'),gm.team_2.name.encode('ascii','xmlcharrefreplace'))
+                descr += "score: {0} - {1}, margin: {2}<br>".format(gm.team_1_score,gm.team_2_score,gm.team_1_score-gm.team_2_score)
+                descr += "expected margin: before R{0} {1:4.2f},<br> after R{0} {2:4.2f}, ".format(rnd_nr,gm.pred_margin_prev,gm.pred_margin_current)
+                descr += "ofter R{0} {1:4.2f}<br>".format(nr_rounds,gm.pred_margin_overall)
+                if prev_strength <= stand.strength:
+                    descr += "strength increased "
+                else:
+                    descr += "strength decreased "
+                descr += "from {0:4.2f} ({1}) to {2:4.2f} ({3})<br>".format(prev_strength,ordinal(prev_rank),stand.strength,ordinal(stand.power_rank))
+                if opp_prev_stand.strength <= opp_stand.strength:
+                    descr += "opponent's strength increased "
+                else: 
+                    descr += "opponent's strength decreased "
+                descr += "from {0:4.2f} ({1}) to {2:4.2f} ({3})".format(opp_prev_stand.strength,
+                            ordinal(opp_prev_stand.power_rank),opp_stand.strength,ordinal(opp_stand.power_rank))
+            prev_strength=stand.strength
+            prev_rank=stand.power_rank
+            jsn={"y": float(stand.strength), "rank": "{0}".format(ordinal(stand.power_rank)), "name": json.dumps(team.name), "text": descr}
+#            logger.info(pformat(jsn))
+            str_list.append(jsn)
         team.str_list=str_list
 
         swiss_scores=team.standing_set.order_by('round').values_list('swiss_score',flat=1)

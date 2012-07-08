@@ -216,6 +216,13 @@ class Team(models.Model):
     seed = models.IntegerField(blank=True,null=True)
     final_rank = models.IntegerField(blank=True,null=True)
 
+    def game_round_nr(self,round_nr):
+        # returns the (first) game of this team in a given round
+        gm=self.game_team1.filter(round__round_number=round_nr)
+        if len(gm)==0:
+            gm=self.game_team2.filter(round__round_number=round_nr)
+        return gm[0]
+    
     def standing_round_nr(self,round_nr):
         # returns the standing object of elf in round with number round_nr
         # if round_nr < 1 , return a standing objects where all the ranks are seeds

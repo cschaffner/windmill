@@ -10,7 +10,9 @@ urlpatterns = patterns('',
     # url(r'^windmill/', include('windmill.foo.urls')),
 
     url(r'^$', 'windmill.powerrank.views.home'),
-    url(r'^addtournament/(\d+)$', 'windmill.powerrank.views.addtournament'),           
+    url(r'^addtournament/(\d+)$', 'windmill.powerrank.views.addtournament'),  
+    url(r'^power/(\d+)$', 'windmill.powerrank.views.power'),  
+             
 #    url(r'^update/$', 'windmill.powerrank.views.update'),       
     
     # Uncomment the admin/doc line below to enable admin documentation:
