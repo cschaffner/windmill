@@ -1,4 +1,4 @@
-from windmill.powerrank.models import Tournament, Game, Team, Round, Standing
+from windmill.powerrank.models import Tournament, Game, Team, Round, Standing, Tournament_Team
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Q
@@ -79,3 +79,4 @@ admin.site.register(Game, GameAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Round)
 admin.site.register(Standing, StandingAdmin)
+admin.site.register(Tournament_Team)

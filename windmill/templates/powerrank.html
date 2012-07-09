@@ -28,10 +28,6 @@ $(function () {
                 text: 'Strength of Top 8 Teams',
                 x: -20 //center
             },
-            subtitle: {
-                text: 'Source: WorldClimate.com',
-                x: -20
-            },
             xAxis: {
             	title: {
             		text: 'Rounds'
@@ -92,7 +88,7 @@ $(function () {
                 layout: 'vertical',
                 align: 'right',
                 verticalAlign: 'top',
-                x: 60,
+                x: 00,
                 y: 10,
                 borderWidth: 0,
                 floating: true,
@@ -100,7 +96,7 @@ $(function () {
             series: [
             {% for t in teams %}
             {
-                "name": '{{t.final_rank}}: {{t.name}}',
+                "name": '{{t.final_rank}}: {{t.team.name}}',
                 data: {{t.str_list|safe}},
                 marker: {
                 	radius: 5,
@@ -176,7 +172,7 @@ $(function () {
                 layout: 'vertical',
                 align: 'right',
                 verticalAlign: 'top',
-                x: 60,
+                x: 00,
                 y: 10,
                 borderWidth: 0,
                 floating: true,
@@ -272,7 +268,7 @@ $(function () {
             series: [
             {% for t in teams %}
             {
-                name: '{{t.final_rank}}: {{t.name}}',
+                name: '{{t.final_rank}}: {{t.team.name}}',
                 data: {{t.chris_ranks}},
                 marker: {
                 	radius: 5,
@@ -284,7 +280,7 @@ $(function () {
                 {% endif %}
             }, 
             {
-                name: '{{t.final_rank}}: {{t.name}} (power)',
+                name: '{{t.final_rank}}: {{t.team.name}} (power)',
                 data: {{t.power_ranks}},
                 dashStyle: 'Dash',
                 marker: {
@@ -309,7 +305,7 @@ $(function () {
 <div id="container_ranks" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 
 
-<h2>Biggest Upsets</h2>
+<h2>10 Biggest Upsets</h2>
 <table border="1">
 	<tr><td>Round</td><td>Team1</td><td>Team2</td><td >Score</td><td>margin</td><td >pred margin cur</td><td>Upset</td></tr>
 	{% for g in upsets %}

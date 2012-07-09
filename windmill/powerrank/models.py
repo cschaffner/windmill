@@ -8,8 +8,6 @@ from operator import itemgetter
 from datetime import datetime
 import matplotlib.pyplot as plt
 from pprint import pformat
-
-
 import os
 
 import logging
@@ -38,10 +36,13 @@ last item in the sequence.
 
 class TournamentManager(models.Manager):
     def add(self,tournament_id):
-        from datetime import datetime
         # create a new directory for the output of this routine
         output_path='{0}/static/output/{1:%Y%m%d_%H%M%S%f}'.format(settings.ROOT_PATH,datetime.now())
         os.mkdir(output_path)
+
+        # retrieve all swissrounds and brackets from tournament
+        swiss=api_swissroundinfo(tournament_id,ordered=True)
+        brackets=api_bracketsbytournament(tournament_id)
 
         # retrieve tournament teams
         teams=api_tournament_teams(tournament_id)         
@@ -54,15 +55,13 @@ class TournamentManager(models.Manager):
         for tm in teams['objects']:
             team,create_team=Team.objects.get_or_create(lv_id=tm['team_id'])
             team.name=tm['team']['name']
-            team.seed = tm['seed']
-            team.final_rank = tm['final_standing']
             team.save()            
+            tt, tt_created = Tournament_Team.objects.get_or_create(team=team,tournament=t)
+            tt.seed = tm['seed']
+            tt.final_rank = tm['final_standing']
+            tt.save()
         
-        # retrieve all swissrounds and brackets from tournament
-        swiss=api_swissroundinfo(tournament_id,ordered=True)
-        brackets=api_bracketsbytournament(tournament_id)
-        
-        
+            
         games=[]
         for round, islastround in iter_islast(swiss['objects']):
             r,create_r=Round.objects.get_or_create(lv_id=round['id'])
@@ -211,30 +210,29 @@ class Team(models.Model):
     # many-to-many relationship between Teams and Rounds
     rounds = models.ManyToManyField(Round, through='Standing')
 
-    # TODO: extend to the case where a team can be part of multiple tournamnets
-    # then, make a many-to-many relationship with tournaments "through" those 2 properties
-    seed = models.IntegerField(blank=True,null=True)
-    final_rank = models.IntegerField(blank=True,null=True)
+    # Tournament_Team contains two properties: seed and final rank
+    tournaments = models.ManyToManyField(Tournament, through='Tournament_Team')
 
-    def game_round_nr(self,round_nr):
-        # returns the (first) game of this team in a given round
-        gm=self.game_team1.filter(round__round_number=round_nr)
+    def game_round_nr(self,tourn,round_nr):
+        # returns the (first) game of this team in a given round of tournament
+        gm=self.game_team1.filter(round__tournament=tourn, round__round_number=round_nr)
         if len(gm)==0:
-            gm=self.game_team2.filter(round__round_number=round_nr)
+            gm=self.game_team2.filter(round__tournament=tourn, round__round_number=round_nr)
         return gm[0]
     
-    def standing_round_nr(self,round_nr):
-        # returns the standing object of elf in round with number round_nr
+    def standing_round_nr(self,tourn,round_nr):
+        # returns the standing object of self in round with number round_nr of tournament_id 
         # if round_nr < 1 , return a standing objects where all the ranks are seeds
         if round_nr<1:
             st=Standing()
-            st.chris_rank=self.seed
-            st.mark_rank=self.seed
-            st.power_rank=self.seed
+            seed = self.tournament_team_set.get(tournament=tourn).seed
+            st.chris_rank=seed
+            st.mark_rank=seed
+            st.power_rank=seed
             return st
         else:
             try:
-                return self.standing_set.get(round__round_number=round_nr)
+                return self.standing_set.get(round__tournament=tourn, round__round_number=round_nr)
             except:
                 # exceeded round_number, I guess
                 raise
@@ -281,11 +279,12 @@ class Game(models.Model):
     field = models.CharField(max_length=50,null=True,blank=True)
         
     def compute_rank_diff(self):
-        # compute team's standings of previous round:
-        team_1_standing=self.team_1.standing_round_nr(self.round.round_number-1)
-        team_2_standing=self.team_2.standing_round_nr(self.round.round_number-1)
-        if team_1_standing.chris_rank != None and team_2_standing.chris_rank != None:
-            self.currank_diff=team_1_standing.chris_rank - team_2_standing.chris_rank
+        if self.round != None:
+            # compute team's standings of previous round:
+            team_1_standing=self.team_1.standing_round_nr(self.round.tournament,self.round.round_number-1)
+            team_2_standing=self.team_2.standing_round_nr(self.round.tournament,self.round.round_number-1)
+            if team_1_standing.chris_rank != None and team_2_standing.chris_rank != None:
+                self.currank_diff=team_1_standing.chris_rank - team_2_standing.chris_rank
     
     def lgv_id(self):
         if settings.HOST=="http://api.playwithlv.com":
@@ -321,4 +320,9 @@ class Standing(models.Model):
     power_rank = models.IntegerField(blank=True,null=True)
     strength = models.DecimalField(max_digits=6, decimal_places=4,blank=True,null=True)
 
-    
+class Tournament_Team(models.Model):
+    tournament = models.ForeignKey(Tournament)
+    team = models.ForeignKey(Team)
+
+    seed = models.IntegerField(blank=True,null=True)
+    final_rank = models.IntegerField(blank=True,null=True)

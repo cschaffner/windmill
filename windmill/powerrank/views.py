@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
-from windmill.powerrank.models import Tournament, Team, Game
+from windmill.powerrank.models import Tournament, Team, Game, Tournament_Team
 import logging
 from pprint import pformat
 
@@ -23,21 +23,21 @@ def power(request,tournament_id):
 #    os.mkdir(os_path)
     
     # prepare the data of the teams
-    teams=Team.objects.order_by('final_rank')    
-    for team in teams:
+    tteams=Tournament_Team.objects.filter(tournament__lv_id=tournament_id).order_by('final_rank','seed')    
+    for tteam in tteams:
         str_list=[]
-        nr_rounds = team.standing_set.count()
-        for rnd_nr,stand in enumerate(team.standing_set.order_by('round'),1):
-            gm=team.game_round_nr(rnd_nr)
-            if gm.team_1==team:
+        nr_rounds = tteam.team.standing_set.count()
+        for rnd_nr,stand in enumerate(tteam.team.standing_set.order_by('round'),1):
+            gm=tteam.team.game_round_nr(tteam.tournament,rnd_nr)
+            if gm.team_1==tteam.team:
                 opp=gm.team_2
             else:
                 opp=gm.team_1
-            opp_stand=opp.standing_round_nr(rnd_nr)
-            opp_prev_stand=opp.standing_round_nr(rnd_nr-1)
+            opp_stand=opp.standing_round_nr(tteam.tournament,rnd_nr)
+            opp_prev_stand=opp.standing_round_nr(tteam.tournament,rnd_nr-1)
             
             if rnd_nr==1:
-                st=team.standing_round_nr(0)
+                st=tteam.team.standing_round_nr(tteam.tournament,0)
                 descr="seed: {0}<br>".format(st.chris_rank)
                 descr += "R1: {1} vs {2}<br>".format(rnd_nr,gm.team_1.name.encode('ascii','xmlcharrefreplace'),gm.team_2.name.encode('ascii','xmlcharrefreplace'))
                 descr += "score: {0} - {1}, margin: {2}<br>".format(gm.team_1_score,gm.team_2_score,gm.team_1_score-gm.team_2_score)
@@ -46,7 +46,7 @@ def power(request,tournament_id):
                 descr += "opponent's strength"
                 descr += ": {0:4.2f} ({1})".format(opp_stand.strength,ordinal(opp_stand.power_rank))
             else:
-                if gm.team_1==team:
+                if gm.team_1==tteam.team:
                     gm.pred_margin_prev = prev_strength-opp_prev_stand.strength
                 else:
                     gm.pred_margin_prev = opp_prev_stand.strength - prev_strength
@@ -68,39 +68,39 @@ def power(request,tournament_id):
                             ordinal(opp_prev_stand.power_rank),opp_stand.strength,ordinal(opp_stand.power_rank))
             prev_strength=stand.strength
             prev_rank=stand.power_rank
-            jsn={"y": float(stand.strength), "rank": "{0}".format(ordinal(stand.power_rank)), "name": json.dumps(team.name), "text": descr}
+            jsn={"y": round(float(stand.strength),2), "rank": "{0}".format(ordinal(stand.power_rank)), "name": json.dumps(tteam.team.name), "text": descr}
 #            logger.info(pformat(jsn))
             str_list.append(jsn)
-        team.str_list=str_list
+        tteam.str_list=str_list
 
-        swiss_scores=team.standing_set.order_by('round').values_list('swiss_score',flat=1)
+        swiss_scores=tteam.team.standing_set.order_by('round').values_list('swiss_score',flat=1)
         lst=[]
         for i,el in enumerate(swiss_scores,1):
             if el==None:
                 break
             lst.append(round(float(el)/i,2))
-        team.swiss_scores=lst
-        chris_ranks=team.standing_set.order_by('round').values_list('chris_rank',flat=1)
+        tteam.swiss_scores=lst
+        chris_ranks=tteam.team.standing_set.order_by('round').values_list('chris_rank',flat=1)
         lst=[]
         for el in chris_ranks:
             if el==None:
                 break
             lst.append(float(el))
-        team.chris_ranks=lst
-        mark_ranks=team.standing_set.order_by('round').values_list('mark_rank',flat=1)
+        tteam.chris_ranks=lst
+        mark_ranks=tteam.team.standing_set.order_by('round').values_list('mark_rank',flat=1)
         lst=[]
         for el in mark_ranks:
             if el==None:
                 break
             lst.append(float(el))
-        team.mark_ranks=lst
-        power_ranks=team.standing_set.order_by('round').values_list('power_rank',flat=1)
-        team.power_ranks=power_ranks
+        tteam.mark_ranks=lst
+        power_ranks=tteam.team.standing_set.order_by('round').values_list('power_rank',flat=1)
+        tteam.power_ranks=power_ranks
 
 
-    upsets=Game.objects.filter(upset_current__gte=15).order_by('-upset_current')
+    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('-upset_current').limit(10)
     # upgrade team information with ranks
-    for gm in upsets:        
+    for gm in upsets:
         gm.margin=gm.team_1_score - gm.team_2_score
         gm.team_1.chris_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
         gm.team_1.mark_rank=gm.team_1.standing_set.get(round=gm.round).mark_rank        
@@ -111,7 +111,7 @@ def power(request,tournament_id):
         gm.team_2.strength=gm.team_2.standing_set.get(round=gm.round).strength        
 #        gm.team_1.final_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
         
-    return render_to_response('powerrank.html',{'upsets': upsets,'teams': teams})
+    return render_to_response('powerrank.html',{'upsets': upsets,'teams': tteams})
 
 def addtournament(request,tournament_id):
     Tournament.objects.add(tournament_id)
