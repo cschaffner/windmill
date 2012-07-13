@@ -98,7 +98,7 @@ def power(request,tournament_id):
         tteam.power_ranks=power_ranks
 
 
-    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('-upset_current').limit(10)
+    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('-upset_current')[:10]
     # upgrade team information with ranks
     for gm in upsets:
         gm.margin=gm.team_1_score - gm.team_2_score
