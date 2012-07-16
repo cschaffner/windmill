@@ -72,6 +72,7 @@ class TeamAdmin(admin.ModelAdmin):
 class StandingAdmin(admin.ModelAdmin):
     list_display = ['team','round','wins','losses','mark_rank', 'chris_rank', 'power_rank', 'swiss_score', 'strength','swiss_opponent_score' ]
     list_filter = ('team','round')
+    list_editable = ['mark_rank', 'chris_rank', 'power_rank']
 
 
 admin.site.register(Tournament)

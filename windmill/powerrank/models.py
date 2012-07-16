@@ -198,7 +198,7 @@ class Round(models.Model):
             return self.lv_id
 
     def __unicode__(self):
-        return u'{0}'.format(self.round_number)
+        return u'{1}:{0}'.format(self.round_number,self.tournament.lv_id,)
         
 class Team(models.Model):
     # playwithlv.com team-id

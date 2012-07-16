@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
-from windmill.powerrank.models import Tournament, Team, Game, Tournament_Team
+from windmill.powerrank.models import Tournament, Team, Game, Tournament_Team, Round
 import logging
 from pprint import pformat
 
@@ -98,18 +98,22 @@ def power(request,tournament_id):
         tteam.power_ranks=power_ranks
 
 
-    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('-upset_current')[:10]
+    finalround=Round.objects.filter(tournament__lv_id=tournament_id).order_by('-round_number')[0]
+    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('-upset_overall')[:10]
+#    upsets=Game.objects.filter(round__tournament__lv_id=tournament_id).order_by('gm.pk')[:10]
     # upgrade team information with ranks
     for gm in upsets:
         gm.margin=gm.team_1_score - gm.team_2_score
         gm.team_1.chris_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
         gm.team_1.mark_rank=gm.team_1.standing_set.get(round=gm.round).mark_rank        
-        gm.team_1.strength=gm.team_1.standing_set.get(round=gm.round).strength        
-#        gm.team_1.final_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
+        gm.team_1.cur_strength=gm.team_1.standing_set.get(round=gm.round).strength  
+        gm.team_1.final_strength=gm.team_1.standing_set.get(round=finalround).strength  
+        gm.team_1.final_rank=gm.team_1.tournament_team_set.get(tournament__lv_id=tournament_id).final_rank        
         gm.team_2.chris_rank=gm.team_2.standing_set.get(round=gm.round).chris_rank        
         gm.team_2.mark_rank=gm.team_2.standing_set.get(round=gm.round).mark_rank        
-        gm.team_2.strength=gm.team_2.standing_set.get(round=gm.round).strength        
-#        gm.team_1.final_rank=gm.team_1.standing_set.get(round=gm.round).chris_rank        
+        gm.team_2.cur_strength=gm.team_2.standing_set.get(round=gm.round).strength        
+        gm.team_2.final_strength=gm.team_2.standing_set.get(round=finalround).strength        
+        gm.team_2.final_rank=gm.team_2.tournament_team_set.get(tournament__lv_id=tournament_id).final_rank     
         
     return render_to_response('powerrank.html',{'upsets': upsets,'teams': tteams})
 
