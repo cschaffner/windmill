@@ -1,12 +1,12 @@
 from __future__ import division
 from django.db import models
-from django.db.models import Q
+#from django.db.models import Q
 from windmill.tools.wrapper import api_swissroundinfo,api_tournament_teams,api_bracketsbytournament
 from power import strength
 from django.conf import settings
-from operator import itemgetter
+#from operator import itemgetter
 from datetime import datetime
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from pprint import pformat
 import os
 
@@ -67,6 +67,7 @@ class TournamentManager(models.Manager):
             r,create_r=Round.objects.get_or_create(lv_id=round['id'])
             if create_r:
                 r.round_number=round['round_number']
+            cur_round_nr = r.round_number
             r.tournament = t
             r.save()
 
@@ -113,15 +114,7 @@ class TournamentManager(models.Manager):
                         if gm['start_time']==round['games'][0]['start_time']:
                             round['games'].extend([gm])
                             gm['moved']=1
-                            
-            if islastround:
-                # add all remaining bracket games
-                for br in brackets['objects']:
-                    for rnd in br['rounds']:
-                        for gm in rnd['games']:
-                            if gm.has_key('moved')==False:
-                                round['games'].extend([gm])
-            
+                                        
             games.extend(round['games'])
             
             strength_stand=strength(games,output_path)
@@ -151,6 +144,54 @@ class TournamentManager(models.Manager):
                     logger.info(u'added game {0} - {1} with pred_margin {2}'.format(gm.team_1.name,gm.team_2.name,gm.pred_margin_current))
                     gm.save()
 
+        # go through remaining playoff-games and create a dictionary with
+        # keys: starttimes, values: list of game-objects
+        bracketgames={}
+        for br in brackets['objects']:
+            for rnd in br['rounds']:
+                for gm in rnd['games']:
+                    if gm.has_key('moved')==False:
+                        bracketgames.setdefault(gm['start_time'],[]).extend([gm]) 
+        
+        for start_time,bgames in bracketgames.iteritems():
+            if len(bgames)==1:
+                bracketgames.setdefault('rest',[]).extend(bgames)
+                bracketgames.pop(start_time)
+        
+        
+        for start_time,bgames in sorted(bracketgames.iteritems()):
+            # create a new round
+            cur_round_nr += 1
+            r,create_r=Round.objects.get_or_create(tournament=t, round_number=cur_round_nr)
+            
+            games.extend(bgames)
+            strength_stand=strength(games,output_path)
+            for sstand in strength_stand:
+                team=Team.objects.get(lv_id=sstand['team_id'])
+                st,create_st=Standing.objects.get_or_create(team=team,round=r)
+                st.strength=sstand['strength']
+                st.power_rank=sstand['ranking']
+                st.save()
+
+            for game in bgames:
+                if game['team_1_score']>0 or game['team_2_score']>0:
+                    team1=Team.objects.get(lv_id=game['team_1_id'])
+                    team2=Team.objects.get(lv_id=game['team_2_id'])
+                    gm,created_gm=Game.objects.get_or_create(lv_id=game['id'])
+                    gm.round=r
+                    gm.team_1=team1
+                    gm.team_2=team2
+                    gm.team_1_score=game['team_1_score']
+                    gm.team_2_score=game['team_2_score']
+                    gm.start_time = game['start_time']
+                    if game['game_site']!=None:
+                        gm.field = game['game_site']['name']
+                    team_1_strength=team1.standing_set.get(round=r).strength
+                    team_2_strength=team2.standing_set.get(round=r).strength                    
+                    gm.pred_margin_current=(team_1_strength -  team_2_strength)
+                    logger.info(u'added game {0} - {1} with pred_margin {2}'.format(gm.team_1.name,gm.team_2.name,gm.pred_margin_current))
+                    gm.save()
+        
 
         # update the overall upsets of all games
         # assuming r is the round-object of the last round
@@ -215,10 +256,14 @@ class Team(models.Model):
 
     def game_round_nr(self,tourn,round_nr):
         # returns the (first) game of this team in a given round of tournament
+        # or None if it does not exist
         gm=self.game_team1.filter(round__tournament=tourn, round__round_number=round_nr)
         if len(gm)==0:
             gm=self.game_team2.filter(round__tournament=tourn, round__round_number=round_nr)
-        return gm[0]
+        if len(gm)>=1:
+            return gm[0]
+        else:
+            return None
     
     def standing_round_nr(self,tourn,round_nr):
         # returns the standing object of self in round with number round_nr of tournament_id 
