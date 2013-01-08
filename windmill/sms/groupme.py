@@ -15,7 +15,7 @@ from pprint import pformat
 # Get an instance of a logger
 logger = logging.getLogger('windmill.tools')
 
-access_token = '45a4ade03b360130444a1231381565ac'
+access_token = settings.GROUPME_TOKEN
 
 if access_token == None:
     # Make a request for an access_token
@@ -31,7 +31,8 @@ if access_token == None:
         logger.info('retrieved a new access token: {0}'.format(access_token))
             
 GROUPME='https://api.groupme.com/v3'
-my_headers={'User-Agent': 'Windmill Windup 2013 Notifications', 'Accept': '*/*', 'X-Access-Token': '{0}'.format(access_token)}  
+GROUPMEv2='https://v2.groupme.com'
+my_headers={'User-Agent': 'Windmill Windup 2013 Testing', 'Accept': '*/*', 'X-Access-Token': '{0}'.format(access_token)}  
 my_config={'verbose': sys.stderr}
 
 def api_post(url,dict):
@@ -45,7 +46,10 @@ def api_post(url,dict):
     elif response.status_code>202: # if not "created"
         logger.error(response.status_code)
         logger.error(response.text)
-        response.raise_for_status()        
+        response.raise_for_status()
+    elif response.status_code == 202:
+        logger.info('POST request accepted')
+        return True        
     response_dict = simplejson.loads(response.content)
     logger.info(pformat(response_dict))
     return response_dict    
@@ -125,9 +129,16 @@ def api_creategroup(name):
 
 def api_addmembers(group_id):
     url='{0}/groups/{1}/members/add'.format(GROUPME,group_id)
-    data={'members': [{'nickname': 'Chris Fon',
-                       'phone_number': '+31 619091702'},
-                      {'nickname': 'Chris Email',
-                       'email': 'cschaffner@mcsoftware.ch'}]}
+    data={'members': [{'nickname': 'Les',
+                       'email': '+31 626072266'},
+                      {'nickname': 'Fred',
+                       'email': '+31 614189776'}]}
     return api_post(url,data)
 
+def api_sendmessage(group_id,msg,location=''):
+    url='{0}/groups/{1}/messages'.format(GROUPMEv2,group_id)
+    data={'message': {'source_guid': 'GUID',
+                      'text': msg}}
+    if not location=='':
+        data['message']['location']=location
+    return api_post(url,data)

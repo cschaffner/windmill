@@ -20,17 +20,30 @@ def groupme(request):
     # groupme testing
     groups=api_getgroups()
     logger.info(pformat(groups))
+
+    group_id=[]
+    for i in range(0,20):
+        rusty=api_creategroup('The {0} Bikes'.format(i))
+        group_id.append(rusty['response']['id'])
+
+    location={'lat': '52.378657',
+              'lng': '4.785615',
+              'name': 'Field 8'}
+    api_sendmessage('3318662','location of your next game',location)
     
     bots=api_getbots()
     logger.info(pformat(bots))
     
-    rusty=api_creategroup('Rusty Bikes')
-    api_addmembers(rusty['response']['id'])
+    
+    
+    api_addmembers(group_id)
+    api_sendmessage(group_id,"Hello, this is Herby, the WW 2013 bot. I will give your team personalized information about where and when you have to play your next games and keep you informed about all other activities at Windmill Windup 2013. Feel free to add more team members to this group!")
+    
     
 #    api_createbot('lovebot',rusty['response']['id'])
     
     return render_to_response('sms_control.html',{'user': request.user},
-                              context_instance=RequestContext(request))
+context_instance=RequestContext(request))
 
 
 @login_required

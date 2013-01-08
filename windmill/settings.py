@@ -21,7 +21,8 @@ else:
 ## huebli-credentials (is admin now):    
     CLIENT_ID = '0920660af4b0c2ba01c9df96385d9b'
     CLIENT_PWD = '1bd5ebdde1552c08c626fc2ce35238'
-    
+
+GROUPME_TOKEN='981e5c303bfe0130acc51231380fc4c3'    
 
 # Windmill fixtures
 
