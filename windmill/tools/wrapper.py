@@ -97,6 +97,12 @@ def api_tournamentbyid(tournament_id):
     response_dict = simplejson.loads(response.content)
     return response_dict
 
+def api_tournament_teams(tournament_id):
+    url='{0}/v1/tournament_teams/?tournament_ids=%5B{1}%5D&limit=200'.format(settings.HOST,tournament_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = simplejson.loads(response.content)
+    return response_dict
+
 def api_nrswissrounds(tournament_id):
 # returns the number of existing swissdraw rounds
     if settings.OFFLINE:
@@ -546,14 +552,20 @@ def rank_in_swissround(round,team_id):
                 rank += 8
             return u'{0}'.format(ordinal(rank)) # TODO make ordinal
 
-def ordinal(n):
-    n=int(n)  # only works if string can be properly converted to an integer
-    if 10 < n < 14: return u'%sth' % n
-    if n % 10 == 1: return u'%sst' % n
-    if n % 10 == 2: return u'%snd' % n
-    if n % 10 == 3: return u'%srd' % n
-    return u'%sth' % n
-
+def ordinal(value):
+    from django.utils.translation import ugettext as _
+    """
+    Converts an integer to its ordinal as a string. 1 is '1st', 2 is '2nd',
+    3 is '3rd', etc. Works for any integer.
+    """
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return value
+    suffixes = (_('th'), _('st'), _('nd'), _('rd'), _('th'), _('th'), _('th'), _('th'), _('th'), _('th'))
+    if value % 100 in (11, 12, 13): # special case
+        return u"%d%s" % (value, suffixes[0])
+    return u"%d%s" % (value, suffixes[value % 10])
 
         
 def swissinfo(): 

@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     url(r'^tools/', include('windmill.tools.urls')),
     url(r'^spirit/', include('windmill.spirit.urls')),
     url(r'^sms/', include('windmill.sms.urls')),
+    url(r'^powerrank/', include('windmill.powerrank.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login')
     
  )

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Power Ratings:</h1>
+
+<h3>Choose tournament:</h3>
+{% for t in tournaments %}
+<a href="power/{{t.lgv_id}}">{{t.name}}</a><br>
+{% endfor %}
+
+{% endblock content %}

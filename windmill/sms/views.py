@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 import datetime
 
-from windmill.tools.wrapper import *
+from groupme import *
 from windmill.spirit.models import Game
 from windmill.tools.models import Team, Tournament
 from windmill.sms.models import SMS
@@ -15,6 +15,22 @@ from pprint import pformat
 
 # Get an instance of a logger
 logger = logging.getLogger('windmill.spirit')
+
+def groupme(request):
+    # groupme testing
+    groups=api_getgroups()
+    logger.info(pformat(groups))
+    
+    bots=api_getbots()
+    logger.info(pformat(bots))
+    
+    rusty=api_creategroup('Rusty Bikes')
+    api_addmembers(rusty['response']['id'])
+    
+#    api_createbot('lovebot',rusty['response']['id'])
+    
+    return render_to_response('sms_control.html',{'user': request.user},
+                              context_instance=RequestContext(request))
 
 
 @login_required

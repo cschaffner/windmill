@@ -9,3 +9,12 @@ initial*
 db*
 *.json
 *.dump
+example_python
+output
+.project
+.pydevproject
+.project
+
+.pydevproject
+
+.DS_Store

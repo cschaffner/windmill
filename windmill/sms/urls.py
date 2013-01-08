@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # url(r'^windmill/', include('windmill.foo.urls')),
 
     url(r'^$', 'windmill.sms.views.control'),
+    url(r'^groupme/$', 'windmill.sms.views.groupme'),
     url(r'^control$', 'windmill.sms.views.control'),
     url(r'^custom', 'windmill.sms.views.custom'),
     url(r'^submit$', 'windmill.sms.views.submit'),
