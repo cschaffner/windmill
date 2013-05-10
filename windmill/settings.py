@@ -19,8 +19,8 @@ else:
 #    CLIENT_ID = '22f92a859d27f9354480ecc92e2900'
 #    CLIENT_PWD = '63d60fed612d6fcd86cfc5e47361b0'
 ## huebli-credentials (is admin now):    
-    CLIENT_ID = '0920660af4b0c2ba01c9df96385d9b'
-    CLIENT_PWD = '1bd5ebdde1552c08c626fc2ce35238'
+    CLIENT_ID = '07962b73dd29bffd7301ce8e454f77'
+    CLIENT_PWD = '4baa879302f7f56572db85347c8cbb'
 
 GROUPME_TOKEN='981e5c303bfe0130acc51231380fc4c3'    
 
@@ -238,7 +238,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'postgres',                      # Or path to database file if using sqlite3.
+        'NAME': 'windmill',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
