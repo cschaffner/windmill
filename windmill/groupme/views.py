@@ -19,14 +19,13 @@ def overview(request):
 def bot_callback(request):
     # receive POST request from GroupMe and save message in database
 #     try:
-    logger.info(pformat(request.POST))
-    try:
-        id = request.POST['id']
-        user_id = request.POST['user_id']
-        group_id = request.POST['group_id']
-        msg = Message.objects.create(id=id, user_id=user_id, group_id=group_id)
-    except Exception:
-        pass
+    if request.method == "POST":
+        logger.info(pformat(request.POST))
+#         id = request.POST['id']
+#         user_id = request.POST['user_id']
+#         group_id = request.POST['group_id']
+#         msg = Message.objects.create(id=id, user_id=user_id, group_id=group_id)
+#         msg.save()
 
     return render_to_response('groupme_overview.html')
     
