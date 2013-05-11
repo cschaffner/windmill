@@ -357,6 +357,7 @@ INSTALLED_APPS = (
     'windmill.spirit',
     'windmill.sms',
     'windmill.powerrank',
+    'windmill.groupme',
     'gunicorn',
     'south'
 )

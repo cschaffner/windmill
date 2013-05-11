@@ -6,7 +6,7 @@ from django.conf import settings
 from numpy import savez,savetxt,asarray,arange
 from scipy.sparse import coo_matrix, linalg as splinalg
 #from pylab import plot,show
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import networkx as nx
 import logging
 from pprint import pformat
