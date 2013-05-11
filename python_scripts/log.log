@@ -1,0 +1,569 @@
+2013-05-10 15:44:03,218 - NFB - ERROR - 500
+2013-05-10 15:44:03,218 - NFB - ERROR - <!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      GroupMe: Internal Server Error (500)
+    </title>
+    <meta name="csrf-param" content="authenticity_token"/>
+    <meta name="csrf-token" content="Z7Rv91oViS43OMr5XW+XEg+l6A9Rc4nJCTWOvYOE1uI="/>
+    <meta name="description" content="GroupMe brings group text messaging and calling to every phone. Ever send a text message to multiple people? Wish your friends could reply all? GroupMe enables you to organize and communicate with the groups of people in your life that are important to you.">
+    <meta name="keywords" content="GroupMe, group, group.me, group text, group sms, twilio, app, iphone, blackberry, windows mobile, android, group texting, text messaging, start-up, unique phone numbers, New York">
+    <link href="/assets/brochure.css?1312344163" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17791040-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <style>
+      #error_page {
+        background: url(/images/brochure/error_froundie.png) no-repeat center -80px;
+        color: #868686;
+        min-height: 500px;
+        padding-top: 300px;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff;
+      }
+      h1 {
+        font-size: 60px;
+        font-weight: bold;
+        padding-bottom: 25px;
+      }
+      h3 {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body class='pages errors 500'>
+    <div class='brochure' id='hd'>
+      <div class='top container'>
+        <a href="/" id="logo">GroupMe</a>
+      </div>
+      <div class='bottom'>
+        <div class='container'>
+          <ul class='apps'>
+            <li class='iphone'><a href="/iphone">for iPhone</a></li>
+            <li class='android'><a href="/android">for Android</a></li>
+            <li class='blackberry'><a href="/blackberry">for BlackBerry</a></li>
+            <li class='wp7'>
+              <a href="/wp7">WP7
+                <span>NEW</span>
+              </a>
+            </li>
+            <li class='sms'><a href="/sms">for SMS</a></li>
+          </ul>
+          <ul class='pages'>
+            <li class='about'><a href="/about">About</a></li>
+            <li class='blog'><a href="http://blog.groupme.com">Blog</a></li>
+            <li class='help'><a href="/help">Help</a></li>
+            <li class='jobs'><a href="/jobs">Jobs</a></li>
+          </ul>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class='container' id='error_page'>
+      <h1>500</h1>
+      <h3>Internal Server Error</h3>
+      <p>Oops, looks like something went wrong on our end.</p><br />
+
+      <p>If this error persists, <a href="mailto:support@groupme.com">let us know</a>.</p>
+
+      <p>Otherwise, go <a href="/">home</a>.
+    </div>
+    <div class='container' id='ft'>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li>&#124;</li>
+        <li><a href="http://blog.groupme.com">Blog</a></li>
+        <li>&#124;</li>
+        <li><a href="/help">Help</a></li>
+        <li>&#124;</li>
+        <li><a href="/terms">Terms</a></li>
+        <li>&#124;</li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>&#124;</li>
+        <li><a href="http://store.groupme.com">Store</a></li>
+        <li>&#124;</li>
+        <li><a href="/jobs">Jobs</a></li>
+      </ul>
+      &copy; 2012 GroupMe Inc.
+    </div>
+  </body>
+</html>
+
+2013-05-10 15:44:22,376 - NFB - ERROR - 500
+2013-05-10 15:44:22,605 - NFB - ERROR - <!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      GroupMe: Internal Server Error (500)
+    </title>
+    <meta name="csrf-param" content="authenticity_token"/>
+    <meta name="csrf-token" content="Z7Rv91oViS43OMr5XW+XEg+l6A9Rc4nJCTWOvYOE1uI="/>
+    <meta name="description" content="GroupMe brings group text messaging and calling to every phone. Ever send a text message to multiple people? Wish your friends could reply all? GroupMe enables you to organize and communicate with the groups of people in your life that are important to you.">
+    <meta name="keywords" content="GroupMe, group, group.me, group text, group sms, twilio, app, iphone, blackberry, windows mobile, android, group texting, text messaging, start-up, unique phone numbers, New York">
+    <link href="/assets/brochure.css?1312344163" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17791040-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <style>
+      #error_page {
+        background: url(/images/brochure/error_froundie.png) no-repeat center -80px;
+        color: #868686;
+        min-height: 500px;
+        padding-top: 300px;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff;
+      }
+      h1 {
+        font-size: 60px;
+        font-weight: bold;
+        padding-bottom: 25px;
+      }
+      h3 {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body class='pages errors 500'>
+    <div class='brochure' id='hd'>
+      <div class='top container'>
+        <a href="/" id="logo">GroupMe</a>
+      </div>
+      <div class='bottom'>
+        <div class='container'>
+          <ul class='apps'>
+            <li class='iphone'><a href="/iphone">for iPhone</a></li>
+            <li class='android'><a href="/android">for Android</a></li>
+            <li class='blackberry'><a href="/blackberry">for BlackBerry</a></li>
+            <li class='wp7'>
+              <a href="/wp7">WP7
+                <span>NEW</span>
+              </a>
+            </li>
+            <li class='sms'><a href="/sms">for SMS</a></li>
+          </ul>
+          <ul class='pages'>
+            <li class='about'><a href="/about">About</a></li>
+            <li class='blog'><a href="http://blog.groupme.com">Blog</a></li>
+            <li class='help'><a href="/help">Help</a></li>
+            <li class='jobs'><a href="/jobs">Jobs</a></li>
+          </ul>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class='container' id='error_page'>
+      <h1>500</h1>
+      <h3>Internal Server Error</h3>
+      <p>Oops, looks like something went wrong on our end.</p><br />
+
+      <p>If this error persists, <a href="mailto:support@groupme.com">let us know</a>.</p>
+
+      <p>Otherwise, go <a href="/">home</a>.
+    </div>
+    <div class='container' id='ft'>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li>&#124;</li>
+        <li><a href="http://blog.groupme.com">Blog</a></li>
+        <li>&#124;</li>
+        <li><a href="/help">Help</a></li>
+        <li>&#124;</li>
+        <li><a href="/terms">Terms</a></li>
+        <li>&#124;</li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>&#124;</li>
+        <li><a href="http://store.groupme.com">Store</a></li>
+        <li>&#124;</li>
+        <li><a href="/jobs">Jobs</a></li>
+      </ul>
+      &copy; 2012 GroupMe Inc.
+    </div>
+  </body>
+</html>
+
+2013-05-10 15:52:37,154 - NFB - ERROR - 500
+2013-05-10 15:52:37,156 - NFB - ERROR - <!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      GroupMe: Internal Server Error (500)
+    </title>
+    <meta name="csrf-param" content="authenticity_token"/>
+    <meta name="csrf-token" content="Z7Rv91oViS43OMr5XW+XEg+l6A9Rc4nJCTWOvYOE1uI="/>
+    <meta name="description" content="GroupMe brings group text messaging and calling to every phone. Ever send a text message to multiple people? Wish your friends could reply all? GroupMe enables you to organize and communicate with the groups of people in your life that are important to you.">
+    <meta name="keywords" content="GroupMe, group, group.me, group text, group sms, twilio, app, iphone, blackberry, windows mobile, android, group texting, text messaging, start-up, unique phone numbers, New York">
+    <link href="/assets/brochure.css?1312344163" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17791040-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <style>
+      #error_page {
+        background: url(/images/brochure/error_froundie.png) no-repeat center -80px;
+        color: #868686;
+        min-height: 500px;
+        padding-top: 300px;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff;
+      }
+      h1 {
+        font-size: 60px;
+        font-weight: bold;
+        padding-bottom: 25px;
+      }
+      h3 {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body class='pages errors 500'>
+    <div class='brochure' id='hd'>
+      <div class='top container'>
+        <a href="/" id="logo">GroupMe</a>
+      </div>
+      <div class='bottom'>
+        <div class='container'>
+          <ul class='apps'>
+            <li class='iphone'><a href="/iphone">for iPhone</a></li>
+            <li class='android'><a href="/android">for Android</a></li>
+            <li class='blackberry'><a href="/blackberry">for BlackBerry</a></li>
+            <li class='wp7'>
+              <a href="/wp7">WP7
+                <span>NEW</span>
+              </a>
+            </li>
+            <li class='sms'><a href="/sms">for SMS</a></li>
+          </ul>
+          <ul class='pages'>
+            <li class='about'><a href="/about">About</a></li>
+            <li class='blog'><a href="http://blog.groupme.com">Blog</a></li>
+            <li class='help'><a href="/help">Help</a></li>
+            <li class='jobs'><a href="/jobs">Jobs</a></li>
+          </ul>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class='container' id='error_page'>
+      <h1>500</h1>
+      <h3>Internal Server Error</h3>
+      <p>Oops, looks like something went wrong on our end.</p><br />
+
+      <p>If this error persists, <a href="mailto:support@groupme.com">let us know</a>.</p>
+
+      <p>Otherwise, go <a href="/">home</a>.
+    </div>
+    <div class='container' id='ft'>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li>&#124;</li>
+        <li><a href="http://blog.groupme.com">Blog</a></li>
+        <li>&#124;</li>
+        <li><a href="/help">Help</a></li>
+        <li>&#124;</li>
+        <li><a href="/terms">Terms</a></li>
+        <li>&#124;</li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>&#124;</li>
+        <li><a href="http://store.groupme.com">Store</a></li>
+        <li>&#124;</li>
+        <li><a href="/jobs">Jobs</a></li>
+      </ul>
+      &copy; 2012 GroupMe Inc.
+    </div>
+  </body>
+</html>
+
+2013-05-10 15:52:47,724 - NFB - ERROR - 500
+2013-05-10 15:52:47,724 - NFB - ERROR - <!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      GroupMe: Internal Server Error (500)
+    </title>
+    <meta name="csrf-param" content="authenticity_token"/>
+    <meta name="csrf-token" content="Z7Rv91oViS43OMr5XW+XEg+l6A9Rc4nJCTWOvYOE1uI="/>
+    <meta name="description" content="GroupMe brings group text messaging and calling to every phone. Ever send a text message to multiple people? Wish your friends could reply all? GroupMe enables you to organize and communicate with the groups of people in your life that are important to you.">
+    <meta name="keywords" content="GroupMe, group, group.me, group text, group sms, twilio, app, iphone, blackberry, windows mobile, android, group texting, text messaging, start-up, unique phone numbers, New York">
+    <link href="/assets/brochure.css?1312344163" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17791040-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <style>
+      #error_page {
+        background: url(/images/brochure/error_froundie.png) no-repeat center -80px;
+        color: #868686;
+        min-height: 500px;
+        padding-top: 300px;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff;
+      }
+      h1 {
+        font-size: 60px;
+        font-weight: bold;
+        padding-bottom: 25px;
+      }
+      h3 {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body class='pages errors 500'>
+    <div class='brochure' id='hd'>
+      <div class='top container'>
+        <a href="/" id="logo">GroupMe</a>
+      </div>
+      <div class='bottom'>
+        <div class='container'>
+          <ul class='apps'>
+            <li class='iphone'><a href="/iphone">for iPhone</a></li>
+            <li class='android'><a href="/android">for Android</a></li>
+            <li class='blackberry'><a href="/blackberry">for BlackBerry</a></li>
+            <li class='wp7'>
+              <a href="/wp7">WP7
+                <span>NEW</span>
+              </a>
+            </li>
+            <li class='sms'><a href="/sms">for SMS</a></li>
+          </ul>
+          <ul class='pages'>
+            <li class='about'><a href="/about">About</a></li>
+            <li class='blog'><a href="http://blog.groupme.com">Blog</a></li>
+            <li class='help'><a href="/help">Help</a></li>
+            <li class='jobs'><a href="/jobs">Jobs</a></li>
+          </ul>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class='container' id='error_page'>
+      <h1>500</h1>
+      <h3>Internal Server Error</h3>
+      <p>Oops, looks like something went wrong on our end.</p><br />
+
+      <p>If this error persists, <a href="mailto:support@groupme.com">let us know</a>.</p>
+
+      <p>Otherwise, go <a href="/">home</a>.
+    </div>
+    <div class='container' id='ft'>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li>&#124;</li>
+        <li><a href="http://blog.groupme.com">Blog</a></li>
+        <li>&#124;</li>
+        <li><a href="/help">Help</a></li>
+        <li>&#124;</li>
+        <li><a href="/terms">Terms</a></li>
+        <li>&#124;</li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>&#124;</li>
+        <li><a href="http://store.groupme.com">Store</a></li>
+        <li>&#124;</li>
+        <li><a href="/jobs">Jobs</a></li>
+      </ul>
+      &copy; 2012 GroupMe Inc.
+    </div>
+  </body>
+</html>
+
+2013-05-10 15:56:21,011 - NFB - ERROR - 500
+2013-05-10 15:56:21,011 - NFB - ERROR - <!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      GroupMe: Internal Server Error (500)
+    </title>
+    <meta name="csrf-param" content="authenticity_token"/>
+    <meta name="csrf-token" content="Z7Rv91oViS43OMr5XW+XEg+l6A9Rc4nJCTWOvYOE1uI="/>
+    <meta name="description" content="GroupMe brings group text messaging and calling to every phone. Ever send a text message to multiple people? Wish your friends could reply all? GroupMe enables you to organize and communicate with the groups of people in your life that are important to you.">
+    <meta name="keywords" content="GroupMe, group, group.me, group text, group sms, twilio, app, iphone, blackberry, windows mobile, android, group texting, text messaging, start-up, unique phone numbers, New York">
+    <link href="/assets/brochure.css?1312344163" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17791040-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <style>
+      #error_page {
+        background: url(/images/brochure/error_froundie.png) no-repeat center -80px;
+        color: #868686;
+        min-height: 500px;
+        padding-top: 300px;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff;
+      }
+      h1 {
+        font-size: 60px;
+        font-weight: bold;
+        padding-bottom: 25px;
+      }
+      h3 {
+        font-size: 21px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body class='pages errors 500'>
+    <div class='brochure' id='hd'>
+      <div class='top container'>
+        <a href="/" id="logo">GroupMe</a>
+      </div>
+      <div class='bottom'>
+        <div class='container'>
+          <ul class='apps'>
+            <li class='iphone'><a href="/iphone">for iPhone</a></li>
+            <li class='android'><a href="/android">for Android</a></li>
+            <li class='blackberry'><a href="/blackberry">for BlackBerry</a></li>
+            <li class='wp7'>
+              <a href="/wp7">WP7
+                <span>NEW</span>
+              </a>
+            </li>
+            <li class='sms'><a href="/sms">for SMS</a></li>
+          </ul>
+          <ul class='pages'>
+            <li class='about'><a href="/about">About</a></li>
+            <li class='blog'><a href="http://blog.groupme.com">Blog</a></li>
+            <li class='help'><a href="/help">Help</a></li>
+            <li class='jobs'><a href="/jobs">Jobs</a></li>
+          </ul>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+    <div class='container' id='error_page'>
+      <h1>500</h1>
+      <h3>Internal Server Error</h3>
+      <p>Oops, looks like something went wrong on our end.</p><br />
+
+      <p>If this error persists, <a href="mailto:support@groupme.com">let us know</a>.</p>
+
+      <p>Otherwise, go <a href="/">home</a>.
+    </div>
+    <div class='container' id='ft'>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li>&#124;</li>
+        <li><a href="http://blog.groupme.com">Blog</a></li>
+        <li>&#124;</li>
+        <li><a href="/help">Help</a></li>
+        <li>&#124;</li>
+        <li><a href="/terms">Terms</a></li>
+        <li>&#124;</li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li>&#124;</li>
+        <li><a href="http://store.groupme.com">Store</a></li>
+        <li>&#124;</li>
+        <li><a href="/jobs">Jobs</a></li>
+      </ul>
+      &copy; 2012 GroupMe Inc.
+    </div>
+  </body>
+</html>
+
+2013-05-10 23:08:17,638 - my_logger - ERROR - TEAMS
+2013-05-10 23:08:48,303 - my_logger - ERROR - eyecatchers
+2013-05-10 23:14:56,551 - my_logger - ERROR - Germany U23 Mixed
+2013-05-10 23:16:37,692 - my_logger - ERROR - Quijotes+Dulcineas
+2013-05-10 23:17:36,915 - my_logger - ERROR - Stockholm Syndromes
+2013-05-10 23:18:29,859 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:21:56,494 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:21:56,496 - my_logger - ERROR - Father Abraham's soup of the day
+2013-05-10 23:21:56,499 - my_logger - ERROR - Headless Ultimate ZÃ¼rich
+2013-05-10 23:21:56,503 - my_logger - ERROR - Friselis
+2013-05-10 23:21:56,505 - my_logger - ERROR - CUSB LA FOTTA Under 23
+2013-05-10 23:21:56,510 - my_logger - ERROR - Ka-pow!    United
+2013-05-10 23:21:56,511 - my_logger - ERROR - FUJ    Czech
+2013-05-10 23:21:56,513 - my_logger - ERROR - Blue Arse Flies    United
+2013-05-10 23:21:56,515 - my_logger - ERROR - KFK - Copenhagen
+2013-05-10 23:21:56,518 - my_logger - ERROR - Sun
+2013-05-10 23:28:57,389 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:28:57,391 - my_logger - ERROR - Father Abraham's soup of the day
+2013-05-10 23:28:57,394 - my_logger - ERROR - Headless Ultimate ZÃ¼rich
+2013-05-10 23:28:57,399 - my_logger - ERROR - Friselis Versailles
+2013-05-10 23:29:18,936 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:29:18,937 - my_logger - ERROR - Father Abraham's soup of the day
+2013-05-10 23:29:18,940 - my_logger - ERROR - Headless Ultimate ZÃ¼rich
+2013-05-10 23:34:33,515 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:34:33,517 - my_logger - ERROR - Father Abraham's soup of the day
+2013-05-10 23:35:21,734 - my_logger - ERROR - Fizzy Lifting Drinks
+2013-05-10 23:35:21,736 - my_logger - ERROR - Father Abraham's soup of the day
+2013-05-11 14:16:00,351 - my_logger - ERROR - 404
+2013-05-11 14:16:00,352 - my_logger - ERROR - {"meta":{"code":404,"errors":["The requested path does not exist"]},"response":null}

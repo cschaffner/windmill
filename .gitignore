@@ -1,4 +1,5 @@
 venv
+venv_backup
 regdata
 .Python
 *.pyc
@@ -18,3 +19,5 @@ output
 .pydevproject
 
 .DS_Store
+
+ww13_fixture.py

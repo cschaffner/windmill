@@ -1,7 +1,6 @@
-#Tue Jun 12 22:52:47 CEST 2012
+#Fri May 10 23:14:53 CEST 2013
 eclipse.preferences.version=1
-encoding//venv/lib/python2.7/site-packages/requests/api.py=utf-8
-encoding//venv/lib/python2.7/site-packages/requests/sessions.py=utf-8
+encoding//python_scripts/ww13_fixture.py=latin1
 encoding//windmill/sms/migrations/0001_initial.py=utf-8
 encoding//windmill/sms/migrations/0002_auto__add_field_sms_responseCode__add_field_sms_responseMessage.py=utf-8
 encoding//windmill/sms/migrations/0004_auto__chg_field_sms_createTime.py=utf-8
