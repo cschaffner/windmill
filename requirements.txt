@@ -4,7 +4,7 @@ certifi==0.0.8
 chardet==1.0.1
 docutils==0.9
 gunicorn==0.14.3
-#numpy==1.6.2
+numpy==1.6.2
 #scipy==0.11.0
 ipython==0.13
 #matplotlib==1.1.0
