@@ -355,8 +355,8 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'windmill.tools',
     'windmill.spirit',
-    'windmill.sms',
-    'windmill.powerrank',
+ #   'windmill.sms',
+ #   'windmill.powerrank',
     'windmill.groupme',
     'gunicorn',
     'south'
