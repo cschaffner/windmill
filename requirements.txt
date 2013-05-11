@@ -2,6 +2,7 @@ Django==1.4
 South==0.7.5
 certifi==0.0.8
 chardet==1.0.1
+dj-database-url==0.2.1
 docutils==0.9
 gunicorn==0.14.3
 numpy==1.6.2

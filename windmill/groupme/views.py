@@ -1,5 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from windmill.groupme.models import Message
+
 import logging
 from pprint import pformat
 
@@ -16,9 +18,11 @@ def bot_callback(request):
     # receive POST request from GroupMe and save message in database
 #     try:
     logger.info(pformat(request.POST))
-#     message = request.POST['id']
-#     target = request.POST['user_id']
-#     number = request.POST['group_id']
+    id = request.POST['id']
+    user_id = request.POST['user_id']
+    group_id = request.POST['group_id']
 #     except:
+    msg = Message.objects.create(id=id, user_id=user_id, group_id=group_id)
+
     return render_to_response('groupme_overview.html')
     
