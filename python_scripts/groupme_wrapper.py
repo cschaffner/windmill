@@ -56,10 +56,13 @@ def api_post(url,dict):
         response.raise_for_status()
     elif response.status_code == 202:
         logger.info('POST request accepted')
-        return True        
-    response_dict = json.loads(response.content)
-    logger.info(pformat(response_dict))
-    return response_dict    
+        return True 
+    try:       
+        response_dict = json.loads(response.content)
+        logger.info(pformat(response_dict))
+        return response_dict    
+    except Exception:
+        return response.status_code
 
 def api_put(url,dict):
     # does a PUT on url, sending dict
@@ -86,7 +89,7 @@ def api_update(url,updatedict={}):
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = json.loads(response.content)
     
-    new_dict={}
+    new_dict = {}
     for key,val in response_dict.iteritems():
         if ((val is not None) and (not isinstance(val, dict)) and (key != 'leaguevine_url') and 
             (key != 'resource_uri') and (key!='time_last_updated') and (key!='time_created') and
@@ -104,14 +107,14 @@ def api_update(url,updatedict={}):
   
  
 def api_get_groups():
-    url='{0}/groups'.format(GROUPME)
+    url = '{0}/groups'.format(GROUPME)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     logger.info(response.content)
     response_dict = json.loads(response.content)
     return response_dict
 
 def api_get_bots():
-    url='{0}/bots'.format(GROUPME)
+    url = '{0}/bots'.format(GROUPME)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     if response.status_code == 404: # what's that?
         logger.error(response.text)
@@ -121,14 +124,31 @@ def api_get_bots():
         return response_dict
 
 def api_create_bot(name, group_id, avatar_url=None, callback_url=None):
-    url='{0}/bots'.format(GROUPME)
-    data={'bot': {u'name': name,
+    url = '{0}/bots'.format(GROUPME)
+    data = {'bot': {u'name': name,
                   u'group_id': group_id}}
     if avatar_url:
-        data[u'avatar_url'] =  avatar_url
+        data['bot'][u'avatar_url'] =  avatar_url
     if callback_url:
-        data[u'callback_url'] = callback_url
-    return api_post(url,data)
+        data['bot'][u'callback_url'] = callback_url
+    return api_post(url, data)
+
+def api_kill_bot(bot_id):
+    url = '{0}/bots/destroy'.format(GROUPME)
+    data = {'bot_id': bot_id}
+    response = api_post(url, data)
+    return response
+    
+def api_submit_bot(name, group_id, avatar_url=None, callback_url=None):
+    bots = api_get_bots()
+    for b in bots['response']:
+        if b['name'] == name and b['group_id'] == group_id:
+            return b
+    response = api_create_bot(name, group_id, avatar_url, callback_url)
+    if response['meta']['code'] == 201:
+        return response['response']
+    else:
+        raise
 
 def api_submit_group(name):
     groups = api_get_groups()
@@ -180,3 +200,12 @@ def api_send_message(group_id,msg,location=''):
     if not location=='':
         data['message']['location']=location
     return api_post(url,data)
+
+def api_bot_message(bot_id, text, location=None):
+    url='{0}/bots/post'.format(GROUPME)
+    data={'bot_id': bot_id,
+          'text': text}
+    if location:
+        data['location'] = location
+    return api_post(url,data)
+    

@@ -116,7 +116,10 @@ def change_avatar():
 def add_bots():
     from ww13_fixture import team_dict   
     for team_id, team in team_dict.iteritems():
-        response = gm.api_create_bot(u'Herbie', team['group_id'], u'http://i.groupme.com/a54d607094860130d3121234e284d7b4', None)
+        response = gm.api_submit_bot(u'Herbie', 
+                                     team['group_id'], 
+                                     u'http://i.groupme.com/a54d607094860130d3121234e284d7b4', 
+                                     u'http://windmill.herokuapp.com/groupme/bot_callback/')
         logger.info(response)
         team[u'bot_id'] = response['bot_id']
     logger.info(pformat(team_dict))

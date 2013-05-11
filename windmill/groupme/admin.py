@@ -6,11 +6,11 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger('windmill.spirit')
 
-# 
-# class Message(admin.ModelAdmin):
-#     list_display = ['id','team','tournament','round_id','createTime','number','message','length','status']
-#     list_filter = ('tournament','team','round_id','status')
-# #    list_editable = ['status']
+ 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['group_id','created_at','name','text']
+    list_filter = ('group_id',)
+#    list_editable = ['status']
 # 
 # 
 # 
@@ -18,4 +18,4 @@ logger = logging.getLogger('windmill.spirit')
 #     list_display = ['id','createTime','receivedTime','team','number','length','status']
 #     list_filter = ('tournament','team','round_id','status')
 
-admin.site.register(Message)
+admin.site.register(Message, MessageAdmin)

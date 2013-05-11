@@ -10,10 +10,14 @@ from django.db import models
     
 class Message(models.Model):
 #     objects = GroupMe_Manager()
-    id = models.CharField(primary_key=True, max_length=50)
-    created_at = models.IntegerField(null=True, blank=True)
+    msg_id = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.BigIntegerField(null=True, blank=True)
     user_id = models.CharField(max_length=20, null=True, blank=True)
     group_id = models.CharField(max_length=20, null=True, blank=True)
     name = models.CharField(max_length=50, blank=True, null=True)
     text = models.CharField(max_length=200, blank=True, null=True)
+    
+    def __unicode__(self):
+        return '{0}: {1}'.format(self.name,self.text)
+
     
