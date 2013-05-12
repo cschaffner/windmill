@@ -146,7 +146,7 @@ def api_submit_bot(name, group_id, avatar_url=None, callback_url=None):
             return b
     response = api_create_bot(name, group_id, avatar_url, callback_url)
     if response['meta']['code'] == 201:
-        return response['response']
+        return response['response']['bot']
     else:
         raise
 

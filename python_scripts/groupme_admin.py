@@ -124,5 +124,11 @@ def add_bots():
         team[u'bot_id'] = response['bot_id']
     logger.info(pformat(team_dict))
 
+def tell_ladies(text):
+    from ww13_fixture import team_dict_with_bots
+    for team_id, team in team_dict_with_bots:
+        if team['tournament_id'] == LADIES:
+            gm.api_bot_message(team['bot_id'], text)
+
 if __name__=="__main__":
     add_bots()
