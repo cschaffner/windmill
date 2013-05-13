@@ -118,17 +118,45 @@ def add_bots():
     for team_id, team in team_dict.iteritems():
         response = gm.api_submit_bot(u'Herbie', 
                                      team['group_id'], 
-                                     u'http://i.groupme.com/a54d607094860130d3121234e284d7b4', 
+                                     u'http://i.groupme.com/12b1f9e09d8a013075a04681181770fd', 
                                      u'http://windmill.herokuapp.com/groupme/bot_callback/')
         logger.info(response)
         team[u'bot_id'] = response['bot_id']
     logger.info(pformat(team_dict))
 
+
+def kill_all_bots():
+    from ww13_fixture import team_dict_with_bots
+    for team_id, team in team_dict_with_bots.iteritems():
+        if u'bot_id' in team:
+            logger.info(gm.api_kill_bot(team['bot_id']))
+            del team['bot_id']
+    logger.info(pformat(team_dict_with_bots))
+        
+
 def tell_ladies(text):
     from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots:
+    for team_id, team in team_dict_with_bots.iteritems():
         if team['tournament_id'] == LADIES:
             gm.api_bot_message(team['bot_id'], text)
 
+def tell_mixed(text):
+    from ww13_fixture import team_dict_with_bots
+    for team_id, team in team_dict_with_bots.iteritems():
+        if team['tournament_id'] == MIXED:
+            gm.api_bot_message(team['bot_id'], text)
+
+def tell_open(text):
+    from ww13_fixture import team_dict_with_bots
+    for team_id, team in team_dict_with_bots.iteritems():
+        if team['tournament_id'] == OPEN:
+            gm.api_bot_message(team['bot_id'], text)
+
+def tell_all(text):
+    from ww13_fixture import team_dict_with_bots
+    for team_id, team in team_dict_with_bots.iteritems():
+        gm.api_bot_message(team['bot_id'], text)
+    
+
 if __name__=="__main__":
-    add_bots()
+    tell_all(u"I'm Herbie and I will keep you posted on the latest and greatest at the Windmill Windup 2013! If you have any questions, send me a message at herbie@windmillwindup.com")

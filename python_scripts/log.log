@@ -567,3 +567,7 @@
 2013-05-10 23:35:21,736 - my_logger - ERROR - Father Abraham's soup of the day
 2013-05-11 14:16:00,351 - my_logger - ERROR - 404
 2013-05-11 14:16:00,352 - my_logger - ERROR - {"meta":{"code":404,"errors":["The requested path does not exist"]},"response":null}
+2013-05-13 21:31:43,702 - my_logger - ERROR - 404
+2013-05-13 21:31:43,704 - my_logger - ERROR - {"meta":{"code":404,"errors":["The requested path does not exist"]},"response":null}
+2013-05-13 21:36:47,968 - my_logger - ERROR - 404
+2013-05-13 21:36:47,971 - my_logger - ERROR - {"meta":{"code":404,"errors":["The requested path does not exist"]},"response":null}
