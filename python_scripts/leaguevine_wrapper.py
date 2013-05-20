@@ -17,7 +17,8 @@ from pprint import pformat
 # Get an instance of a logger
 logger = logging.getLogger('my_logger')
 
-HOST = "https://api.leaguevine.com"
+#HOST = "https://api.leaguevine.com"
+HOST = "http://api.playwithlv.com"
 
 access_token = os.environ['LEAGUEVINE_TOKEN']
 if access_token == None:
@@ -108,8 +109,8 @@ def api_tournament_teams(tournament_id):
 
 def api_nrswissrounds(tournament_id):
 # returns the number of existing swissdraw rounds
-    if settings.OFFLINE:
-        return 6
+#     if settings.OFFLINE:
+#         return 6
     url='{0}/v1/swiss_rounds/?tournament_id={1}&fields=%5Bid%5D'.format(HOST,tournament_id)
     response = requests.get(url=url,headers=my_headers,config=my_config)
     response_dict = json.loads(response.content)
@@ -138,8 +139,8 @@ def api_swissround_final(tournament_id,round_number):
     return final
 
 def api_swissroundinfo_roundonly(tournament_id,round_number=None,ordered=False):
-    if settings.OFFLINE:
-        return swissinfo()
+#     if settings.OFFLINE:
+#         return swissinfo()
      
     if round_number is None:
         if ordered:
@@ -154,8 +155,8 @@ def api_swissroundinfo_roundonly(tournament_id,round_number=None,ordered=False):
 
     
 def api_swissroundinfo(tournament_id,round_number=None,ordered=False):
-    if settings.OFFLINE:
-        return swissinfo()
+#     if settings.OFFLINE:
+#         return swissinfo()
      
     if round_number is None:
         if ordered:
