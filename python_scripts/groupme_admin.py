@@ -106,6 +106,17 @@ def write_web():
                 string = '<li><a target="_blank" href="{0}">{1}</a></li><li class="country">{2}</li>'.format(team['leaguevine_url'],team['name'],team['country'])
                 string += '<li class="groupme"><a target="_blank" href="{0}">join</a></li><li>{1}</li>'.format(team['share_url'],team['status'])
                 print string
+
+def write_excel():
+    from ww13_fixture import team_dict
+    
+    for tournament_id in [OPEN, LADIES, MIXED]:
+        print '\n\n'
+        for team_id, team in team_dict.iteritems():
+            if team['tournament_id'] == tournament_id:
+                string = '{0}\t{1}'.format(team['name'],team['share_url'])
+                print string
+
             
 def change_avatar():
     from ww13_fixture import team_dict   
@@ -159,4 +170,5 @@ def tell_all(text):
     
 
 if __name__=="__main__":
-    tell_all(u"I'm Herbie and I will keep you posted on the latest and greatest at the Windmill Windup 2013! If you have any questions, send me a message at herbie@windmillwindup.com")
+    write_excel()
+#    tell_all(u"I'm Herbie and I will keep you posted on the latest and greatest at the Windmill Windup 2013! If you have any questions, send me a message at herbie@windmillwindup.com")

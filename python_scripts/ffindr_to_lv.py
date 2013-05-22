@@ -68,7 +68,7 @@ SEASON_ID={u'open': 20183,
            u'mixed': 20277}
 
 TOURNAMENT_ID = {u'open': 19176,
-                 u'womwn': 19177,
+                 u'women': 19177,
                  u'mixed': 19178}
 
 # Create a new app and copy the credentials it creates
@@ -80,18 +80,20 @@ BASE_API_URL = "https://api.leaguevine.com"
 TOKEN_URL = 'https://www.leaguevine.com'    
 ONLINE = True
 
-# Make a request for an access_token
-url='{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(TOKEN_URL , CLIENT_ID, CLIENT_PWD)
-if ONLINE:
-    r=requests.get(url)
-    # parse string into Python dictionary
-    r_dict = json.loads(r.content)
-    access_token = r_dict.get('access_token')
-    logger.info(access_token)
-
-    # save headers for this session
-    my_headers={'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'bearer {0}'.format(access_token)}  
-    my_config={'verbose': sys.stderr}
+access_token = os.environ['LEAGUEVINE_TOKEN']
+if access_token == None:
+    # Make a request for an access_token
+    url='{0}/oauth2/token/?client_id={1}&client_secret={2}&grant_type=client_credentials&scope=universal'.format(TOKEN_URL , CLIENT_ID, CLIENT_PWD)
+    if ONLINE:
+        r=requests.get(url)
+        # parse string into Python dictionary
+        r_dict = json.loads(r.content)
+        access_token = r_dict.get('access_token')
+        logger.info(access_token)
+    
+# save headers for this session
+my_headers={'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'bearer {0}'.format(access_token)}  
+my_config={'verbose': sys.stderr}
 
 
 def shortName(longName):
@@ -638,6 +640,14 @@ def upload_teams():
             cc=None
         response=submitTeam(team[0],cc,division)
         logger.debug(pformat(response))
+
+def upload_players():
+    division = u'mixed'
+    teams =c sv.reader(open('/Users/chris/Sites/windmill/windmill/regdata/{0}_2013.csv'.format(division)))
+
+    for team in itertools.islice(teams, 1, 200):
+        response = submitPlayer(team[0], cc, division)
+        logger.debug(pformat(response))
     
 
 def tournament_teams():    
@@ -659,5 +669,5 @@ def tournament_teams():
 
 
 if __name__ == "__main__":
-    upload_teams()
+    upload_players()
     #create_compday()
