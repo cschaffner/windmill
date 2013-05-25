@@ -16,6 +16,8 @@ class Message(models.Model):
     group_id = models.CharField(max_length=20, null=True, blank=True)
     name = models.CharField(max_length=50, blank=True, null=True)
     text = models.CharField(max_length=200, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    post_string = models.CharField(max_length=500, blank=True, null=True)
     
     def __unicode__(self):
         return '{0}: {1}'.format(self.name,self.text)

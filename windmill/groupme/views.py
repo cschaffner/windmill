@@ -30,7 +30,8 @@ def bot_callback(request):
                                      group_id = dict['group_id'],
                                      created_at = dict['created_at'],
                                      name = dict['name'],
-                                     text = dict['text'])
+                                     text = dict['text'],
+                                     post_string = post_list[0][0])
         msg.save()
 # 
 # {u'{"id":"136830022150627694",
