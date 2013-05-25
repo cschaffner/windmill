@@ -17,10 +17,13 @@ from pprint import pformat
 # Get an instance of a logger
 logger = logging.getLogger('my_logger')
 
-#HOST = "https://api.leaguevine.com"
-HOST = "http://api.playwithlv.com"
-
+HOST = "https://api.leaguevine.com"
 access_token = os.environ['LEAGUEVINE_TOKEN']
+
+#HOST = "http://api.playwithlv.com"
+#access_token = os.environ['PLAYWITHLV_TOKEN']
+
+
 if access_token == None:
     # Make a request for an access_token
     if settings.OFFLINE:
@@ -528,7 +531,22 @@ def api_addpool(tournament_id,starttime,name,team_ids=[],time_between_rounds=120
                    "generate_matchups": generate_matchups,
                    "team_ids": team_ids}
     return api_post(url,pool_dict)    
-    
+
+def api_number_players_in_team(team_id):
+    """ returns a tuple x,y where
+        x is the total number of a team on leaguevine with team_id
+        y is the number of claimed players
+    """
+#    https://api.leaguevine.com/v1/team_players/?team_ids=%5B22333%5D&fields=%5Bplayer_id%5D&access_token=f93387ab10
+    url='{0}/v1/team_players/?team_ids=%5B{1}%5D&fields=%5Bplayer%5D&limit=50'.format(HOST,team_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = json.loads(response.content)
+    nr_claimed = 0
+    for player in response_dict['objects']:
+        if player['player']['is_claimed']:
+            nr_claimed += 1
+    return response_dict['meta']['total_count'], nr_claimed
+
 def result_in_swissround(round,team_id):
     for g in round['games']:
         if g['team_1_id']==team_id:

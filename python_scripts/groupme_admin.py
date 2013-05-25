@@ -1,7 +1,10 @@
 import logging, logging.config
+
 import groupme_wrapper as gm
 import leaguevine_wrapper as lv
 from pprint import pformat
+import json
+
 
 LOGGING = {
     'version': 1,
@@ -29,20 +32,20 @@ LOGGING = {
             'formatter': 'file',
             'filename': 'log.log',
             'maxBytes': '1024',
-            'backupCount': '10',  
+            'backupCount': '10',
         }
     },
     'loggers': {
         'my_logger': {
-            'handlers':['console','file'],
+            'handlers':['console', 'file'],
             'propagate': True,
             'level':'INFO',
         }
     }
 }
 
-#FORMAT = '%(asctime)-15s %(message)s'
-#logging.basicConfig(format=FORMAT,level=logging.DEBUG)
+# FORMAT = '%(asctime)-15s %(message)s'
+# logging.basicConfig(format=FORMAT,level=logging.DEBUG)
 
 # Get an instance of a logger
 logging.config.dictConfig(LOGGING)
@@ -83,7 +86,7 @@ def read_web():
         
         # find in team_dict
         found = False
-        for team_id,team in team_dict.iteritems():
+        for team_id, team in team_dict.iteritems():
             if team['name'].lower() == team_name.lower():
                 team[u'country'] = country
                 team[u'status'] = status
@@ -96,79 +99,98 @@ def read_web():
     logger.info(pformat(team_dict))    
 
 def write_web():
-    from ww13_fixture import team_dict
+    team_dict = json.load(open('team_dict.json'))
     
     for tournament_id in [OPEN, LADIES, MIXED]:
         print '\n\n'
         print u'<li>TEAMS</li><li class="country">COUNTRY</li><li class="groupme">GroupMe</li><li>PAID TO DATE</li>'
         for team_id, team in team_dict.iteritems():
             if team['tournament_id'] == tournament_id:
-                string = '<li><a target="_blank" href="{0}">{1}</a></li><li class="country">{2}</li>'.format(team['leaguevine_url'],team['name'],team['country'])
-                string += '<li class="groupme"><a target="_blank" href="{0}">join</a></li><li>{1}</li>'.format(team['share_url'],team['status'])
+                string = '<li><a target="_blank" href="{0}">{1}</a></li><li class="country">{2}</li>'.format(team['leaguevine_url'], team['name'], team['country'])
+                string += '<li class="groupme"><a target="_blank" href="{0}">join</a></li><li>{1}</li>'.format(team['share_url'], team['status'])
                 print string
 
 def write_excel():
-    from ww13_fixture import team_dict
-    
+    team_dict = json.load(open('team_dict.json'))    
     for tournament_id in [OPEN, LADIES, MIXED]:
         print '\n\n'
         for team_id, team in team_dict.iteritems():
             if team['tournament_id'] == tournament_id:
-                string = '{0}\t{1}'.format(team['name'],team['share_url'])
+                string = '{0}\t{1}'.format(team['name'], team['share_url'])
+                print string
+
+def write_numbers():
+    team_dict = json.load(open('team_dict.json'))    
+    for tournament_id in [OPEN, LADIES, MIXED]:
+        print '\n\n'
+        for team_id, team in team_dict.iteritems():
+            if team['tournament_id'] == tournament_id:
+                string = '{1}\t{2}\t{3}\t{0}'.format(team['name'], team['nr_members_groupme'], team['nr_members_lv'], team['nr_claimed_lv'])
                 print string
 
             
 def change_avatar():
-    from ww13_fixture import team_dict   
+    team_dict = json.load(open('team_dict.json'))   
     for team_id, team in team_dict.iteritems():
         response = gm.api_change_group(team['group_id'], None, None, u'http://i.groupme.com/9e1882509c600130f2485a84f3f294ce', True)
         logger.info(response)
 
 def add_bots():
-    from ww13_fixture import team_dict   
+    team_dict = json.load(open('team_dict.json'))   
     for team_id, team in team_dict.iteritems():
-        response = gm.api_submit_bot(u'Herbie', 
-                                     team['group_id'], 
-                                     u'http://i.groupme.com/12b1f9e09d8a013075a04681181770fd', 
+        response = gm.api_submit_bot(u'Herbie',
+                                     team['group_id'],
+                                     u'http://i.groupme.com/12b1f9e09d8a013075a04681181770fd',
                                      u'http://windmill.herokuapp.com/groupme/bot_callback/')
         logger.info(response)
         team[u'bot_id'] = response['bot_id']
     logger.info(pformat(team_dict))
 
-
 def kill_all_bots():
-    from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots.iteritems():
+    team_dict = json.load(open('team_dict.json'))
+    for team_id, team in team_dict.iteritems():
         if u'bot_id' in team:
             logger.info(gm.api_kill_bot(team['bot_id']))
             del team['bot_id']
-    logger.info(pformat(team_dict_with_bots))
+    logger.info(pformat(team_dict))
         
 
 def tell_ladies(text):
-    from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots.iteritems():
+    team_dict = json.load(open('team_dict.json'))
+    for team_id, team in team_dict.iteritems():
         if team['tournament_id'] == LADIES:
             gm.api_bot_message(team['bot_id'], text)
 
 def tell_mixed(text):
-    from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots.iteritems():
+    team_dict = json.load(open('team_dict.json'))
+    for team_id, team in team_dict.iteritems():
         if team['tournament_id'] == MIXED:
             gm.api_bot_message(team['bot_id'], text)
 
 def tell_open(text):
-    from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots.iteritems():
+    team_dict = json.load(open('team_dict.json'))
+    for team_id, team in team_dict.iteritems():
         if team['tournament_id'] == OPEN:
             gm.api_bot_message(team['bot_id'], text)
 
 def tell_all(text):
-    from ww13_fixture import team_dict_with_bots
-    for team_id, team in team_dict_with_bots.iteritems():
+    team_dict = json.load(open('team_dict.json'))    
+    for team_id, team in team_dict.iteritems():
         gm.api_bot_message(team['bot_id'], text)
     
+def update_nr_members():
+    from ww13_fixture import team_dict_with_bots
+    team_dict = team_dict_with_bots
+#    team_dict = json.load(open('team_dict.json'))
+    for team_id, team in team_dict.iteritems():
+        group = gm.api_get_group(team['group_id'])['response']
+        nr_players, nr_claimed = lv.api_number_players_in_team(team_id)
+        team['nr_members_groupme'] = len(group['members'])
+        team['nr_members_lv'] = nr_players
+        team['nr_claimed_lv'] = nr_claimed
+    json.dump(team_dict, open('team_dict.json','w'), indent=3)
 
-if __name__=="__main__":
-    write_excel()
+        
+if __name__ == "__main__":
+    write_numbers()
 #    tell_all(u"I'm Herbie and I will keep you posted on the latest and greatest at the Windmill Windup 2013! If you have any questions, send me a message at herbie@windmillwindup.com")

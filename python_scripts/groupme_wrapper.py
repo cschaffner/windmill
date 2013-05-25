@@ -109,9 +109,25 @@ def api_update(url,updatedict={}):
 def api_get_groups():
     url = '{0}/groups'.format(GROUPME)
     response = requests.get(url=url,headers=my_headers,config=my_config)
-    logger.info(response.content)
+#    logger.info(response.content)
     response_dict = json.loads(response.content)
     return response_dict
+
+
+def api_get_former_groups():
+    url = '{0}/groups/former'.format(GROUPME)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = json.loads(response.content)
+    logger.info(pformat(response_dict))
+    return response_dict
+
+def api_get_group(group_id):
+    url = '{0}/groups/{1}'.format(GROUPME, group_id)
+    response = requests.get(url=url,headers=my_headers,config=my_config)
+    response_dict = json.loads(response.content)
+#    logger.info(pformat(response_dict))
+    return response_dict
+
 
 def api_get_bots():
     url = '{0}/bots'.format(GROUPME)
