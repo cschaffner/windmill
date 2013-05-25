@@ -88,13 +88,13 @@ def team_name(obj):
                  u'4410652': u'Cranberry Snack',
                  u'4410653': u'M.U.C.',
                  u'4410654': u'Good Lord!'}
-    return team_dict[obj]
+    return team_dict[obj.group_id]
 
 team_name.short_description = 'Team name'
 
  
 class MessageAdmin(admin.ModelAdmin):
-    list_display = [team_name,'created_at','name','text']
+    list_display = [team_name,'datetime','name','text']
     list_filter = ('group_id',)
 #    list_editable = ['status']
 # 
