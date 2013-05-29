@@ -178,6 +178,14 @@ def tell_all(text):
     for team_id, team in team_dict.iteritems():
         gm.api_bot_message(team['bot_id'], text)
     
+def lv_message():
+    team_dict = json.load(open('team_dict.json')) 
+    for team_id, team in team_dict.iteritems():
+        text = u"I'm getting lazy after all these years and I need you, my beloved players, to upload your own scores via Leaguevine. " 
+        text += u"As preparation, please go to your team page {0}roster/ ".format(team['leaguevine_url'])
+        text += u"and fill in your team roster."   
+        gm.api_bot_message(team['bot_id'], text)
+
 def update_nr_members():
     from ww13_fixture import team_dict_with_bots
     team_dict = team_dict_with_bots
@@ -192,5 +200,9 @@ def update_nr_members():
 
         
 if __name__ == "__main__":
-    write_numbers()
+    lv_message()
+    
+#     update_nr_members()
+#     write_numbers()
+
 #    tell_all(u"I'm Herbie and I will keep you posted on the latest and greatest at the Windmill Windup 2013! If you have any questions, send me a message at herbie@windmillwindup.com")
